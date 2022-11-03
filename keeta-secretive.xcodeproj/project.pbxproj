@@ -1,0 +1,581 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
+		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
+		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
+		AEB391AA29146F41006A0F88 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A929146F41006A0F88 /* Preview Assets.xcassets */; };
+		AEB391B529146F41006A0F88 /* keeta_secretiveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391B429146F41006A0F88 /* keeta_secretiveTests.swift */; };
+		AEB391BF29146F41006A0F88 /* keeta_secretiveUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391BE29146F41006A0F88 /* keeta_secretiveUITests.swift */; };
+		AEB391C129146F41006A0F88 /* keeta_secretiveUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391C029146F41006A0F88 /* keeta_secretiveUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AEB391B129146F41006A0F88 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AEB3919729146F40006A0F88 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AEB3919E29146F40006A0F88;
+			remoteInfo = "keeta-secretive";
+		};
+		AEB391BB29146F41006A0F88 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AEB3919729146F40006A0F88 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AEB3919E29146F40006A0F88;
+			remoteInfo = "keeta-secretive";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		AEB3919F29146F40006A0F88 /* keeta-secretive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "keeta-secretive.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
+		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AEB391A629146F41006A0F88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AEB391A929146F41006A0F88 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = keeta_secretive.entitlements; sourceTree = "<group>"; };
+		AEB391B029146F41006A0F88 /* keeta-secretiveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "keeta-secretiveTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AEB391B429146F41006A0F88 /* keeta_secretiveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveTests.swift; sourceTree = "<group>"; };
+		AEB391BA29146F41006A0F88 /* keeta-secretiveUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "keeta-secretiveUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AEB391BE29146F41006A0F88 /* keeta_secretiveUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveUITests.swift; sourceTree = "<group>"; };
+		AEB391C029146F41006A0F88 /* keeta_secretiveUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AEB3919C29146F40006A0F88 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEB391AD29146F41006A0F88 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEB391B729146F41006A0F88 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AEB3919629146F40006A0F88 = {
+			isa = PBXGroup;
+			children = (
+				AEB391A129146F40006A0F88 /* keeta-secretive */,
+				AEB391B329146F41006A0F88 /* keeta-secretiveTests */,
+				AEB391BD29146F41006A0F88 /* keeta-secretiveUITests */,
+				AEB391A029146F40006A0F88 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AEB391A029146F40006A0F88 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AEB3919F29146F40006A0F88 /* keeta-secretive.app */,
+				AEB391B029146F41006A0F88 /* keeta-secretiveTests.xctest */,
+				AEB391BA29146F41006A0F88 /* keeta-secretiveUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AEB391A129146F40006A0F88 /* keeta-secretive */ = {
+			isa = PBXGroup;
+			children = (
+				AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */,
+				AEB391A429146F40006A0F88 /* ContentView.swift */,
+				AEB391A629146F41006A0F88 /* Assets.xcassets */,
+				AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */,
+				AEB391A829146F41006A0F88 /* Preview Content */,
+			);
+			path = "keeta-secretive";
+			sourceTree = "<group>";
+		};
+		AEB391A829146F41006A0F88 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				AEB391A929146F41006A0F88 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		AEB391B329146F41006A0F88 /* keeta-secretiveTests */ = {
+			isa = PBXGroup;
+			children = (
+				AEB391B429146F41006A0F88 /* keeta_secretiveTests.swift */,
+			);
+			path = "keeta-secretiveTests";
+			sourceTree = "<group>";
+		};
+		AEB391BD29146F41006A0F88 /* keeta-secretiveUITests */ = {
+			isa = PBXGroup;
+			children = (
+				AEB391BE29146F41006A0F88 /* keeta_secretiveUITests.swift */,
+				AEB391C029146F41006A0F88 /* keeta_secretiveUITestsLaunchTests.swift */,
+			);
+			path = "keeta-secretiveUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AEB3919E29146F40006A0F88 /* keeta-secretive */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AEB391C429146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretive" */;
+			buildPhases = (
+				AEB3919B29146F40006A0F88 /* Sources */,
+				AEB3919C29146F40006A0F88 /* Frameworks */,
+				AEB3919D29146F40006A0F88 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "keeta-secretive";
+			productName = "keeta-secretive";
+			productReference = AEB3919F29146F40006A0F88 /* keeta-secretive.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AEB391AF29146F41006A0F88 /* keeta-secretiveTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AEB391C729146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretiveTests" */;
+			buildPhases = (
+				AEB391AC29146F41006A0F88 /* Sources */,
+				AEB391AD29146F41006A0F88 /* Frameworks */,
+				AEB391AE29146F41006A0F88 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AEB391B229146F41006A0F88 /* PBXTargetDependency */,
+			);
+			name = "keeta-secretiveTests";
+			productName = "keeta-secretiveTests";
+			productReference = AEB391B029146F41006A0F88 /* keeta-secretiveTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AEB391B929146F41006A0F88 /* keeta-secretiveUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AEB391CA29146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretiveUITests" */;
+			buildPhases = (
+				AEB391B629146F41006A0F88 /* Sources */,
+				AEB391B729146F41006A0F88 /* Frameworks */,
+				AEB391B829146F41006A0F88 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AEB391BC29146F41006A0F88 /* PBXTargetDependency */,
+			);
+			name = "keeta-secretiveUITests";
+			productName = "keeta-secretiveUITests";
+			productReference = AEB391BA29146F41006A0F88 /* keeta-secretiveUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AEB3919729146F40006A0F88 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1400;
+				LastUpgradeCheck = 1400;
+				TargetAttributes = {
+					AEB3919E29146F40006A0F88 = {
+						CreatedOnToolsVersion = 14.0.1;
+					};
+					AEB391AF29146F41006A0F88 = {
+						CreatedOnToolsVersion = 14.0.1;
+						TestTargetID = AEB3919E29146F40006A0F88;
+					};
+					AEB391B929146F41006A0F88 = {
+						CreatedOnToolsVersion = 14.0.1;
+						TestTargetID = AEB3919E29146F40006A0F88;
+					};
+				};
+			};
+			buildConfigurationList = AEB3919A29146F40006A0F88 /* Build configuration list for PBXProject "keeta-secretive" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AEB3919629146F40006A0F88;
+			productRefGroup = AEB391A029146F40006A0F88 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AEB3919E29146F40006A0F88 /* keeta-secretive */,
+				AEB391AF29146F41006A0F88 /* keeta-secretiveTests */,
+				AEB391B929146F41006A0F88 /* keeta-secretiveUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AEB3919D29146F40006A0F88 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEB391AA29146F41006A0F88 /* Preview Assets.xcassets in Resources */,
+				AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEB391AE29146F41006A0F88 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEB391B829146F41006A0F88 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AEB3919B29146F40006A0F88 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
+				AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEB391AC29146F41006A0F88 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEB391B529146F41006A0F88 /* keeta_secretiveTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEB391B629146F41006A0F88 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEB391C129146F41006A0F88 /* keeta_secretiveUITestsLaunchTests.swift in Sources */,
+				AEB391BF29146F41006A0F88 /* keeta_secretiveUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AEB391B229146F41006A0F88 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AEB3919E29146F40006A0F88 /* keeta-secretive */;
+			targetProxy = AEB391B129146F41006A0F88 /* PBXContainerItemProxy */;
+		};
+		AEB391BC29146F41006A0F88 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AEB3919E29146F40006A0F88 /* keeta-secretive */;
+			targetProxy = AEB391BB29146F41006A0F88 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AEB391C229146F41006A0F88 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AEB391C329146F41006A0F88 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		AEB391C529146F41006A0F88 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "keeta-secretive/keeta_secretive.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"keeta-secretive/Preview Content\"";
+				DEVELOPMENT_TEAM = 2BG69HN56W;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keeta.secretive.keeta-secretive";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AEB391C629146F41006A0F88 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "keeta-secretive/keeta_secretive.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"keeta-secretive/Preview Content\"";
+				DEVELOPMENT_TEAM = 2BG69HN56W;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keeta.secretive.keeta-secretive";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		AEB391C829146F41006A0F88 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2BG69HN56W;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keeta.secretive.keeta-secretiveTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/keeta-secretive.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/keeta-secretive";
+			};
+			name = Debug;
+		};
+		AEB391C929146F41006A0F88 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2BG69HN56W;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keeta.secretive.keeta-secretiveTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/keeta-secretive.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/keeta-secretive";
+			};
+			name = Release;
+		};
+		AEB391CB29146F41006A0F88 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2BG69HN56W;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keeta.secretive.keeta-secretiveUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "keeta-secretive";
+			};
+			name = Debug;
+		};
+		AEB391CC29146F41006A0F88 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2BG69HN56W;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keeta.secretive.keeta-secretiveUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "keeta-secretive";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AEB3919A29146F40006A0F88 /* Build configuration list for PBXProject "keeta-secretive" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEB391C229146F41006A0F88 /* Debug */,
+				AEB391C329146F41006A0F88 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AEB391C429146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretive" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEB391C529146F41006A0F88 /* Debug */,
+				AEB391C629146F41006A0F88 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AEB391C729146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretiveTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEB391C829146F41006A0F88 /* Debug */,
+				AEB391C929146F41006A0F88 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AEB391CA29146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretiveUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEB391CB29146F41006A0F88 /* Debug */,
+				AEB391CC29146F41006A0F88 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AEB3919729146F40006A0F88 /* Project object */;
+}
