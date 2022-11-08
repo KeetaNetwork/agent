@@ -10,7 +10,6 @@
 		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
-		AEB391AA29146F41006A0F88 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A929146F41006A0F88 /* Preview Assets.xcassets */; };
 		AEB391B529146F41006A0F88 /* keeta_secretiveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391B429146F41006A0F88 /* keeta_secretiveTests.swift */; };
 		AEB391CF291470A9006A0F88 /* SocketController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391CE291470A9006A0F88 /* SocketController.swift */; };
 		AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391D0291470E1006A0F88 /* FileHandle+ReadWrite.swift */; };
@@ -41,13 +40,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AEB3919F29146F40006A0F88 /* keeta-secretive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "keeta-secretive.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AEB3919F29146F40006A0F88 /* keeta-agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "keeta-agent.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
 		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AEB391A629146F41006A0F88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		AEB391A929146F41006A0F88 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = keeta_secretive.entitlements; sourceTree = "<group>"; };
-		AEB391B029146F41006A0F88 /* keeta-secretiveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "keeta-secretiveTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AEB391B029146F41006A0F88 /* keeta-agentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "keeta-agentTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391B429146F41006A0F88 /* keeta_secretiveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveTests.swift; sourceTree = "<group>"; };
 		AEB391CE291470A9006A0F88 /* SocketController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketController.swift; sourceTree = "<group>"; };
 		AEB391D0291470E1006A0F88 /* FileHandle+ReadWrite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileHandle+ReadWrite.swift"; sourceTree = "<group>"; };
@@ -88,7 +86,7 @@
 		AEB3919629146F40006A0F88 = {
 			isa = PBXGroup;
 			children = (
-				AEB391A129146F40006A0F88 /* keeta-secretive */,
+				AEB391A129146F40006A0F88 /* keeta-agent */,
 				AEB391B329146F41006A0F88 /* keeta-secretiveTests */,
 				AEB391A029146F40006A0F88 /* Products */,
 			);
@@ -97,13 +95,13 @@
 		AEB391A029146F40006A0F88 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AEB3919F29146F40006A0F88 /* keeta-secretive.app */,
-				AEB391B029146F41006A0F88 /* keeta-secretiveTests.xctest */,
+				AEB3919F29146F40006A0F88 /* keeta-agent.app */,
+				AEB391B029146F41006A0F88 /* keeta-agentTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AEB391A129146F40006A0F88 /* keeta-secretive */ = {
+		AEB391A129146F40006A0F88 /* keeta-agent */ = {
 			isa = PBXGroup;
 			children = (
 				AEB3922E2919B397006A0F88 /* Setup */,
@@ -114,17 +112,8 @@
 				AEB391A629146F41006A0F88 /* Assets.xcassets */,
 				AEB3922F2919B3D7006A0F88 /* AppDelegate.swift */,
 				AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */,
-				AEB391A829146F41006A0F88 /* Preview Content */,
 			);
-			path = "keeta-secretive";
-			sourceTree = "<group>";
-		};
-		AEB391A829146F41006A0F88 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				AEB391A929146F41006A0F88 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
+			path = "keeta-agent";
 			sourceTree = "<group>";
 		};
 		AEB391B329146F41006A0F88 /* keeta-secretiveTests */ = {
@@ -174,9 +163,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AEB3919E29146F40006A0F88 /* keeta-secretive */ = {
+		AEB3919E29146F40006A0F88 /* keeta-agent */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AEB391C429146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretive" */;
+			buildConfigurationList = AEB391C429146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-agent" */;
 			buildPhases = (
 				AEB3919B29146F40006A0F88 /* Sources */,
 				AEB3919C29146F40006A0F88 /* Frameworks */,
@@ -186,14 +175,14 @@
 			);
 			dependencies = (
 			);
-			name = "keeta-secretive";
+			name = "keeta-agent";
 			productName = "keeta-secretive";
-			productReference = AEB3919F29146F40006A0F88 /* keeta-secretive.app */;
+			productReference = AEB3919F29146F40006A0F88 /* keeta-agent.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AEB391AF29146F41006A0F88 /* keeta-secretiveTests */ = {
+		AEB391AF29146F41006A0F88 /* keeta-agentTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AEB391C729146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretiveTests" */;
+			buildConfigurationList = AEB391C729146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-agentTests" */;
 			buildPhases = (
 				AEB391AC29146F41006A0F88 /* Sources */,
 				AEB391AD29146F41006A0F88 /* Frameworks */,
@@ -204,9 +193,9 @@
 			dependencies = (
 				AEB391B229146F41006A0F88 /* PBXTargetDependency */,
 			);
-			name = "keeta-secretiveTests";
+			name = "keeta-agentTests";
 			productName = "keeta-secretiveTests";
-			productReference = AEB391B029146F41006A0F88 /* keeta-secretiveTests.xctest */;
+			productReference = AEB391B029146F41006A0F88 /* keeta-agentTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -228,7 +217,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AEB3919A29146F40006A0F88 /* Build configuration list for PBXProject "keeta-secretive" */;
+			buildConfigurationList = AEB3919A29146F40006A0F88 /* Build configuration list for PBXProject "keeta-agent" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -241,8 +230,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AEB3919E29146F40006A0F88 /* keeta-secretive */,
-				AEB391AF29146F41006A0F88 /* keeta-secretiveTests */,
+				AEB3919E29146F40006A0F88 /* keeta-agent */,
+				AEB391AF29146F41006A0F88 /* keeta-agentTests */,
 			);
 		};
 /* End PBXProject section */
@@ -252,7 +241,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEB391AA29146F41006A0F88 /* Preview Assets.xcassets in Resources */,
 				AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -305,7 +293,7 @@
 /* Begin PBXTargetDependency section */
 		AEB391B229146F41006A0F88 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AEB3919E29146F40006A0F88 /* keeta-secretive */;
+			target = AEB3919E29146F40006A0F88 /* keeta-agent */;
 			targetProxy = AEB391B129146F41006A0F88 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -429,22 +417,23 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "keeta-secretive/keeta_secretive.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "keeta-agent/keeta_secretive.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"keeta-secretive/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 2BG69HN56W;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Keeta Agent";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.keeta.secretive.keeta-secretive";
+				PRODUCT_BUNDLE_IDENTIFIER = com.keeta.agent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -456,22 +445,23 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "keeta-secretive/keeta_secretive.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "keeta-agent/keeta_secretive.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"keeta-secretive/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 2BG69HN56W;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Keeta Agent";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.keeta.secretive.keeta-secretive";
+				PRODUCT_BUNDLE_IDENTIFIER = com.keeta.agent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -493,7 +483,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/keeta-secretive.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/keeta-secretive";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/keeta-agent.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/keeta-agent";
 			};
 			name = Debug;
 		};
@@ -512,14 +502,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/keeta-secretive.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/keeta-secretive";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/keeta-agent.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/keeta-agent";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AEB3919A29146F40006A0F88 /* Build configuration list for PBXProject "keeta-secretive" */ = {
+		AEB3919A29146F40006A0F88 /* Build configuration list for PBXProject "keeta-agent" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AEB391C229146F41006A0F88 /* Debug */,
@@ -528,7 +518,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AEB391C429146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretive" */ = {
+		AEB391C429146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-agent" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AEB391C529146F41006A0F88 /* Debug */,
@@ -537,7 +527,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AEB391C729146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-secretiveTests" */ = {
+		AEB391C729146F41006A0F88 /* Build configuration list for PBXNativeTarget "keeta-agentTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AEB391C829146F41006A0F88 /* Debug */,

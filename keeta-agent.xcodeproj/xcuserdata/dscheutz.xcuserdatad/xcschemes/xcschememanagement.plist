@@ -4,10 +4,23 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>keeta-secretive.xcscheme_^#shared#^_</key>
+		<key>keeta-agent.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>AEB3919E29146F40006A0F88</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>AEB391AF29146F41006A0F88</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>
