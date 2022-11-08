@@ -9,6 +9,11 @@ import SwiftUI
 
 @main
 struct keeta_secretiveApp: App {
+    
+    init() {
+        // TODO: setup
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
