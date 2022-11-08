@@ -6,6 +6,19 @@
 //
 
 import Foundation
+import keeta_secure_storage
+import KeychainSwift
+
+class Storage: ObservableObject {
+
+    let storage = SecureStorage(keychain: KeychainSwift())
+    @Published private(set) var token: String?
+    
+    func storeToken(token: String) {
+        try? storage.store(token, for: "keeta_agent_github")
+        self.token = try? storage.object(for: "keeta_agent_github")
+    }
+}
 
 class API {
     var session = URLSession.shared
@@ -63,16 +76,13 @@ struct GithubGPG: Codable {
 }
 
 struct GithubAPI {
-    static func pullUser(token: String) {
-        Task {
-            guard let url = URL(string: "https://api.github.com/user") else { return }
-            var request = URLRequest(url: url)
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            request.httpMethod = "GET"
-            
-            let res: GithubUser = try await API().load(from: request)
-            print(res)
-        }
+    static func pullUser(token: String) async -> GithubUser? {
+        guard let url = URL(string: "https://api.github.com/user") else { return nil }
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "GET"
+        
+        return try? await API().load(from: request)
     }
     
     static func uploadGPG(token: String, key: String) {
@@ -96,46 +106,3 @@ struct GithubAPI {
         
     }
 }
-
-// https://agent.keeta.com/api/github/oauth/login?scopes=write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback
-
-// {"token":"gho_2OpmcGjbbG55DTQrKtZaD4l8uKD4"}
-
-// -H "Authorization: Bearer <YOUR-TOKEN>" \
-
-// GET https://api.github.com/user
-
-//{
-//    "login": "schenkty",
-//    "id": 7807169,
-//    "node_id": "MDQ6VXNlcjc4MDcxNjk=",
-//    "avatar_url": "https://avatars.githubusercontent.com/u/7807169?v=4",
-//    "gravatar_id": "",
-//    "url": "https://api.github.com/users/schenkty",
-//    "html_url": "https://github.com/schenkty",
-//    "followers_url": "https://api.github.com/users/schenkty/followers",
-//    "following_url": "https://api.github.com/users/schenkty/following{/other_user}",
-//    "gists_url": "https://api.github.com/users/schenkty/gists{/gist_id}",
-//    "starred_url": "https://api.github.com/users/schenkty/starred{/owner}{/repo}",
-//    "subscriptions_url": "https://api.github.com/users/schenkty/subscriptions",
-//    "organizations_url": "https://api.github.com/users/schenkty/orgs",
-//    "repos_url": "https://api.github.com/users/schenkty/repos",
-//    "events_url": "https://api.github.com/users/schenkty/events{/privacy}",
-//    "received_events_url": "https://api.github.com/users/schenkty/received_events",
-//    "type": "User",
-//    "site_admin": false,
-//    "name": "Ty Schenk",
-//    "company": "@KeetaPay",
-//    "blog": "https://keeta.com",
-//    "location": "Los Angeles, CA",
-//    "email": null,
-//    "hireable": null,
-//    "bio": "CEO @KeetaPay,\r\npreviously @turo, @brainblocks ",
-//    "twitter_username": "schenkty",
-//    "public_repos": 47,
-//    "public_gists": 2,
-//    "followers": 23,
-//    "following": 23,
-//    "created_at": "2014-06-05T15:53:48Z",
-//    "updated_at": "2022-11-08T07:16:09Z"
-//}

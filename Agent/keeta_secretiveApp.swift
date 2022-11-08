@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import KeychainAccess
 
 @main
 struct keeta_secretiveApp: App {
@@ -19,8 +20,8 @@ struct keeta_secretiveApp: App {
             ContentView()
                 .handlesExternalEvents(preferring: ["keeta-agent://"], allowing: ["*"])
                 .onOpenURL { url in
-                    guard let token = url.description.GithubToken()?.value else { return }
-                    GithubAPI.pullUser(token: token)
+                    guard let githubToken = url.description.GithubToken()?.value else { return }
+                    GithubAPI.pullUser()
                 }
             
         }

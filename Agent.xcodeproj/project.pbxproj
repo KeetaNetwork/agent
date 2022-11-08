@@ -10,6 +10,16 @@
 		02780041291A28F000B8BA11 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780040291A28F000B8BA11 /* Color.swift */; };
 		02780044291A4D7A00B8BA11 /* OAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780043291A4D7A00B8BA11 /* OAuth.swift */; };
 		02780047291A539000B8BA11 /* Link.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780046291A539000B8BA11 /* Link.swift */; };
+		0278004A291A615500B8BA11 /* KeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780049291A615500B8BA11 /* KeyView.swift */; };
+		0278004C291A658B00B8BA11 /* KeetaButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278004B291A658B00B8BA11 /* KeetaButton.swift */; };
+		0278004E291A65F000B8BA11 /* GithubButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278004D291A65F000B8BA11 /* GithubButton.swift */; };
+		02780052291A663700B8BA11 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780051291A663700B8BA11 /* HeaderView.swift */; };
+		02780054291A68F500B8BA11 /* KeyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780053291A68F500B8BA11 /* KeyHeader.swift */; };
+		02780056291A691B00B8BA11 /* KeyDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780055291A691B00B8BA11 /* KeyDivider.swift */; };
+		02780058291A693E00B8BA11 /* KeyText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780057291A693E00B8BA11 /* KeyText.swift */; };
+		0278005A291A696400B8BA11 /* KeyIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780059291A696400B8BA11 /* KeyIcon.swift */; };
+		0278005C291A699A00B8BA11 /* KeyCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278005B291A699A00B8BA11 /* KeyCopy.swift */; };
+		02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */ = {isa = PBXBuildFile; productRef = 02780062291A6DBF00B8BA11 /* keeta-secure-storage */; };
 		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
@@ -47,6 +57,15 @@
 		02780043291A4D7A00B8BA11 /* OAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuth.swift; sourceTree = "<group>"; };
 		02780045291A4FB200B8BA11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		02780046291A539000B8BA11 /* Link.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Link.swift; sourceTree = "<group>"; };
+		02780049291A615500B8BA11 /* KeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyView.swift; sourceTree = "<group>"; };
+		0278004B291A658B00B8BA11 /* KeetaButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeetaButton.swift; sourceTree = "<group>"; };
+		0278004D291A65F000B8BA11 /* GithubButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GithubButton.swift; sourceTree = "<group>"; };
+		02780051291A663700B8BA11 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
+		02780053291A68F500B8BA11 /* KeyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyHeader.swift; sourceTree = "<group>"; };
+		02780055291A691B00B8BA11 /* KeyDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyDivider.swift; sourceTree = "<group>"; };
+		02780057291A693E00B8BA11 /* KeyText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyText.swift; sourceTree = "<group>"; };
+		02780059291A696400B8BA11 /* KeyIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyIcon.swift; sourceTree = "<group>"; };
+		0278005B291A699A00B8BA11 /* KeyCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCopy.swift; sourceTree = "<group>"; };
 		AEB3919F29146F40006A0F88 /* Agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
 		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -77,6 +96,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,6 +125,30 @@
 				02780043291A4D7A00B8BA11 /* OAuth.swift */,
 			);
 			path = Github;
+			sourceTree = "<group>";
+		};
+		02780048291A613400B8BA11 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0278004B291A658B00B8BA11 /* KeetaButton.swift */,
+				0278004D291A65F000B8BA11 /* GithubButton.swift */,
+				02780051291A663700B8BA11 /* HeaderView.swift */,
+				0278005D291A69C700B8BA11 /* Key */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		0278005D291A69C700B8BA11 /* Key */ = {
+			isa = PBXGroup;
+			children = (
+				02780049291A615500B8BA11 /* KeyView.swift */,
+				02780053291A68F500B8BA11 /* KeyHeader.swift */,
+				02780055291A691B00B8BA11 /* KeyDivider.swift */,
+				02780057291A693E00B8BA11 /* KeyText.swift */,
+				02780059291A696400B8BA11 /* KeyIcon.swift */,
+				0278005B291A699A00B8BA11 /* KeyCopy.swift */,
+			);
+			path = Key;
 			sourceTree = "<group>";
 		};
 		AEB3919629146F40006A0F88 = {
@@ -136,6 +180,7 @@
 				AEB391CD29147097006A0F88 /* SSH Agent */,
 				AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */,
 				AEB391A429146F40006A0F88 /* ContentView.swift */,
+				02780048291A613400B8BA11 /* Views */,
 				AEB391A629146F41006A0F88 /* Assets.xcassets */,
 				AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */,
 				AEF00416291A1AE600EA576C /* Dependencies.swift */,
@@ -203,6 +248,9 @@
 			dependencies = (
 			);
 			name = Agent;
+			packageProductDependencies = (
+				02780062291A6DBF00B8BA11 /* keeta-secure-storage */,
+			);
 			productName = "keeta-secretive";
 			productReference = AEB3919F29146F40006A0F88 /* Agent.app */;
 			productType = "com.apple.product-type.application";
@@ -253,6 +301,9 @@
 				Base,
 			);
 			mainGroup = AEB3919629146F40006A0F88;
+			packageReferences = (
+				02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */,
+			);
 			productRefGroup = AEB391A029146F40006A0F88 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -286,27 +337,36 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0278004A291A615500B8BA11 /* KeyView.swift in Sources */,
 				AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */,
 				AEB391CF291470A9006A0F88 /* SocketController.swift in Sources */,
 				AEB391D329147145006A0F88 /* SSHAgent.swift in Sources */,
+				0278005C291A699A00B8BA11 /* KeyCopy.swift in Sources */,
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
 				AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */,
 				AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */,
 				AEB391D5291471EE006A0F88 /* RequestType.swift in Sources */,
 				AEB392342919CB9C006A0F88 /* Data+Extract.swift in Sources */,
+				0278005A291A696400B8BA11 /* KeyIcon.swift in Sources */,
 				AEB3923C2919D5E0006A0F88 /* PublicKeyFileStoreController.swift in Sources */,
 				AEB391D729147208006A0F88 /* ResponseType.swift in Sources */,
 				AEB391DC29147485006A0F88 /* Secret.swift in Sources */,
+				0278004E291A65F000B8BA11 /* GithubButton.swift in Sources */,
 				02780041291A28F000B8BA11 /* Color.swift in Sources */,
 				AEB391D9291472AF006A0F88 /* OpenSSHKeyWriter.swift in Sources */,
+				02780052291A663700B8BA11 /* HeaderView.swift in Sources */,
 				AEB392362919CDE3006A0F88 /* PersistentAuthenticationContext.swift in Sources */,
 				AEB392322919B3EA006A0F88 /* Setup.swift in Sources */,
+				02780054291A68F500B8BA11 /* KeyHeader.swift in Sources */,
 				02780047291A539000B8BA11 /* Link.swift in Sources */,
 				AEB3923A2919D2A7006A0F88 /* OpenSSHReader.swift in Sources */,
+				0278004C291A658B00B8BA11 /* KeetaButton.swift in Sources */,
 				AEB391DE291474A2006A0F88 /* Algorithm.swift in Sources */,
 				AEB391E0291475FC006A0F88 /* SecureEnclaveStore.swift in Sources */,
 				AEB392382919CFD9006A0F88 /* SecretStore.swift in Sources */,
 				02780044291A4D7A00B8BA11 /* OAuth.swift in Sources */,
+				02780058291A693E00B8BA11 /* KeyText.swift in Sources */,
+				02780056291A691B00B8BA11 /* KeyDivider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -571,6 +631,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/KeetaPay/keeta-storage.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		02780062291A6DBF00B8BA11 /* keeta-secure-storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */;
+			productName = "keeta-secure-storage";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AEB3919729146F40006A0F88 /* Project object */;
 }
