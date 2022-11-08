@@ -6,23 +6,18 @@ class SecureEnclaveStore: SecretStore {
     
     @Published public private(set) var secrets: [Secret] = []
     
-    private let keyTag = "com.maxgoedjen.secretive.secureenclave.key".data(using: .utf8)! as CFData
+    private let keyTag = "com.keeta.agent.key".data(using: .utf8)! as CFData
     private let keyType = kSecAttrKeyTypeECSECPrimeRandom
-    private let unauthenticatedThreshold: TimeInterval = 0.05
+    private let unauthenticatedThreshold: TimeInterval = 1
     private var persistedAuthenticationContexts: [Secret.ID: PersistentAuthenticationContext] = [:]
     
     init() {
         loadSecrets()
     }
     
-    func create(name: String, requiresAuthentication: Bool) throws {
+    func create(name: String) throws {
         var accessError: SecurityError?
-        let flags: SecAccessControlCreateFlags
-        if requiresAuthentication {
-            flags = [.privateKeyUsage, .userPresence]
-        } else {
-            flags = .privateKeyUsage
-        }
+        let flags: SecAccessControlCreateFlags = [.privateKeyUsage, .userPresence]
         let access =
             SecAccessControlCreateWithFlags(kCFAllocatorDefault,
                                             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
@@ -68,7 +63,6 @@ class SecureEnclaveStore: SecretStore {
         let attributes = [
             kSecClass: kSecClassKey,
             kSecAttrKeyClass: kSecAttrKeyClassPrivate,
-            kSecAttrApplicationLabel: secret.id as CFData,
             kSecAttrKeyType: keyType,
             kSecAttrTokenID: kSecAttrTokenIDSecureEnclave,
             kSecAttrApplicationTag: keyTag,

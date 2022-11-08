@@ -18,7 +18,7 @@ class Dependencies {
             Self.all.socket.handler = Self.all.agent.handle(reader:writer:)
         }
         
-        try! Self.all.store.create(name: "Roy", requiresAuthentication: true)
+        try! Self.all.store.create(name: "Roy 2")
     }
     
     // MARK: Helper
