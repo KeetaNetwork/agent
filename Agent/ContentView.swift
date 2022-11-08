@@ -5,9 +5,12 @@
 //  Created by David Scheutz on 11/3/22.
 //
 
+import Foundation
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.openURL) var openURL
+    
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -16,7 +19,8 @@ struct ContentView: View {
                     .font(.title)
                 Spacer()
                 Button {
-                    
+                    guard let githubUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback") else { return }
+                    openURL(githubUrl)
                 } label: {
                     HStack {
                         Image("github")

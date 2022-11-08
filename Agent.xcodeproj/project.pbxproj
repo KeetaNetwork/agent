@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		02780041291A28F000B8BA11 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780040291A28F000B8BA11 /* Color.swift */; };
+		02780044291A4D7A00B8BA11 /* OAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780043291A4D7A00B8BA11 /* OAuth.swift */; };
+		02780047291A539000B8BA11 /* Link.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780046291A539000B8BA11 /* Link.swift */; };
 		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
@@ -42,6 +44,9 @@
 
 /* Begin PBXFileReference section */
 		02780040291A28F000B8BA11 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		02780043291A4D7A00B8BA11 /* OAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuth.swift; sourceTree = "<group>"; };
+		02780045291A4FB200B8BA11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		02780046291A539000B8BA11 /* Link.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Link.swift; sourceTree = "<group>"; };
 		AEB3919F29146F40006A0F88 /* Agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
 		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -89,8 +94,17 @@
 			isa = PBXGroup;
 			children = (
 				02780040291A28F000B8BA11 /* Color.swift */,
+				02780046291A539000B8BA11 /* Link.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		02780042291A4D6900B8BA11 /* Github */ = {
+			isa = PBXGroup;
+			children = (
+				02780043291A4D7A00B8BA11 /* OAuth.swift */,
+			);
+			path = Github;
 			sourceTree = "<group>";
 		};
 		AEB3919629146F40006A0F88 = {
@@ -114,6 +128,8 @@
 		AEB391A129146F40006A0F88 /* Agent */ = {
 			isa = PBXGroup;
 			children = (
+				02780045291A4FB200B8BA11 /* Info.plist */,
+				02780042291A4D6900B8BA11 /* Github */,
 				0278003B291A26CD00B8BA11 /* Helpers */,
 				AEB3922E2919B397006A0F88 /* Setup */,
 				AEB391DA2914747A006A0F88 /* Secrets */,
@@ -285,10 +301,12 @@
 				AEB391D9291472AF006A0F88 /* OpenSSHKeyWriter.swift in Sources */,
 				AEB392362919CDE3006A0F88 /* PersistentAuthenticationContext.swift in Sources */,
 				AEB392322919B3EA006A0F88 /* Setup.swift in Sources */,
+				02780047291A539000B8BA11 /* Link.swift in Sources */,
 				AEB3923A2919D2A7006A0F88 /* OpenSSHReader.swift in Sources */,
 				AEB391DE291474A2006A0F88 /* Algorithm.swift in Sources */,
 				AEB391E0291475FC006A0F88 /* SecureEnclaveStore.swift in Sources */,
 				AEB392382919CFD9006A0F88 /* SecretStore.swift in Sources */,
+				02780044291A4D7A00B8BA11 /* OAuth.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -438,6 +456,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Agent/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Keeta Agent";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -467,6 +486,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Agent/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Keeta Agent";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
