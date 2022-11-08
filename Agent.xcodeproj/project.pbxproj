@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02780041291A28F000B8BA11 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780040291A28F000B8BA11 /* Color.swift */; };
 		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		02780040291A28F000B8BA11 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		AEB3919F29146F40006A0F88 /* Agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
 		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -83,6 +85,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0278003B291A26CD00B8BA11 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				02780040291A28F000B8BA11 /* Color.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		AEB3919629146F40006A0F88 = {
 			isa = PBXGroup;
 			children = (
@@ -104,6 +114,7 @@
 		AEB391A129146F40006A0F88 /* Agent */ = {
 			isa = PBXGroup;
 			children = (
+				0278003B291A26CD00B8BA11 /* Helpers */,
 				AEB3922E2919B397006A0F88 /* Setup */,
 				AEB391DA2914747A006A0F88 /* Secrets */,
 				AEB391CD29147097006A0F88 /* SSH Agent */,
@@ -270,6 +281,7 @@
 				AEB3923C2919D5E0006A0F88 /* PublicKeyFileStoreController.swift in Sources */,
 				AEB391D729147208006A0F88 /* ResponseType.swift in Sources */,
 				AEB391DC29147485006A0F88 /* Secret.swift in Sources */,
+				02780041291A28F000B8BA11 /* Color.swift in Sources */,
 				AEB391D9291472AF006A0F88 /* OpenSSHKeyWriter.swift in Sources */,
 				AEB392362919CDE3006A0F88 /* PersistentAuthenticationContext.swift in Sources */,
 				AEB392322919B3EA006A0F88 /* Setup.swift in Sources */,
