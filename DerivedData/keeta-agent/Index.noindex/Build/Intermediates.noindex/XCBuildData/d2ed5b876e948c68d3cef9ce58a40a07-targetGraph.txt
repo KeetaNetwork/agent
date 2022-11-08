@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+Agent in Agent, no dependencies
+AgentTests in Agent, depends on:
+Agent in Agent (explicit)

@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+keeta-agent in Agent, no dependencies
+keeta-agentTests in Agent, depends on:
+keeta-agent in Agent (explicit)

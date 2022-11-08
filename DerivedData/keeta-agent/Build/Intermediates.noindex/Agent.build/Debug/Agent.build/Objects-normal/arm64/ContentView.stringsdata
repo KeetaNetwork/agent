@@ -1,0 +1,12 @@
+{
+  "source": "/Users/tschenk/agent/Agent/ContentView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Hello, world!"
+      }
+    ]
+  },
+  "version": 1
+}

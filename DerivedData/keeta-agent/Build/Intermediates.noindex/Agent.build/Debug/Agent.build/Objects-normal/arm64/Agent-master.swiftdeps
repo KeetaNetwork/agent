@@ -1,0 +1,23 @@
+version: "Apple Swift version 5.7 (swiftlang-5.7.0.127.4 clang-1400.0.29.50)"
+options: "d48e659eb001a8a168c99ad740b7898b7e9947c93b788cdd257f3a487c4467b5"
+build_start_time: [1667881889, 177999973]
+build_end_time: [1667881891, 6493091]
+inputs:
+  "/Users/tschenk/agent/Agent/AppDelegate.swift": [1667880821, 735892772]
+  "/Users/tschenk/agent/Agent/ContentView.swift": [1667880821, 736230850]
+  "/Users/tschenk/agent/Agent/SSH Agent/Data+Extract.swift": [1667880821, 736317634]
+  "/Users/tschenk/agent/Agent/SSH Agent/FileHandle+ReadWrite.swift": [1667880821, 736375808]
+  "/Users/tschenk/agent/Agent/SSH Agent/OpenSSHKeyWriter.swift": [1667880821, 736442565]
+  "/Users/tschenk/agent/Agent/SSH Agent/OpenSSHReader.swift": [1667880821, 736515045]
+  "/Users/tschenk/agent/Agent/SSH Agent/RequestType.swift": [1667880821, 736575126]
+  "/Users/tschenk/agent/Agent/SSH Agent/ResponseType.swift": [1667880821, 736643075]
+  "/Users/tschenk/agent/Agent/SSH Agent/SSHAgent.swift": [1667880821, 736719608]
+  "/Users/tschenk/agent/Agent/SSH Agent/SocketController.swift": [1667880821, 736789703]
+  "/Users/tschenk/agent/Agent/Secrets/Algorithm.swift": [1667880821, 736879825]
+  "/Users/tschenk/agent/Agent/Secrets/PersistentAuthenticationContext.swift": [1667880821, 736957073]
+  "/Users/tschenk/agent/Agent/Secrets/PublicKeyFileStoreController.swift": [1667880821, 737037420]
+  "/Users/tschenk/agent/Agent/Secrets/Secret.swift": [1667880821, 737093210]
+  "/Users/tschenk/agent/Agent/Secrets/SecretStore.swift": [1667880821, 737151622]
+  "/Users/tschenk/agent/Agent/Secrets/SecureEnclaveStore.swift": [1667880821, 737259387]
+  "/Users/tschenk/agent/Agent/Setup/Setup.swift": [1667880821, 737417221]
+  "/Users/tschenk/agent/Agent/keeta_secretiveApp.swift": [1667880821, 737563610]

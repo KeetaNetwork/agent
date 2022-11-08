@@ -34,6 +34,34 @@
 			<key>uniqueIdentifier</key>
 			<string>0C04B2FC-EB58-44C1-AA32-C9D69594F5B5</string>
 		</dict>
+		<key>14F22BC5-D051-4A89-93DB-8EDB24BBBB18</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>14F22BC5-D051-4A89-93DB-8EDB24BBBB18.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>signature</key>
+			<string>eyJ0eXBlIjp7ImJ1aWxkU3lzdGVtVGFzayI6e319LCJidWlsZFN5c3RlbVRhc2tfYnVpbGRUYXNrIjoiUHJlcGFyZSBidWlsZCJ9</string>
+			<key>timeStartedRecording</key>
+			<real>689574689.05777204</real>
+			<key>timeStoppedRecording</key>
+			<real>63113904000</real>
+			<key>title</key>
+			<string>Build keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>14F22BC5-D051-4A89-93DB-8EDB24BBBB18</string>
+		</dict>
 		<key>42D7A925-1057-40BE-9EA8-B999A7A438E2</key>
 		<dict>
 			<key>className</key>
@@ -62,6 +90,118 @@
 			<key>uniqueIdentifier</key>
 			<string>42D7A925-1057-40BE-9EA8-B999A7A438E2</string>
 		</dict>
+		<key>4C03557D-D1ED-444A-8D7E-AF400E0E80CA</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>4C03557D-D1ED-444A-8D7E-AF400E0E80CA.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>signature</key>
+			<string>eyJ0eXBlIjp7ImJsdWVwcmludFByb3ZpZGVyIjp7fX0sImJsdWVwcmludFByb3ZpZGVyX3Byb3ZpZGVyRmlsZVBhdGhTdHJpbmciOiJcL1VzZXJzXC90c2NoZW5rXC9hZ2VudFwvQWdlbnQueGNvZGVwcm9qIn0=</string>
+			<key>timeStartedRecording</key>
+			<real>689574689.05777204</real>
+			<key>timeStoppedRecording</key>
+			<real>63113904000</real>
+			<key>title</key>
+			<string>Build keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>4C03557D-D1ED-444A-8D7E-AF400E0E80CA</string>
+		</dict>
+		<key>5277B23C-14E6-447E-821A-DE336C06120A</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>5277B23C-14E6-447E-821A-DE336C06120A.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>signature</key>
+			<string>eyJibHVlcHJpbnRfYmx1ZXByaW50VmFyaWFudCI6eyJnZW5lcmljIjp7fX0sImJsdWVwcmludF9wcm92aWRlckZpbGVQYXRoU3RyaW5nIjoiXC9Vc2Vyc1wvdHNjaGVua1wvYWdlbnRcL0FnZW50Lnhjb2RlcHJvaiIsInR5cGUiOnsiYmx1ZXByaW50Ijp7fX0sImJsdWVwcmludF9ibHVlcHJpbnRJZGVudGlmaWVyIjoiQUVCMzkxOUUyOTE0NkY0MDAwNkEwRjg4In0=</string>
+			<key>timeStartedRecording</key>
+			<real>689574705.56530201</real>
+			<key>timeStoppedRecording</key>
+			<real>689574705.60877705</real>
+			<key>title</key>
+			<string>Build keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>5277B23C-14E6-447E-821A-DE336C06120A</string>
+		</dict>
+		<key>DE46098A-8C33-41C1-AABF-2CE2C08A5182</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>DE46098A-8C33-41C1-AABF-2CE2C08A5182.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>signature</key>
+			<string>eyJ0eXBlIjp7ImJ1aWxkU3lzdGVtVGFzayI6e319LCJidWlsZFN5c3RlbVRhc2tfYnVpbGRUYXNrIjoiUHJlcGFyZSBidWlsZCJ9</string>
+			<key>timeStartedRecording</key>
+			<real>689574705.56530201</real>
+			<key>timeStoppedRecording</key>
+			<real>689574705.60877705</real>
+			<key>title</key>
+			<string>Build keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>DE46098A-8C33-41C1-AABF-2CE2C08A5182</string>
+		</dict>
+		<key>E53D317F-5236-406A-A55C-DC9CE8CC2018</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>E53D317F-5236-406A-A55C-DC9CE8CC2018.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>signature</key>
+			<string>eyJibHVlcHJpbnRfYmx1ZXByaW50VmFyaWFudCI6eyJnZW5lcmljIjp7fX0sImJsdWVwcmludF9wcm92aWRlckZpbGVQYXRoU3RyaW5nIjoiXC9Vc2Vyc1wvdHNjaGVua1wvYWdlbnRcL0FnZW50Lnhjb2RlcHJvaiIsInR5cGUiOnsiYmx1ZXByaW50Ijp7fX0sImJsdWVwcmludF9ibHVlcHJpbnRJZGVudGlmaWVyIjoiQUVCMzkxOUUyOTE0NkY0MDAwNkEwRjg4In0=</string>
+			<key>timeStartedRecording</key>
+			<real>689574689.05777204</real>
+			<key>timeStoppedRecording</key>
+			<real>63113904000</real>
+			<key>title</key>
+			<string>Build keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>E53D317F-5236-406A-A55C-DC9CE8CC2018</string>
+		</dict>
 		<key>F88C7808-8B15-438F-9DEA-33091AC0E85E</key>
 		<dict>
 			<key>className</key>
@@ -89,6 +229,34 @@
 			<string>Build keeta-agent</string>
 			<key>uniqueIdentifier</key>
 			<string>F88C7808-8B15-438F-9DEA-33091AC0E85E</string>
+		</dict>
+		<key>FB2CEB16-0D91-4273-A9A6-201BC2648BCD</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>FB2CEB16-0D91-4273-A9A6-201BC2648BCD.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>signature</key>
+			<string>eyJ0eXBlIjp7ImJsdWVwcmludFByb3ZpZGVyIjp7fX0sImJsdWVwcmludFByb3ZpZGVyX3Byb3ZpZGVyRmlsZVBhdGhTdHJpbmciOiJcL1VzZXJzXC90c2NoZW5rXC9hZ2VudFwvQWdlbnQueGNvZGVwcm9qIn0=</string>
+			<key>timeStartedRecording</key>
+			<real>689574705.56530201</real>
+			<key>timeStoppedRecording</key>
+			<real>689574705.60877705</real>
+			<key>title</key>
+			<string>Build keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>FB2CEB16-0D91-4273-A9A6-201BC2648BCD</string>
 		</dict>
 	</dict>
 </dict>

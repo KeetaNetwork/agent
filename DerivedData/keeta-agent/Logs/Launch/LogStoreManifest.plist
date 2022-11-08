@@ -5,6 +5,142 @@
 	<key>logFormatVersion</key>
 	<integer>10</integer>
 	<key>logs</key>
-	<dict/>
+	<dict>
+		<key>44D68284-5984-4DDA-9817-E0FE832F9643</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>5FA905F7-9200-431C-95DF-B5F91E196741</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.IDE.LaunchSchemeAction</string>
+			<key>fileName</key>
+			<string>Run-keeta-agent-2022.11.07_20-25-16--0800.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasConsoleLog</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>keeta-agent project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>keeta-agent</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Run keeta-agent</string>
+			<key>timeStartedRecording</key>
+			<real>689574316.19881201</real>
+			<key>timeStoppedRecording</key>
+			<real>0.0</real>
+			<key>title</key>
+			<string>Run keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>44D68284-5984-4DDA-9817-E0FE832F9643</string>
+		</dict>
+		<key>8AE92F5A-9F53-4198-815D-99AF0DE47220</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>8EA1927C-5EEE-43D5-8A17-FA5D5D6C9D82</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.IDE.LaunchSchemeAction</string>
+			<key>fileName</key>
+			<string>Run-keeta-agent-2022.11.07_20-31-45--0800.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasConsoleLog</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>keeta-agent project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>keeta-agent</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Run keeta-agent</string>
+			<key>timeStartedRecording</key>
+			<real>689574705.56521499</real>
+			<key>timeStoppedRecording</key>
+			<real>0.0</real>
+			<key>title</key>
+			<string>Run keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>8AE92F5A-9F53-4198-815D-99AF0DE47220</string>
+		</dict>
+		<key>AD816BB7-78AA-4D5D-B631-DEB38A3EDD41</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>62670909-FC6D-4A3A-8110-A78BC79625E4</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.IDE.LaunchSchemeAction</string>
+			<key>fileName</key>
+			<string>Run-keeta-agent-2022.11.07_20-31-29--0800.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasConsoleLog</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>keeta-agent project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>keeta-agent</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Run keeta-agent</string>
+			<key>timeStartedRecording</key>
+			<real>689574689.05761898</real>
+			<key>timeStoppedRecording</key>
+			<real>0.0</real>
+			<key>title</key>
+			<string>Run keeta-agent</string>
+			<key>uniqueIdentifier</key>
+			<string>AD816BB7-78AA-4D5D-B631-DEB38A3EDD41</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
