@@ -8,7 +8,7 @@ enum Command {
     var executable: String {
         switch self {
         case .enableGPGSign, .gitVersion, .setSigningKey:
-            return "/opt/homebrew/bin/git"
+            return "/usr/bin/git"
         }
     }
     
@@ -31,8 +31,9 @@ enum Command {
     }
 }
 
-private func execute(_ command: Command) async throws {
-    _ = try await withCheckedThrowingContinuation { continuation in
+@discardableResult
+private func execute(_ command: Command) async throws -> String {
+    try await withCheckedThrowingContinuation { continuation in
         do {
             let executableURL: URL
             if command.isAlias {
@@ -46,9 +47,20 @@ private func execute(_ command: Command) async throws {
                 throw NSError(domain: "Executable doesn't exist.", code: 4)
             }
             
-            try Process.run(executableURL, arguments: command.commands) { _ in
-                continuation.resume(returning: true)
-            }
+            let task = Process()
+            let pipe = Pipe()
+            
+            task.standardOutput = pipe
+            task.standardError = pipe
+            task.arguments = ["-c"] + command.commands
+            task.executableURL = executableURL
+            task.standardInput = nil
+            
+            try task.run()
+            
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            // let lines = output.split(whereSeparator: { $0.isNewline })
+            continuation.resume(returning: String(data: data, encoding: .utf8) ?? "")
         } catch let error {
             continuation.resume(throwing: error)
         }
@@ -80,16 +92,40 @@ func createHomeDirectory() {
 }
 
 func setupKeeta() async throws {
-    try await execute(.enableGPGSign)
+    try await execute(.gitVersion)
     
-    let appPath = NSHomeDirectory()
-    let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh") as String
+    /// gpg-agent --server gpg-connect-agent
+    // > RELOADAGENT
+    // > SCD LEARN
+    // > EOF
+    // -> KEY-FRIEDNLY {key grip}
     
-    // SSH_AUTH_SOCK
-    try add("export SSH_AUTH_SOCK=\(socketPath)", to: .init(fileURLWithPath: "\(appPath)/.zshrc"))
+    /// gpg2 --expert --full-generate-key
+    // kind of key: 13
+    // keygrip: {}
+    // Possible actions: Q
+    // Key is valid for: 0
+    // Key does not expire at all: Y
+    // Real name {}
+    // Email address {}
+    // Comment {return}
+    // O
+    // !grab key ID
     
-    // IdentityAgent
-    try add("Host *\n\tIdentityAgent \(socketPath)", to: .init(fileURLWithPath: "\(appPath)/.ssh/config"))
+    
+    /// ./gpg --export --armor B660BFA02C848FC4D44278979B50949C9847ABD0
+    
+    
+//    try await execute(.enableGPGSign)
+//
+//    let appPath = NSHomeDirectory()
+//    let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh") as String
+//
+//    // SSH_AUTH_SOCK
+//    try add("export SSH_AUTH_SOCK=\(socketPath)", to: .init(fileURLWithPath: "\(appPath)/.zshrc"))
+//
+//    // IdentityAgent
+//    try add("Host *\n\tIdentityAgent \(socketPath)", to: .init(fileURLWithPath: "\(appPath)/.ssh/config"))
 }
 
 //func updateSigningKey<T: Secret>(using secret: T) {
