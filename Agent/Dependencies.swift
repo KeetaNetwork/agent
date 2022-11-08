@@ -17,5 +17,15 @@ class Dependencies {
         DispatchQueue.main.async {
             Self.all.socket.handler = Self.all.agent.handle(reader:writer:)
         }
+        
+        try! Self.all.store.create(name: "Roy", requiresAuthentication: true)
+    }
+    
+    // MARK: Helper
+    
+    private static func createHomeDirectory() {
+        if !FileManager.default.fileExists(atPath: homeDirectory) {
+            try! FileManager.default.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
+        }
     }
 }

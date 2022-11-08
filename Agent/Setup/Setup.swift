@@ -80,8 +80,6 @@ func createHomeDirectory() {
 }
 
 func setupKeeta() async throws {
-    createHomeDirectory()
-    
     try await execute(.enableGPGSign)
     
     let appPath = NSHomeDirectory()
