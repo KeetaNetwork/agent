@@ -6,16 +6,51 @@ class SecureEnclaveStore: SecretStore {
     
     @Published public private(set) var secrets: [Secret] = []
     
-    private let keyTag = "com.maxgoedjen.secretive.secureenclave.key".data(using: .utf8)! as CFData
+    private let keyTag = "com.keeta.agent.key".data(using: .utf8)! as CFData
     private let keyType = kSecAttrKeyTypeECSECPrimeRandom
-    private let unauthenticatedThreshold: TimeInterval = 0.05
+    private let unauthenticatedThreshold: TimeInterval = 1
     private var persistedAuthenticationContexts: [Secret.ID: PersistentAuthenticationContext] = [:]
     
     init() {
         loadSecrets()
     }
     
-    public func sign(data: Data, with secret: Secret, for processName: String, isRaw: Bool) throws -> Data {
+    func create(name: String) throws {
+        var accessError: SecurityError?
+        let flags: SecAccessControlCreateFlags = [.privateKeyUsage, .userPresence]
+        let access =
+            SecAccessControlCreateWithFlags(kCFAllocatorDefault,
+                                            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                                            flags,
+                                            &accessError) as Any
+        if let error = accessError {
+            throw error.takeRetainedValue() as Error
+        }
+
+        let attributes = [
+            kSecAttrLabel: name,
+            kSecAttrKeyType: keyType,
+            kSecAttrTokenID: kSecAttrTokenIDSecureEnclave,
+            kSecAttrApplicationTag: keyTag,
+            kSecPrivateKeyAttrs: [
+                kSecAttrIsPermanent: true,
+                kSecAttrAccessControl: access
+            ]
+        ] as CFDictionary
+
+        var createKeyError: SecurityError?
+        let keypair = SecKeyCreateRandomKey(attributes, &createKeyError)
+        if let error = createKeyError {
+            throw error.takeRetainedValue() as Error
+        }
+        guard let keypair = keypair, let publicKey = SecKeyCopyPublicKey(keypair) else {
+            throw KeychainError(statusCode: nil)
+        }
+        try savePublicKey(publicKey, name: name)
+        reloadSecrets()
+    }
+    
+    func sign(data: Data, with secret: Secret, for processName: String, isRaw: Bool) throws -> Data {
         let context: LAContext
         if let existing = persistedAuthenticationContexts[secret.id], existing.valid {
             context = existing.context
@@ -28,7 +63,6 @@ class SecureEnclaveStore: SecretStore {
         let attributes = [
             kSecClass: kSecClassKey,
             kSecAttrKeyClass: kSecAttrKeyClassPrivate,
-            kSecAttrApplicationLabel: secret.id as CFData,
             kSecAttrKeyType: keyType,
             kSecAttrTokenID: kSecAttrTokenIDSecureEnclave,
             kSecAttrApplicationTag: keyTag,
@@ -55,6 +89,28 @@ class SecureEnclaveStore: SecretStore {
     }
     
     // MARK: Helper
+    
+    private func savePublicKey(_ publicKey: SecKey, name: String) throws {
+        let attributes = [
+            kSecClass: kSecClassKey,
+            kSecAttrKeyType: keyType,
+            kSecAttrKeyClass: kSecAttrKeyClassPublic,
+            kSecAttrApplicationTag: keyTag,
+            kSecValueRef: publicKey,
+            kSecAttrIsPermanent: true,
+            kSecReturnData: true,
+            kSecAttrLabel: name
+            ] as CFDictionary
+        let status = SecItemAdd(attributes, nil)
+        if status != errSecSuccess {
+            throw KeychainError(statusCode: status)
+        }
+    }
+    
+    private func reloadSecrets(notifyAgent: Bool = true) {
+        secrets.removeAll()
+        loadSecrets()
+    }
     
     private func loadSecrets() {
         let publicAttributes = [

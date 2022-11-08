@@ -11,7 +11,7 @@ import SwiftUI
 struct keeta_secretiveApp: App {
     
     init() {
-        // TODO: setup
+        Dependencies.setup()
     }
     
     var body: some Scene {
