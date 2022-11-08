@@ -71,9 +71,9 @@ private func add(_ text: String, to fileURL: URL) throws {
     handle.write(data)
 }
 
-let homeDirectory = NSHomeDirectory() + "/Library/Secrective/Data"
+let homeDirectory = NSHomeDirectory() + "/Library/Agent/Data"
 
-private func createHomeDirectory() {
+func createHomeDirectory() {
     if !FileManager.default.fileExists(atPath: homeDirectory) {
         try! FileManager.default.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
     }

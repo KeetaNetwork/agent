@@ -20,13 +20,13 @@
 		AEB391DC29147485006A0F88 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391DB29147485006A0F88 /* Secret.swift */; };
 		AEB391DE291474A2006A0F88 /* Algorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391DD291474A2006A0F88 /* Algorithm.swift */; };
 		AEB391E0291475FC006A0F88 /* SecureEnclaveStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391DF291475FC006A0F88 /* SecureEnclaveStore.swift */; };
-		AEB392302919B3D7006A0F88 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB3922F2919B3D7006A0F88 /* AppDelegate.swift */; };
 		AEB392322919B3EA006A0F88 /* Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392312919B3EA006A0F88 /* Setup.swift */; };
 		AEB392342919CB9C006A0F88 /* Data+Extract.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392332919CB9C006A0F88 /* Data+Extract.swift */; };
 		AEB392362919CDE3006A0F88 /* PersistentAuthenticationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392352919CDE3006A0F88 /* PersistentAuthenticationContext.swift */; };
 		AEB392382919CFD9006A0F88 /* SecretStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392372919CFD9006A0F88 /* SecretStore.swift */; };
 		AEB3923A2919D2A7006A0F88 /* OpenSSHReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392392919D2A7006A0F88 /* OpenSSHReader.swift */; };
 		AEB3923C2919D5E0006A0F88 /* PublicKeyFileStoreController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */; };
+		AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF00416291A1AE600EA576C /* Dependencies.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,13 +56,13 @@
 		AEB391DB29147485006A0F88 /* Secret.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secret.swift; sourceTree = "<group>"; };
 		AEB391DD291474A2006A0F88 /* Algorithm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algorithm.swift; sourceTree = "<group>"; };
 		AEB391DF291475FC006A0F88 /* SecureEnclaveStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclaveStore.swift; sourceTree = "<group>"; };
-		AEB3922F2919B3D7006A0F88 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AEB392312919B3EA006A0F88 /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
 		AEB392332919CB9C006A0F88 /* Data+Extract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extract.swift"; sourceTree = "<group>"; };
 		AEB392352919CDE3006A0F88 /* PersistentAuthenticationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentAuthenticationContext.swift; sourceTree = "<group>"; };
 		AEB392372919CFD9006A0F88 /* SecretStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStore.swift; sourceTree = "<group>"; };
 		AEB392392919D2A7006A0F88 /* OpenSSHReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSSHReader.swift; sourceTree = "<group>"; };
 		AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicKeyFileStoreController.swift; sourceTree = "<group>"; };
+		AEF00416291A1AE600EA576C /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,8 +110,8 @@
 				AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */,
 				AEB391A429146F40006A0F88 /* ContentView.swift */,
 				AEB391A629146F41006A0F88 /* Assets.xcassets */,
-				AEB3922F2919B3D7006A0F88 /* AppDelegate.swift */,
 				AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */,
+				AEF00416291A1AE600EA576C /* Dependencies.swift */,
 			);
 			path = Agent;
 			sourceTree = "<group>";
@@ -259,7 +259,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEB392302919B3D7006A0F88 /* AppDelegate.swift in Sources */,
+				AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */,
 				AEB391CF291470A9006A0F88 /* SocketController.swift in Sources */,
 				AEB391D329147145006A0F88 /* SSHAgent.swift in Sources */,
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
