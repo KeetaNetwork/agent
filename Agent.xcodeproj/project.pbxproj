@@ -11,7 +11,7 @@
 		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
-		AEB391B529146F41006A0F88 /* keeta_secretiveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391B429146F41006A0F88 /* keeta_secretiveTests.swift */; };
+		AEB391B529146F41006A0F88 /* GrabberTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391B429146F41006A0F88 /* GrabberTests.swift */; };
 		AEB391CF291470A9006A0F88 /* SocketController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391CE291470A9006A0F88 /* SocketController.swift */; };
 		AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391D0291470E1006A0F88 /* FileHandle+ReadWrite.swift */; };
 		AEB391D329147145006A0F88 /* SSHAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391D229147145006A0F88 /* SSHAgent.swift */; };
@@ -27,6 +27,7 @@
 		AEB392382919CFD9006A0F88 /* SecretStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392372919CFD9006A0F88 /* SecretStore.swift */; };
 		AEB3923A2919D2A7006A0F88 /* OpenSSHReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392392919D2A7006A0F88 /* OpenSSHReader.swift */; };
 		AEB3923C2919D5E0006A0F88 /* PublicKeyFileStoreController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */; };
+		AEEB99BA291B188E009557BC /* Grabber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEB99B9291B188E009557BC /* Grabber.swift */; };
 		AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF00416291A1AE600EA576C /* Dependencies.swift */; };
 /* End PBXBuildFile section */
 
@@ -48,7 +49,7 @@
 		AEB391A629146F41006A0F88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = keeta_secretive.entitlements; sourceTree = "<group>"; };
 		AEB391B029146F41006A0F88 /* AgentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AgentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AEB391B429146F41006A0F88 /* keeta_secretiveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveTests.swift; sourceTree = "<group>"; };
+		AEB391B429146F41006A0F88 /* GrabberTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrabberTests.swift; sourceTree = "<group>"; };
 		AEB391CE291470A9006A0F88 /* SocketController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketController.swift; sourceTree = "<group>"; };
 		AEB391D0291470E1006A0F88 /* FileHandle+ReadWrite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileHandle+ReadWrite.swift"; sourceTree = "<group>"; };
 		AEB391D229147145006A0F88 /* SSHAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHAgent.swift; sourceTree = "<group>"; };
@@ -64,6 +65,7 @@
 		AEB392372919CFD9006A0F88 /* SecretStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStore.swift; sourceTree = "<group>"; };
 		AEB392392919D2A7006A0F88 /* OpenSSHReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSSHReader.swift; sourceTree = "<group>"; };
 		AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicKeyFileStoreController.swift; sourceTree = "<group>"; };
+		AEEB99B9291B188E009557BC /* Grabber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grabber.swift; sourceTree = "<group>"; };
 		AEF00416291A1AE600EA576C /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -130,7 +132,7 @@
 		AEB391B329146F41006A0F88 /* keeta-secretiveTests */ = {
 			isa = PBXGroup;
 			children = (
-				AEB391B429146F41006A0F88 /* keeta_secretiveTests.swift */,
+				AEB391B429146F41006A0F88 /* GrabberTests.swift */,
 			);
 			path = "keeta-secretiveTests";
 			sourceTree = "<group>";
@@ -167,6 +169,7 @@
 			isa = PBXGroup;
 			children = (
 				AEB392312919B3EA006A0F88 /* Setup.swift */,
+				AEEB99B9291B188E009557BC /* Grabber.swift */,
 			);
 			path = Setup;
 			sourceTree = "<group>";
@@ -271,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */,
+				AEEB99BA291B188E009557BC /* Grabber.swift in Sources */,
 				AEB391CF291470A9006A0F88 /* SocketController.swift in Sources */,
 				AEB391D329147145006A0F88 /* SSHAgent.swift in Sources */,
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
@@ -296,7 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEB391B529146F41006A0F88 /* keeta_secretiveTests.swift in Sources */,
+				AEB391B529146F41006A0F88 /* GrabberTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

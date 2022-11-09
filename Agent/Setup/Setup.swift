@@ -4,29 +4,51 @@ enum Command {
     case enableGPGSign
     case gitVersion
     case setSigningKey(key: String)
+    case setGPGProgram(path: String)
+    case exportGPG(keyId: String)
+    // test sign
+    // echo -n "Hello world with PKCS11" | ./gpg --armor --clearsign --textmode -u B660BFA02C848FC4D44278979B50949C9847ABD0
+    // check keys
+    // ./gpg --check-signatures
+    // export
+    // ./gpg --expert --full-generate-key
+    // - inputs
+    // check card status
+    // ./gpg --card-status
+    // setup
+    // ./gpg-agent --server gpg-connect-agent
+    // - inputs: RELOADAGENT, SCD LEARN
     
     var executable: String {
         switch self {
-        case .enableGPGSign, .gitVersion, .setSigningKey:
+        case .enableGPGSign, .gitVersion, .setSigningKey, .setGPGProgram:
             return "/usr/bin/git"
+        case .exportGPG:
+            return "./gpg"
         }
     }
     
     var isAlias: Bool {
         switch self {
-        case .enableGPGSign, .gitVersion, .setSigningKey:
+        case .enableGPGSign, .gitVersion, .setSigningKey, .setGPGProgram:
             return true
+        case .exportGPG:
+            return false
         }
     }
-    
+
     var commands: [String] {
         switch self {
         case .enableGPGSign:
             return ["config", "--global", "commit.gpgsign", "true"]
         case .setSigningKey(let key):
             return ["config", "--global", "user.signingkey", key]
+        case .setGPGProgram(let path):
+            return ["config", "--global", "gpg.program", path]
         case .gitVersion:
             return ["--version"]
+        case .exportGPG(let keyId):
+            return ["--export", "--armor", keyId]
         }
     }
 }
