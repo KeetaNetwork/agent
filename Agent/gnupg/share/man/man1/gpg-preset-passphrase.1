@@ -1,0 +1,105 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPG-PRESET-PASSPHRASE 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpg-preset-passphrase
+\- Put a passphrase into gpg-agent's cache
+.SH SYNOPSIS
+.B  gpg-preset-passphrase
+.RI [ options ]
+.RI [ command ]
+.I cache-id
+
+.SH DESCRIPTION
+The \fBgpg-preset-passphrase\fR is a utility to seed the internal
+cache of a running \fBgpg-agent\fR with passphrases.  It is mainly
+useful for unattended machines, where the usual \fBpinentry\fR tool
+may not be used and the passphrases for the to be used keys are given at
+machine startup.
+
+This program works with GnuPG 2 and later.  GnuPG 1.x is not supported.
+
+Passphrases set with this utility don't expire unless the
+\fB--forget\fR option is used to explicitly clear them from the
+cache --- or \fBgpg-agent\fR is either restarted or reloaded (by
+sending a SIGHUP to it).  Note that the maximum cache time as set with
+\fB--max-cache-ttl\fR is still honored.  It is necessary to allow
+this passphrase presetting by starting \fBgpg-agent\fR with the
+\fB--allow-preset-passphrase\fR.
+
+
+
+
+\fBgpg-preset-passphrase\fR is invoked this way:
+
+.RS 2
+.nf
+gpg-preset-passphrase [options] [command] \fIcacheid\fR
+.fi
+.RE
+
+\fIcacheid\fR is either a 40 character keygrip of hexadecimal
+characters identifying the key for which the passphrase should be set
+or cleared.  The keygrip is listed along with the key when running the
+command: \fBgpgsm --with-keygrip --list-secret-keys\fR.
+Alternatively an arbitrary string may be used to identify a
+passphrase; it is suggested that such a string is prefixed with the
+name of the application (e.g \fBfoo:12346\fR).  Scripts should always
+use the option \fB--with-colons\fR, which provides the keygrip in a
+"grp" line (cf. \(oq\fIdoc/DETAILS\fR\(cq)/
+
+
+One of the following command options must be given:
+
+.TP
+.B  --preset
+Preset a passphrase. This is what you usually will
+use. \fBgpg-preset-passphrase\fR will then read the passphrase from
+\fBstdin\fR.
+
+.TP
+.B  --forget
+Flush the passphrase for the given cache ID from the cache.
+
+.P
+
+
+The following additional options may be used:
+
+.TP
+.B  -v
+.TQ
+.B  --verbose
+Output additional information while running.
+
+.TP
+.B  -P \fIstring\fR
+.TQ
+.B  --passphrase \fIstring\fR
+Instead of reading the passphrase from \fBstdin\fR, use the supplied
+\fIstring\fR as passphrase.  Note that this makes the passphrase visible
+for other users.
+.P
+
+.SH SEE ALSO
+\fBgpg\fR(1),
+\fBgpgsm\fR(1),
+\fBgpg-agent\fR(1),
+\fBscdaemon\fR(1)
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.
+
+
+
+
+

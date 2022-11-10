@@ -1,0 +1,34 @@
+diff -uNr gnupg-2.3.8.orig/agent/pksign.c gnupg-2.3.8/agent/pksign.c
+--- gnupg-2.3.8.orig/agent/pksign.c	2022-09-05 01:23:23.000000000 -0700
++++ gnupg-2.3.8/agent/pksign.c	2022-11-08 01:30:41.082434392 -0800
+@@ -441,7 +441,7 @@
+           err = gcry_sexp_build (&s_sig, NULL, "(sig-val(eddsa(r%b)(s%b)))",
+                                  (int)len/2, buf, (int)len/2, buf + len/2);
+         }
+-      else if (algo == GCRY_PK_ECC)
++      else if (algo == GCRY_PK_ECC || algo == GCRY_PK_ECDSA)
+         {
+           unsigned char *r_buf, *s_buf;
+           int r_buflen, s_buflen;
+@@ -495,7 +495,7 @@
+         err = do_encode_raw_pkcs1 (data, datalen,
+                                    gcry_pk_get_nbits (s_skey),
+                                    &s_hash);
+-      else if (algo == GCRY_PK_DSA || algo == GCRY_PK_ECC)
++      else if (algo == GCRY_PK_DSA || algo == GCRY_PK_ECC || algo == GCRY_PK_ECDSA)
+         err = do_encode_dsa (data, datalen,
+                              algo, s_skey,
+                              &s_hash);
+diff -uNr gnupg-2.3.8.orig/common/sexputil.c gnupg-2.3.8/common/sexputil.c
+--- gnupg-2.3.8.orig/common/sexputil.c	2022-09-05 01:23:23.000000000 -0700
++++ gnupg-2.3.8/common/sexputil.c	2022-11-08 01:30:41.083380733 -0800
+@@ -1030,6 +1030,9 @@
+       s = gcry_sexp_nth_data (l1, 1, &n);
+       if (n == 5 && !memcmp (s, "Ed448", 5))
+         algo = GCRY_PK_EDDSA;
++      else if (n) {
++        algo = GCRY_PK_ECDSA;
++      }
+       gcry_sexp_release (l1);
+     }
+ 

@@ -1,0 +1,457 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH SCDAEMON 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B scdaemon
+\- Smartcard daemon for the GnuPG system
+.SH SYNOPSIS
+.B  scdaemon
+.RB [ \-\-homedir
+.IR dir ]
+.RB [ \-\-options
+.IR file ]
+.RI [ options ]
+.B  \-\-server
+.br
+.B  scdaemon
+.RB [ \-\-homedir
+.IR dir ]
+.RB [ \-\-options
+.IR file ]
+.RI [ options ]
+.B  \-\-daemon
+.RI [ command_line ]
+
+
+.SH DESCRIPTION
+The \fBscdaemon\fR is a daemon to manage smartcards.  It is usually
+invoked by \fBgpg-agent\fR and in general not used directly.
+
+
+
+.SH COMMANDS
+
+
+Commands are not distinguished from options except for the fact that
+only one command is allowed.
+
+.TP
+.B  --version
+Print the program version and licensing information.  Note that you cannot
+abbreviate this command.
+
+.TP
+.B  --help, -h
+Print a usage message summarizing the most useful command-line options.
+Note that you cannot abbreviate this command.
+
+.TP
+.B  --dump-options
+Print a list of all available options and commands.  Note that you cannot
+abbreviate this command.
+
+.TP
+.B  --server
+Run in server mode and wait for commands on the \fBstdin\fR.  The
+default mode is to create a socket and listen for commands there.
+
+.TP
+.B  --multi-server
+Run in server mode and wait for commands on the \fBstdin\fR as well as
+on an additional Unix Domain socket.  The server command \fBGETINFO\fR
+may be used to get the name of that extra socket.
+
+.TP
+.B  --daemon
+Run the program in the background.  This option is required to prevent
+it from being accidentally running in the background.
+
+.P
+
+
+.SH OPTIONS
+
+
+
+.TP
+.B  --options \fIfile\fR
+Reads configuration from \fIfile\fR instead of from the default
+per-user configuration file.  The default configuration file is named
+\(oq\fIscdaemon.conf\fR\(cq and expected in the \(oq\fI.gnupg\fR\(cq directory directly
+below the home directory of the user.
+
+.TP
+.B  --homedir \fIdir\fR
+Set the name of the home directory to \fIdir\fR. If this option is not
+used, the home directory defaults to \(oq\fI~/.gnupg\fR\(cq.  It is only
+recognized when given on the command line.  It also overrides any home
+directory stated through the environment variable \(oq\fIGNUPGHOME\fR\(cq or
+(on Windows systems) by means of the Registry entry
+\fIHKCU\\Software\\GNU\\GnuPG:HomeDir\fR.
+
+On Windows systems it is possible to install GnuPG as a portable
+application.  In this case only this command line option is
+considered, all other ways to set a home directory are ignored.
+
+To install GnuPG as a portable application under Windows, create an
+empty file named \(oq\fIgpgconf.ctl\fR\(cq in the same directory as the tool
+\(oq\fIgpgconf.exe\fR\(cq.  The root of the installation is then that
+directory; or, if \(oq\fIgpgconf.exe\fR\(cq has been installed directly below
+a directory named \(oq\fIbin\fR\(cq, its parent directory.  You also need to
+make sure that the following directories exist and are writable:
+\(oq\fIROOT/home\fR\(cq for the GnuPG home and \(oq\fIROOT/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/var/cache/gnupg\fR\(cq
+for internal cache files.
+
+
+.TP
+.B  -v
+.TP
+.B  --verbose
+Outputs additional information while running.
+You can increase the verbosity by giving several
+verbose commands to \fBgpgsm\fR, such as \(oq-vv\(cq.
+
+.TP
+.B  --debug-level \fIlevel\fR
+Select the debug level for investigating problems.  \fIlevel\fR may be
+a numeric value or a keyword:
+
+.RS
+.TP
+.B  none
+No debugging at all.  A value of less than 1 may be used instead of
+the keyword.
+.TP
+.B  basic
+Some basic debug messages.  A value between 1 and 2 may be used
+instead of the keyword.
+.TP
+.B  advanced
+More verbose debug messages.  A value between 3 and 5 may be used
+instead of the keyword.
+.TP
+.B  expert
+Even more detailed messages.  A value between 6 and 8 may be used
+instead of the keyword.
+.TP
+.B  guru
+All of the debug messages you can get. A value greater than 8 may be
+used instead of the keyword.  The creation of hash tracing files is
+only enabled if the keyword is used.
+.RE
+
+How these messages are mapped to the actual debugging flags is not
+specified and may change with newer releases of this program. They are
+however carefully selected to best aid in debugging.
+
+.RS
+\fBAll debugging options are subject to change and thus should not be used
+by any application program.  As the name says, they are only used as
+helpers to debug problems.
+\fR
+.RE
+
+
+.TP
+.B  --debug \fIflags\fR
+Set debug flags.  All flags are or-ed and \fIflags\fR may be given
+in C syntax (e.g. 0x0042) or as a comma separated list of flag names.
+To get a list of all supported flags the single word "help" can be
+used. This option is only useful for debugging and the behavior may
+change at any time without notice.
+
+.TP
+.B  --debug-all
+Same as \fB--debug=0xffffffff\fR
+
+.TP
+.B  --debug-wait \fIn\fR
+When running in server mode, wait \fIn\fR seconds before entering the
+actual processing loop and print the pid.  This gives time to attach a
+debugger.
+
+.TP
+.B  --debug-ccid-driver
+Enable debug output from the included CCID driver for smartcards.
+Using this option twice will also enable some tracing of the T=1
+protocol.  Note that this option may reveal sensitive data.
+
+.TP
+.B  --debug-disable-ticker
+This option disables all ticker functions like checking for card
+insertions.
+
+.TP
+.B  --debug-allow-core-dump
+For security reasons we won't create a core dump when the process
+aborts.  For debugging purposes it is sometimes better to allow core
+dump.  This option enables it and also changes the working directory to
+\(oq\fI/tmp\fR\(cq when running in \fB--server\fR mode.
+
+.TP
+.B  --debug-log-tid
+This option appends a thread ID to the PID in the log output.
+
+.TP
+.B  --debug-assuan-log-cats \fIcats\fR
+Changes the active Libassuan logging categories to \fIcats\fR.  The
+value for \fIcats\fR is an unsigned integer given in usual C-Syntax.
+A value of 0 switches to a default category.  If this option is not
+used the categories are taken from the environment variable
+\fBASSUAN_DEBUG\fR.  Note that this option has only an effect if the
+Assuan debug flag has also been with the option \fB--debug\fR.  For
+a list of categories see the Libassuan manual.
+
+.TP
+.B  --no-detach
+Don't detach the process from the console.  This is mainly useful for
+debugging.
+
+.TP
+.B  --listen-backlog \fIn\fR
+Set the size of the queue for pending connections.  The default is 64.
+This option has an effect only if \fB--multi-server\fR is also
+used.
+
+.TP
+.B  --log-file \fIfile\fR
+Append all logging output to \fIfile\fR.  This is very helpful in
+seeing what the agent actually does.  Use \(oq\fIsocket://\fR\(cq to log to
+socket.
+
+.TP
+.B  --pcsc-shared
+Use shared mode to access the card via PC/SC.  This is a somewhat
+dangerous option because Scdaemon assumes exclusive access to the
+card and for example caches certain information from the card.  Use
+this option only if you know what you are doing.
+
+.TP
+.B  --pcsc-driver \fIlibrary\fR
+Use \fIlibrary\fR to access the smartcard reader.  The current default
+on Unix is \(oq\fIlibpcsclite.so\fR\(cq and on Windows \(oq\fIwinscard.dll\fR\(cq.
+Instead of using this option you might also want to install a symbolic
+link to the default file name (e.g. from \(oq\fIlibpcsclite.so.1\fR\(cq).
+A Unicode file name may not be used on Windows.
+
+.TP
+.B  --ctapi-driver \fIlibrary\fR
+Use \fIlibrary\fR to access the smartcard reader.  The current default
+is \(oq\fIlibtowitoko.so\fR\(cq.  Note that the use of this interface is
+deprecated; it may be removed in future releases.
+
+.TP
+.B  --disable-ccid
+Disable the integrated support for CCID compliant readers.  This
+allows falling back to one of the other drivers even if the internal
+CCID driver can handle the reader.  Note, that CCID support is only
+available if libusb was available at build time.
+
+.TP
+.B  --reader-port \fInumber_or_string\fR
+This option may be used to specify the port of the card terminal.  A
+value of 0 refers to the first serial device; add 32768 to access USB
+devices.  The default is 32768 (first USB device).  PC/SC or CCID
+readers might need a string here; run the program in verbose mode to get
+a list of available readers.  The default is then the first reader
+found.
+
+To get a list of available CCID readers you may use this command:
+.RS 2
+.nf
+  echo scd getinfo reader_list \\
+    | gpg-connect-agent --decode | awk '/^D/ {print $2}'
+.fi
+.RE
+
+.TP
+.B  --card-timeout \fIn\fR
+This option is deprecated.  In GnuPG 2.0, it used to be used for
+DISCONNECT command to control timing issue.  Since DISCONNECT command
+works synchronously, it has no effect.
+
+.TP
+.B  --enable-pinpad-varlen
+Please specify this option when the card reader supports variable
+length input for pinpad (default is no).  For known readers (listed in
+ccid-driver.c and apdu.c), this option is not needed.  Note that if
+your card reader doesn't supports variable length input but you want
+to use it, you need to specify your pinpad request on your card.
+
+
+.TP
+.B  --disable-pinpad
+Even if a card reader features a pinpad, do not try to use it.
+
+
+.TP
+.B  --deny-admin
+This option disables the use of admin class commands for card
+applications where this is supported.  Currently we support it for the
+OpenPGP card. This option is useful to inhibit accidental access to
+admin class command which could ultimately lock the card through wrong
+PIN numbers.  Note that GnuPG versions older than 2.0.11 featured an
+\fB--allow-admin\fR option which was required to use such admin
+commands.  This option has no more effect today because the default is
+now to allow admin commands.
+
+.TP
+.B  --disable-application \fIname\fR
+This option disables the use of the card application named
+\fIname\fR.  This is mainly useful for debugging or if a application
+with lower priority should be used by default.
+
+.TP
+.B  --application-priority \fInamelist\fR
+This option allows to change the order in which applications of a card
+a tried if no specific application was requested.  \fInamelist\fR is a
+space or comma delimited list of application names.  Unknown names are
+simply skipped.  Applications not mentioned in the list are put in the
+former order at the end of the new priority list.
+
+To get the list of current active applications, use
+.RS 2
+.nf
+    gpg-connect-agent 'scd getinfo app_list' /bye
+.fi
+.RE
+
+.P
+
+All the long options may also be given in the configuration file after
+stripping off the two leading dashes.
+
+
+.SH CARD APPLICATIONS
+
+\fBscdaemon\fR supports the card applications as described below.
+
+
+
+.SS  The OpenPGP card application ``openpgp''
+\ 
+
+This application is currently only used by \fBgpg\fR but may in
+future also be useful with \fBgpgsm\fR.  Version 1 and version 2 of
+the card is supported.
+
+
+The specifications for these cards are available at
+.br
+(\fBhttp://g10code.com/docs/openpgp-card-1.0.pdf\fR) and
+.br
+(\fBhttp://g10code.com/docs/openpgp-card-2.0.pdf\fR).
+
+
+.SS  The Telesec NetKey card ``nks''
+\ 
+
+This is the main application of the Telesec cards as available in
+Germany.  It is a superset of the German DINSIG card.  The card is
+used by \fBgpgsm\fR.
+
+
+.SS  The DINSIG card application ``dinsig''
+\ 
+
+This is an application as described in the German draft standard
+\fIDIN V 66291-1\fR.  It is intended to be used by cards supporting
+the German signature law and its bylaws (SigG and SigV).
+
+
+.SS  The PKCS#15 card application ``p15''
+\ 
+
+This is common framework for smart card applications.  It is used by
+\fBgpgsm\fR.
+
+
+.SS  The Geldkarte card application ``geldkarte''
+\ 
+
+This is a simple application to display information of a German
+Geldkarte.  The Geldkarte is a small amount debit card application which
+comes with almost all German banking cards.
+
+
+.SS  The SmartCard-HSM card application ``sc-hsm''
+\ 
+
+This application adds read-only support for keys and certificates
+stored on a (\fBhttp://www.smartcard-hsm.com, SmartCard-HSM\fR).
+
+To generate keys and store certificates you may use
+(\fBhttps://github.com/OpenSC/OpenSC/wiki/SmartCardHSM, OpenSC\fR) or
+the tools from (\fBhttp://www.openscdp.org, OpenSCDP\fR).
+
+The SmartCard-HSM cards requires a card reader that supports Extended
+Length APDUs.
+
+
+.SS  The Undefined card application ``undefined''
+\ 
+
+This is a stub application to allow the use of the APDU command even
+if no supported application is found on the card.  This application is
+not used automatically but must be explicitly requested using the
+SERIALNO command.
+
+
+
+.SH EXAMPLES
+
+
+.RS 2
+.nf
+$ scdaemon --server -v
+.fi
+.RE
+
+
+
+.SH FILES
+
+There are a few configuration files to control certain aspects of
+\fBscdaemons\fR's operation. Unless noted, they are expected in the
+current home directory (see: [option --homedir]).
+
+
+.TP
+.B  scdaemon.conf
+This is the standard configuration file read by \fBscdaemon\fR on
+startup.  It may contain any valid long option; the leading two dashes
+may not be entered and the option may not be abbreviated.  This default
+name may be changed on the command line (see: [option --options]).
+
+.TP
+.B  scd-event
+If this file is present and executable, it will be called on every card
+reader's status change.  An example of this script is provided with the
+distribution
+
+.TP
+.B  reader_\fIn\fR.status
+This file is created by \fBscdaemon\fR to let other applications now
+about reader status changes.  Its use is now deprecated in favor of
+\(oq\fIscd-event\fR\(cq.
+
+.P
+
+
+
+.SH SEE ALSO
+\fBgpg-agent\fR(1),
+\fBgpgsm\fR(1),
+\fBgpg2\fR(1)
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.

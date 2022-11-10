@@ -1,0 +1,192 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPGV 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpgv
+\- Verify OpenPGP signatures
+.SH SYNOPSIS
+.B  gpgv
+.RI [ options ]
+.I signed_files
+
+
+.SH DESCRIPTION
+\fBgpgv\fR is an OpenPGP signature verification tool.
+
+This program is actually a stripped-down version of \fBgpg\fR which is
+only able to check signatures. It is somewhat smaller than the fully-blown
+\fBgpg\fR and uses a different (and simpler) way to check that
+the public keys used to make the signature are valid. There are
+no configuration files and only a few options are implemented.
+
+\fBgpgv\fR assumes that all keys in the keyring are trustworthy.
+That does also mean that it does not check for expired or revoked
+keys.
+
+If no \fB--keyring\fR option is given, \fBgpgv\fR looks for a
+``default'' keyring named \(oq\fItrustedkeys.kbx\fR\(cq (preferred) or
+\(oq\fItrustedkeys.gpg\fR\(cq in the home directory of GnuPG, either the
+default home directory or the one set by the \fB--homedir\fR option
+or the \fBGNUPGHOME\fR environment variable.  If any \fB--keyring\fR
+option is used, \fBgpgv\fR will not look for the default keyring. The
+\fB--keyring\fR option may be used multiple times and all specified
+keyrings will be used together.
+
+
+.SH RETURN VALUE
+
+The program returns 0 if everything is fine, 1 if at least
+one signature was bad, and other error codes for fatal errors.
+
+.SH OPTIONS
+\fBgpgv\fR recognizes these options:
+
+
+.TP
+.B  --verbose
+.TQ
+.B  -v
+Gives more information during processing. If used
+twice, the input data is listed in detail.
+
+.TP
+.B  --quiet
+.TQ
+.B  -q
+Try to be as quiet as possible.
+
+.TP
+.B  --keyring \fIfile\fR
+Add \fIfile\fR to the list of keyrings.
+If \fIfile\fR begins with a tilde and a slash, these
+are replaced by the HOME directory. If the filename
+does not contain a slash, it is assumed to be in the
+home-directory ("~/.gnupg" if --homedir is not used).
+
+.TP
+.B  --output \fIfile\fR
+.TQ
+.B  -o \fIfile\fR
+Write output to \fIfile\fR; to write to stdout use \fB-\fR.  This
+option can be used to get the signed text from a cleartext or binary
+signature; it also works for detached signatures, but in that case
+this option is in general not useful.  Note that an existing file will
+be overwritten.
+
+
+.TP
+.B  --status-fd \fIn\fR
+Write special status strings to the file descriptor \fIn\fR.  See the
+file DETAILS in the documentation for a listing of them.
+
+.TP
+.B  --logger-fd \fBn\fR
+Write log output to file descriptor \fBn\fR and not to stderr.
+
+.TP
+.B  --log-file \fBfile\fR
+Same as \fB--logger-fd\fR, except the logger data is written to
+file \fBfile\fR.  Use \(oq\fIsocket://\fR\(cq to log to socket.
+
+.TP
+.B  --ignore-time-conflict
+GnuPG normally checks that the timestamps associated with keys and
+signatures have plausible values. However, sometimes a signature seems to
+be older than the key due to clock problems. This option turns these
+checks into warnings.
+
+.TP
+.B  --homedir \fIdir\fR
+Set the name of the home directory to \fIdir\fR. If this option is not
+used, the home directory defaults to \(oq\fI~/.gnupg\fR\(cq.  It is only
+recognized when given on the command line.  It also overrides any home
+directory stated through the environment variable \(oq\fIGNUPGHOME\fR\(cq or
+(on Windows systems) by means of the Registry entry
+\fIHKCU\\Software\\GNU\\GnuPG:HomeDir\fR.
+
+On Windows systems it is possible to install GnuPG as a portable
+application.  In this case only this command line option is
+considered, all other ways to set a home directory are ignored.
+
+To install GnuPG as a portable application under Windows, create an
+empty file named \(oq\fIgpgconf.ctl\fR\(cq in the same directory as the tool
+\(oq\fIgpgconf.exe\fR\(cq.  The root of the installation is then that
+directory; or, if \(oq\fIgpgconf.exe\fR\(cq has been installed directly below
+a directory named \(oq\fIbin\fR\(cq, its parent directory.  You also need to
+make sure that the following directories exist and are writable:
+\(oq\fIROOT/home\fR\(cq for the GnuPG home and \(oq\fIROOT/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/var/cache/gnupg\fR\(cq
+for internal cache files.
+
+.TP
+.B  --weak-digest \fBname\fR
+Treat the specified digest algorithm as weak.  Signatures made over
+weak digests algorithms are normally rejected. This option can be
+supplied multiple times if multiple algorithms should be considered
+weak.  MD5 is always considered weak, and does not need to be listed
+explicitly.
+
+.TP
+.B  --enable-special-filenames
+This option enables a mode in which filenames of the form
+\(oq\fI-&n\fR\(cq, where n is a non-negative decimal number,
+refer to the file descriptor n and not to a file with that name.
+
+.P
+
+.SH EXAMPLES
+
+
+.TP
+.B  gpgv \fBpgpfile\fR
+.TQ
+.B  gpgv \fBsigfile\fR [\fBdatafile\fR]
+Verify the signature of the file. The second form is used for detached
+signatures, where \fBsigfile\fR is the detached signature (either
+ASCII-armored or binary) and \fBdatafile\fR contains the signed data;
+if \fBdatafile\fR is "-" the signed data is expected on
+\fBstdin\fR; if \fBdatafile\fR is not given the name of the file
+holding the signed data is constructed by cutting off the extension
+(".asc", ".sig" or ".sign") from \fBsigfile\fR.
+
+.P
+
+.SH FILES
+
+
+.TP
+.B  ~/.gnupg/trustedkeys.gpg
+The default keyring with the allowed keys.
+
+.P
+
+.SH ENVIRONMENT
+
+
+.TP
+.B  HOME
+Used to locate the default home directory.
+
+.TP
+.B  GNUPGHOME
+If set directory used instead of "~/.gnupg".
+
+.P
+
+.SH SEE ALSO
+\fBgpg\fR(1)
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.
+
+
+
+

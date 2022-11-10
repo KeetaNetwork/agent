@@ -32,6 +32,7 @@
 		AEB3923C2919D5E0006A0F88 /* PublicKeyFileStoreController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */; };
 		AEEB99BA291B188E009557BC /* Grabber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEB99B9291B188E009557BC /* Grabber.swift */; };
 		AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF00416291A1AE600EA576C /* Dependencies.swift */; };
+		AEFA7467291C78DF00066571 /* gnupg in Resources */ = {isa = PBXBuildFile; fileRef = AEFA7466291C78DF00066571 /* gnupg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +74,7 @@
 		AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicKeyFileStoreController.swift; sourceTree = "<group>"; };
 		AEEB99B9291B188E009557BC /* Grabber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grabber.swift; sourceTree = "<group>"; };
 		AEF00416291A1AE600EA576C /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
+		AEFA7466291C78DF00066571 /* gnupg */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gnupg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +124,7 @@
 		AEB391A129146F40006A0F88 /* Agent */ = {
 			isa = PBXGroup;
 			children = (
+				AEFA7466291C78DF00066571 /* gnupg */,
 				0278003B291A26CD00B8BA11 /* Helpers */,
 				AEB3922E2919B397006A0F88 /* Setup */,
 				AEB391DA2914747A006A0F88 /* Secrets */,
@@ -264,6 +267,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEFA7467291C78DF00066571 /* gnupg in Resources */,
 				AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

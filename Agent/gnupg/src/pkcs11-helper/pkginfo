@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+pkg='pkcs11-helper'
+version='1.29.0'
+url="https://github.com/OpenSC/pkcs11-helper/releases/download/pkcs11-helper-${version}/pkcs11-helper-${version}.tar.bz2"
+sha256='996846a3c8395e03d8c0515111dc84d82e6e3648d44ba28cb2dbbbca2d4db7d6'
+require=(libressl)
+configure_extra=(--disable-shared --enable-static)

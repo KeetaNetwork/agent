@@ -1,0 +1,1650 @@
+Index: asn1-x509.c
+==================================================================
+--- a/asn1-x509.c
++++ b/asn1-x509.c
+@@ -24,19 +24,10 @@
+ #endif
+ 
+ #include "debug.h"
+ #include "asn1-x509.h"
+ 
+-struct asn1_object {
+-	unsigned long tag;
+-	unsigned long size;
+-	void *contents;
+-
+-	unsigned long asn1rep_len;
+-	void *asn1rep;
+-};
+-
+ struct x509_object {
+ 	struct asn1_object wholething;
+ 		struct asn1_object certificate;
+ 			struct asn1_object version;
+ 			struct asn1_object serial_number;
+@@ -451,5 +442,235 @@
+ 		}
+ 	}
+ 
+ 	return(retval);
+ }
++
++struct asn1_object *asn1_x509_write_asn1_object(int free_contents, struct asn1_object *object) {
++	unsigned char *outbuf, *outbuf_p;
++	unsigned long outbuf_max, outbuf_len;
++	int didMalloc = 0;
++
++	if (object == NULL) {
++		return(NULL);
++	}
++
++	outbuf = object->asn1rep;
++	outbuf_max = object->asn1rep_len;
++
++	if (outbuf == NULL) {
++		outbuf_max = object->size + 2;
++		outbuf = malloc(outbuf_max);
++
++		if (outbuf == NULL) {
++			return(NULL);
++		}
++
++		didMalloc = 1;
++	}
++
++	outbuf_p = outbuf;
++	*(outbuf_p++) = object->tag;
++	if (object->size < 0x80) {
++		*(outbuf_p++) = object->size;
++
++		if (outbuf_max < (2 + object->size)) {
++			return(NULL);
++		}
++	} else {
++		unsigned long size = object->size;
++		unsigned int size_count = 0, size_idx = 0;
++
++		while (size > 0) {
++			size_count++;
++			size >>= 8;
++		}
++
++		if (outbuf_max < (2 + object->size + size_count)) {
++			if (didMalloc) {
++				int outbuf_p_off;
++				outbuf_p_off = outbuf_p - outbuf;
++
++				outbuf_max = object->size + 2 + size_count;
++				outbuf = realloc(outbuf, outbuf_max);
++
++				if (outbuf == NULL) {
++					return(NULL);
++				}
++
++				outbuf_p = outbuf + outbuf_p_off;
++			} else {
++				return(NULL);
++			}
++		}
++
++		*(outbuf_p++) = 0x80 | size_count;
++
++		size = object->size;
++		for (size_idx = 1; size_idx <= size_count; size_idx++) {
++			*(outbuf_p++) = (size >> ((size_count - size_idx) * 8)) & 0xFF;
++		}
++	}
++
++	memcpy(outbuf_p, object->contents, object->size);
++	outbuf_p += object->size;
++
++	outbuf_len = outbuf_p - outbuf;
++
++	object->asn1rep = outbuf;
++	object->asn1rep_len = outbuf_len;
++
++	if (free_contents) {
++		free(object->contents);
++	}
++
++	return(object);
++}
++
++struct asn1_object *asn1_x509_new_asn1_object(int free_contents, unsigned long tag, void *contents, unsigned long size) {
++	struct asn1_object *output;
++	struct asn1_object *input;
++
++	if (size == ASN1_X509_INPUT_IS_ASN1_OBJECT) {
++		input = contents;
++		contents = input->asn1rep;
++		size = input->asn1rep_len;
++
++		if (free_contents) {
++			free(input);
++		}
++	}
++
++	output = malloc(sizeof(*output));
++	output->tag = tag;
++	output->contents = contents;
++	output->size = size;
++	output->asn1rep = NULL;
++	output->asn1rep_len = -1;
++
++	return(asn1_x509_write_asn1_object(free_contents, output));
++}
++
++struct asn1_object *_asn1_x509_write_asn1_sequence_or_set(int free_which, int tag, va_list args) {
++	struct asn1_object *item, **items;
++	va_list work_args;
++	unsigned char *item_buffer, *item_buffer_p;
++	unsigned long total_size = 0;
++	unsigned int item_count = 0, item_idx;
++
++	va_copy(work_args, args);
++
++	while (1) {
++		item = va_arg(work_args, struct asn1_object *);
++		if (item == NULL) {
++			break;
++		}
++
++		item_count++;
++	}
++
++	va_copy(work_args, args);
++
++	items = malloc(sizeof(*items) * item_count);
++	for (item_idx = 0; item_idx < item_count; item_idx++) {
++
++		items[item_idx] = va_arg(work_args, struct asn1_object *);
++	}
++
++	for (item_idx = 0; item_idx < item_count; item_idx++) {
++		item = items[item_idx];
++		total_size += item->asn1rep_len;
++	}
++
++	item_buffer = malloc(total_size);
++	item_buffer_p = item_buffer;
++	for (item_idx = 0; item_idx < item_count; item_idx++) {
++		item = items[item_idx];
++		memcpy(item_buffer_p, item->asn1rep, item->asn1rep_len);
++		item_buffer_p += item->asn1rep_len;
++
++		if (free_which & ASN1_X509_TO_FREE_CONTENTS) {
++			free(item->contents);
++		}
++
++		if (free_which & ASN1_X509_TO_FREE_ASN1REP) {
++			free(item->asn1rep);
++		}
++
++		if (free_which & ASN1_X509_TO_FREE_ITEMS) {
++			free(item);
++		}
++	}
++
++	free(items);
++
++	return(asn1_x509_new_asn1_object(1, tag, item_buffer, total_size));
++}
++
++struct asn1_object *asn1_x509_write_asn1_sequence(int free_which, ...) {
++	struct asn1_object *retval;
++	va_list args;
++
++	va_start(args, free_which);
++
++	retval = _asn1_x509_write_asn1_sequence_or_set(free_which, 0x30, args);
++
++	va_end(args);
++
++	return(retval);
++}
++
++struct asn1_object *asn1_x509_write_asn1_set(int free_which, ...) {
++	struct asn1_object *retval;
++	va_list args;
++
++	va_start(args, free_which);
++
++	retval = _asn1_x509_write_asn1_sequence_or_set(free_which, 0x11, args);
++
++	va_end(args);
++
++	return(retval);
++}
++
++struct asn1_object *asn1_x509_write_asn1_integer(int free_contents, unsigned char *contents, unsigned long size) {
++	unsigned char *tmp_buffer;
++	if (contents[0] < 0x80) {
++		return(asn1_x509_new_asn1_object(free_contents, 0x02, contents, size));
++	}
++
++	tmp_buffer = malloc(size + 1);
++	if (tmp_buffer == NULL) {
++		return(NULL);
++	}
++
++	memcpy(tmp_buffer + 1, contents, size);
++	tmp_buffer[0] = '\x00';
++
++	if (free_contents) {
++		free(contents);
++	}
++
++	return(asn1_x509_new_asn1_object(1, 0x02, tmp_buffer, size + 1));
++}
++
++struct asn1_object *asn1_x509_write_asn1_bitstring(int free_contents, unsigned char *contents, unsigned long size) {
++	unsigned char *tmp_buffer;
++
++	tmp_buffer = malloc(size + 1);
++	if (tmp_buffer == NULL) {
++		return(NULL);
++	}
++
++	memcpy(tmp_buffer + 1, contents, size);
++
++	/*
++	 * All our bit strings are evenly divisible by 8 bits
++	 */
++	tmp_buffer[0] = '\x00';
++
++	if (free_contents) {
++		free(contents);
++	}
++
++	return(asn1_x509_new_asn1_object(1, 0x03, tmp_buffer, size + 1));
++}
+
+Index: asn1-x509.h
+==================================================================
+--- a/asn1-x509.h
++++ b/asn1-x509.h
+@@ -7,10 +7,19 @@
+ #    include <unistd.h>
+ #  endif
+ #else
+ #  include <unistd.h>
+ #endif
++
++struct asn1_object {
++	unsigned long tag;
++	unsigned long size;
++	void *contents;
++
++	unsigned long asn1rep_len;
++	void *asn1rep;
++};
+ 
+ ssize_t x509_to_subject(void *x509_der_buf, size_t x509_der_buf_len, void **outbuf);
+ 
+ ssize_t x509_to_issuer(void *x509_der_buf, size_t x509_der_buf_len, void **outbuf);
+ 
+@@ -24,6 +33,17 @@
+ 
+ ssize_t x509_to_keysize(void *x509_der_buf, size_t x509_der_buf_len);
+ 
+ ssize_t x509_dn_to_string(void *asn1_der_buf, size_t asn1_der_buf_len, char *outbuf, size_t outbuf_len, char *matchlabel);
+ 
++#define ASN1_X509_TO_FREE_CONTENTS 1
++#define ASN1_X509_TO_FREE_ASN1REP  2
++#define ASN1_X509_TO_FREE_ITEMS    4
++#define ASN1_X509_INPUT_IS_ASN1_OBJECT ((unsigned long) -1)
++struct asn1_object *asn1_x509_write_asn1_object(int free_contents, struct asn1_object *object);
++struct asn1_object *asn1_x509_new_asn1_object(int free_contents, unsigned long tag, void *contents, unsigned long size);
++struct asn1_object *asn1_x509_write_asn1_sequence(int free_which, ...);
++struct asn1_object *asn1_x509_write_asn1_set(int free_which, ...);
++struct asn1_object *asn1_x509_write_asn1_integer(int free_contents, unsigned char *value, unsigned long size);
++struct asn1_object *asn1_x509_write_asn1_bitstring(int free_contents, unsigned char *value, unsigned long size);
++
+ #endif
+
+Index: configure.ac
+==================================================================
+--- a/configure.ac
++++ b/configure.ac
+@@ -21,11 +21,11 @@
+ dnl Determine how to create static archives on this platform
+ AC_CHECK_TOOL(AR, ar)
+ AC_CHECK_TOOL(RANLIB, ranlib)
+ 
+ dnl Check for all required headers
+-AC_CHECK_HEADERS(arpa/inet.h inttypes.h stdarg.h stdint.h stdio.h stdlib.h string.h sys/socket.h sys/types.h sys/un.h unistd.h pthread.h,,[
++AC_CHECK_HEADERS(arpa/inet.h inttypes.h stdarg.h stdint.h stdio.h stdlib.h string.h sys/socket.h sys/types.h sys/un.h unistd.h pthread.h signal.h,,[
+ 	AC_MSG_WARN([Required header missing, compilation will likely fail.])
+ ], [
+ #ifdef HAVE_ARPA_INET_H
+ #  include <arpa/inet.h>
+ #endif
+@@ -60,17 +60,23 @@
+ #  include <unistd.h>
+ #endif
+ #ifdef HAVE_PTHREAD_H
+ #  include <pthread.h>
+ #endif
++#ifdef HAVE_SIGNAL_H
++#  include <signal.h>
++#endif
+ ])
+ 
+ dnl Determine what libraries are required to get BSD socket functions
+ AC_SEARCH_LIBS(socket, [socket nsl])
+ AC_SEARCH_LIBS(connect, [socket nsl])
+ AC_SEARCH_LIBS(send, [socket nsl])
+ AC_SEARCH_LIBS(recv, [socket nsl])
++
++dnl Look for methods we need
++AC_CHECK_FUNCS([sigaction])
+ 
+ dnl Upate LDFLAGS to include setting the run-time linker path to the same as our compile-time linker
+ DC_SYNC_RPATH
+ 
+ dnl If we updated LIBOBJS, update SHLIBOBJS -- must be last.
+
+Index: debug.h
+==================================================================
+--- a/debug.h
++++ b/debug.h
+@@ -1,24 +1,35 @@
+ #ifndef DEBUG_H_45D5B4D29FDD9360A50683AAECE02B20F52AAE02
++#define DEBUG_H_45D5B4D29FDD9360A50683AAECE02B20F52AAE02 1
+ #ifdef LIBSSH_AGENT_CLIENT_DEBUG
+ #  ifdef HAVE_STDIO_H
+ #    include <stdio.h>
+ #  endif
+ 
+-#  define LIBSSH_AGENT_CLIENT_DEBUG_PRINTF(x...) { fprintf(stderr, "%s(): ", __func__); fprintf(stderr, x); fprintf(stderr, "\n"); }
+-#  define LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF(f, x, y) { unsigned char *DEBUG_PRINT_BUF; unsigned long idx; DEBUG_PRINT_BUF = (unsigned char *) (x); fprintf(stderr, "%s(): %s  (%s/%lu = {%02x", __func__, f, #x, (unsigned long) (y), DEBUG_PRINT_BUF[0]); for (idx = 1; idx < (y); idx++) { fprintf(stderr, ", %02x", DEBUG_PRINT_BUF[idx]); }; fprintf(stderr, "})\n"); }
+-#  define LIBSSH_AGENT_CLIENT_DEBUG_PERROR(x) { fprintf(stderr, "%s(): ", __func__); perror(x); }
++#  define LIBSSH_AGENT_CLIENT_DEBUG_PRINTF(x...) { fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "%s(): ", __func__); fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), x); fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "\n"); fflush(LIBSSH_AGENT_CLIENT_DEBUG_FD()); }
++#  define LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF(f, x, y) { unsigned char *DEBUG_PRINT_BUF; unsigned long DEBUG_PRINT_IDX; DEBUG_PRINT_BUF = (unsigned char *) (x); fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "%s(): %s  (%s/%lu = {%02x", __func__, f, #x, (unsigned long) (y), DEBUG_PRINT_BUF[0]); for (DEBUG_PRINT_IDX = 1; DEBUG_PRINT_IDX < (y); DEBUG_PRINT_IDX++) { fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), ", %02x", DEBUG_PRINT_BUF[DEBUG_PRINT_IDX]); }; fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "})\n"); fflush(LIBSSH_AGENT_CLIENT_DEBUG_FD()); }
++#  define LIBSSH_AGENT_CLIENT_DEBUG_PERROR(x) { fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "%s(): ", __func__); perror(x); }
+ #  define free(x) { LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("FREE(%p) (%s)", x, #x); free(x); }
++
++static FILE *_LIBSSH_AGENT_CLIENT_DEBUG_FD = NULL;
++static FILE *LIBSSH_AGENT_CLIENT_DEBUG_FD(void) {
++	return(stderr);
++
++	if (_LIBSSH_AGENT_CLIENT_DEBUG_FD == NULL) {
++		_LIBSSH_AGENT_CLIENT_DEBUG_FD = fopen("/Users/rkeene/devel/gpg-sign-se/ssh-agent-pkcs11/build/work/log", "a+");
++	}
++
++	return(_LIBSSH_AGENT_CLIENT_DEBUG_FD);
++}
+ 
+ static void *LIBSSH_AGENT_CLIENT_DEBUG_FUNC_MALLOC(size_t size, const char *func) {
+ 	void *retval;
+ 
+ 	retval = malloc(size);
+ 
+-	fprintf(stderr, "%s(): ", func);
+-	fprintf(stderr, "MALLOC() = %p", retval);
+-	fprintf(stderr, "\n");
++	fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "%s(): MALLOC = %p\n", func, retval);
++	fflush(LIBSSH_AGENT_CLIENT_DEBUG_FD());
+ 
+ 	return(retval);
+ }
+ 
+ static void *LIBSSH_AGENT_CLIENT_DEBUG_FUNC_REALLOC(void *ptr, size_t size, const char *func) {
+@@ -25,13 +36,12 @@
+ 	void *retval;
+ 
+ 	retval = realloc(ptr, size);
+ 
+ 	if (retval != ptr) {
+-		fprintf(stderr, "%s(): ", func);
+-		fprintf(stderr, "REALLOC(%p) = %p", ptr, retval);
+-		fprintf(stderr, "\n");
++		fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "%s(): REALLOC(%p) = %p\n", func, ptr, retval);
++		fflush(LIBSSH_AGENT_CLIENT_DEBUG_FD());
+ 	}
+ 
+ 	return(retval);
+ }
+ 
+
+Index: libssh-agent-client.c
+==================================================================
+--- a/libssh-agent-client.c
++++ b/libssh-agent-client.c
+@@ -20,10 +20,13 @@
+ #  include <stdlib.h>
+ #endif
+ #ifdef HAVE_STDIO_H
+ #  include <string.h>
+ #endif
++#ifdef HAVE_SIGNAL_H
++#  include <signal.h>
++#endif
+ #include <stdbool.h>
+ #include <stdio.h>
+ #include "libssh-agent-client.h"
+ 
+ #include "debug.h"
+@@ -79,11 +83,21 @@
+ 	}
+ 
+ 	return(authsock);
+ }
+ 
+-int ssh_agent_connect_socket(const char *path) {
++static void ssh_agent_register_sighandler(void) {
++#ifdef HAVE_SIGACTION
++	fprintf(stderr, "Registering SIGPIPE handler as SIG_IGN");
++	struct sigaction ignore = { SIG_IGN, 0, 0 };
++
++	sigaction(SIGPIPE, &ignore, NULL);
++#endif
++	return;
++}
++
++static int ssh_agent_connect_socket(const char *path) {
+ 	struct sockaddr_un addr;
+ 	int fd;
+ 	int conn_ret;
+ 
+ 	if (!path) {
+@@ -137,17 +151,22 @@
+ 			fakebuflen = buflen;
+ 		}
+ 
+ 		sendsize = htonl(fakebuflen);
+ 
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Sending header size: %lli", (long long int) fakebuflen);
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Sending Data", &sendsize, sizeof(sendsize));
++
+ 		send_ret = send(fd, &sendsize, sizeof(sendsize), 0);
+ 		if (send_ret != sizeof(sendsize)) {
+ 			LIBSSH_AGENT_CLIENT_DEBUG_PERROR("send");
+ 
+ 			return(-1);
+ 		}
+ 	}
++
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Sending Data", buf, buflen);
+ 
+ 	send_ret = send(fd, buf, buflen, 0);
+ 	if (send_ret != -1 && (size_t) send_ret != buflen) {
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PERROR("send");
+ 
+@@ -425,11 +444,183 @@
+ 	}
+ 
+ 	return(-1);
+ }
+ 
+-static void ssh_agent_set_key_info(struct ssh_agent_identity *identity) {
++/* Returns: Size of Key stored in retbuf, or -1 on error */
++static ssize_t ssh_agent_getkey(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity) {
++	unsigned char *buf, *buf_p, *idType, *foundKeyBuf;
++	uint32_t buf_len, numCerts;
++	ssize_t idTypeLen, keyLen, foundKeyBufLen;
++	bool validIdentity;
++	
++	if (identity->idType != KEY_ID_TYPE) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Asked to get a key for something that is not a key (idType = %i)", identity->idType);
++
++		return(-1);
++	}
++
++	if (!retbuf) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("retbuf is NULL");
++
++		return(-1);
++	}
++
++	if (!identity) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is NULL");
++
++		return(-1);
++	}
++
++	buf = identity->blob;
++	buf_len = identity->bloblen;
++
++	if (retbuflen < buf_len) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("retbuflen is too small (should be atleast %llu, is %llu)",
++		    (unsigned long long) buf_len,
++		    (unsigned long long) retbuflen
++		);
++
++		return(-1);
++	}
++
++	buf_p = buf;
++
++	idTypeLen = ssh_agent_buffer_getstr(buf, buf_len, &buf_p, &idType, 0, 2);
++	validIdentity = true;
++	if (idTypeLen >= 7 && memcmp(idType, "x509v3-", 7) == 0) {
++		validIdentity = false;
++	}
++
++	if (!validIdentity) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is invalid (got a certificate)");
++
++		return(-1);
++	}
++
++	foundKeyBuf = NULL;
++	switch (identity->keyType) {
++		case ECDSA_NIST_P_256_KEY_TYPE:
++			{
++				struct ecdsaNISTP256KeyInfo *keyInfo = &identity->keyInfo.ecdsaNISTP256Key;
++
++				foundKeyBuf = keyInfo->key;
++				foundKeyBufLen = keyInfo->keyLen;
++			}
++			break;
++		case RSA_KEY_TYPE:
++			{
++				struct rsaKeyInfo *keyInfo = &identity->keyInfo.rsaKey;
++
++				LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Not supported, putting this in PKCS#1 format");
++				return(0);	
++			}
++			break;
++		default:
++			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("No support for this kind of key: %i", identity->keyType);
++			break;
++	}
++
++	if (foundKeyBuf == NULL) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Found no public key for this identity");
++
++		return(-1);
++	}
++
++	if (foundKeyBufLen > retbuflen) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Unable to return key, does not fit in buffer of %lli bytes (found key is %lli bytes)", (long long) retbuflen, (long long) foundKeyBufLen);
++
++		return(-1);
++	}
++
++	memcpy(retbuf, foundKeyBuf, foundKeyBufLen);
++
++	return(foundKeyBufLen);
++}
++
++/* Returns: Size of DER encoded X.509 certificate stored in "retbuf", or -1 on error */
++static ssize_t ssh_agent_getcert(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity) {
++	unsigned char *buf, *buf_p, *idType;
++	uint32_t bufLen, numCerts;
++	ssize_t idTypeLen, certLen;
++	bool validIdentity;
++
++	if (identity->idType != CERT_ID_TYPE) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Asked to get a certificate for something that is not a certificate (idType = %i)", identity->idType);
++
++		return(-1);
++	}
++
++	if (!retbuf) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("retbuf is NULL");
++
++		return(-1);
++	}
++
++	if (!identity) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is NULL");
++
++		return(-1);
++	}
++
++	buf = identity->blob;
++	bufLen = identity->bloblen;
++
++	if (retbuflen < bufLen) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("retbuflen is too small (should be atleast %llu, is %llu)",
++		    (unsigned long long) bufLen,
++		    (unsigned long long) retbuflen
++		);
++
++		return(-1);
++	}
++
++	buf_p = buf;
++
++	idTypeLen = ssh_agent_buffer_getstr(buf, bufLen, &buf_p, &idType, 0, 2);
++	validIdentity = false;
++	if (idTypeLen >= 7 && memcmp(idType, "x509v3-", 7) == 0) {
++		validIdentity = true;
++	}
++
++	if (!validIdentity) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is invalid (not a certificate)");
++
++		return(-1);
++	}
++
++	numCerts = ssh_agent_buffer_getint(buf, bufLen, &buf_p);
++	if (numCerts < 1) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Too few certifificates in chain (%llu, should be atleast 1)",
++			(unsigned long long) numCerts
++		);
++	}
++
++	certLen = ssh_agent_buffer_getstr(buf, bufLen, &buf_p, &retbuf, 0, 0);
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("cert", retbuf, certLen);
++
++	return(certLen);
++}
++
++static void ssh_agent_set_cert_info(struct ssh_agent_identity *identity, int fd) {
++	struct certInfo *certInfo;
++	ssize_t certLen;
++
++	certInfo = &identity->keyInfo.cert;
++	certLen = ssh_agent_getcert(fd, certInfo->cert, sizeof(certInfo->cert), identity);
++	if (certLen == -1) {
++		return;
++	}
++
++	identity->idType = CERT_ID_TYPE;
++	identity->keyType = NOT_A_KEY_TYPE;
++	certInfo->certLen = certLen;
++
++	return;
++}
++
++static void ssh_agent_set_key_info(struct ssh_agent_identity *identity, int fd) {
+ 	unsigned char *buf, *buf_p;
+ 	uint32_t len;
+ 	unsigned char *tmp_buf, *key_type;
+ 	ssize_t tmp_buf_len, key_type_len;
+ 
+@@ -457,18 +648,34 @@
+ 		keyInfo = &identity->keyInfo.ecdsaNISTP256Key;
+ 
+ 		ec_curve_type_len = ssh_agent_buffer_getstr(buf, len, &buf_p, &ec_curve_type, 0, 1);
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Setting up identity for EcDSA with NIST P-256, Curve: %s", ec_curve_type);
+ 		free(ec_curve_type);
++
++		key_len = ssh_agent_buffer_getstr(buf, len, &buf_p, &key, 0, 2);
++
++		if (key_len < 0) {
++			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Got invalid key");
++
++			return;
++		}
++
++		if (key[0] != '\x04') {
++			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("We only support uncompressed EcDSA Keys, got: %lu", (unsigned long) key[0]);
++
++			return;
++		}
+ 
+ 		identity->idType = KEY_ID_TYPE;
+ 		identity->keyType = ECDSA_NIST_P_256_KEY_TYPE;
+ 
+-		key_len = ssh_agent_buffer_getstr(buf, len, &buf_p, &key, 0, 2);
+ 
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("EcDSA NIST P-256 Key", key, key_len);
+ 
++		keyInfo->keyPointLen = key_len + 1;
++		keyInfo->keyPoint[0] = '\x00';
++		memcpy(keyInfo->keyPoint + 1, key, keyInfo->keyPointLen);
+ 
+ 		/*
+ 		 * OID: 1.2.840.10045.3.1.7 is NIST P-256
+ 		 *
+ 		 * echo -ne '\x06\x08\x2a\x86\x48\xce\x3d\x03\x01\x07' | openssl asn1parse -inform der
+@@ -614,19 +821,27 @@
+ 		/*
+ 		 * Filter out items that do not contain valid information
+ 		 */
+ 		bufInternalTmp = identity->blob;
+ 		bufInternalLen = ssh_agent_buffer_getstr(identity->blob, identity->bloblen, &bufInternalTmp, &bufInternal, 0, 2);
++
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Key Type: %.*s", (int) bufInternalLen, bufInternal);
++
++		if (bufInternalLen >= 7 && memcmp(bufInternal, "x509v3-", 7) == 0) {
++			ssh_agent_set_cert_info(identity, fd);
++		} else {
++			ssh_agent_set_key_info(identity, fd);
++		}
+ 
+ 		validIdentity = true;
+-		if (bufInternalLen <= 0 || bufInternalLen >= 65536) {
+-			LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Ignored:", bufInternal, bufInternalLen);
+-
++		if (!(identity->idType == KEY_ID_TYPE || identity->idType == CERT_ID_TYPE)) {
+ 			validIdentity = false;
+ 		}
+ 
+ 		if (!validIdentity) {
++			LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Ignored:", bufInternal, bufInternalLen);
++
+ 			free(identity->blob);
+ 			free(identity->comment);
+ 			identity->blob = NULL;
+ 			identity->comment = NULL;
+ 			identity->idType = INVALID_ID_TYPE;
+@@ -634,19 +849,10 @@
+ 			currId--;
+ 			numIds--;
+ 			continue;
+ 		}
+ 
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Key Type: %.*s", (int) bufInternalLen, bufInternal);
+-
+-		if (bufInternalLen >= 7 && memcmp(bufInternal, "x509v3-", 7) == 0) {
+-			identity->idType = CERT_ID_TYPE;
+-			identity->keyType = NOT_A_KEY_TYPE;
+-		} else {
+-			ssh_agent_set_key_info(identity);
+-		}
+-
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("ID#%i: %s", currId, identity->comment);
+ 	}
+ 
+ 	if (numIds == 0) {
+ 		goto ssh_agent_getidentities_failure;
+@@ -670,11 +876,11 @@
+ 	}
+ 
+ 	return(NULL);
+ }
+ 
+-void ssh_agent_freeidentities(struct ssh_agent_identity *identities) {
++static void ssh_agent_freeidentities(struct ssh_agent_identity *identities) {
+ 	struct ssh_agent_identity *currid;
+ 
+ 	if (identities) {
+ 		for (currid = identities; currid->blob != NULL && currid->comment != NULL; currid++) {
+ 			if (currid->blob) {
+@@ -691,17 +897,18 @@
+ 
+ 	return;
+ }
+ 
+ /* Returns: Size of signed (encrypted) data written to "retbuf", or -1 on error */
+-ssize_t ssh_agent_sign(int fd, unsigned char *databuf, size_t databuflen, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity, int doHash) {
++static ssize_t ssh_agent_sign(int fd, unsigned char *databuf, size_t databuflen, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity, int doHash) {
+ 	unsigned char buf[4096], *buf_p, *wrapped_buf, *signature_buf;
+ 	char *msgtype;
+ 	uint32_t flags = 0, bloblen, datalen;
+ 	ssize_t recv_ret, buf_size, send_ret, msgtypelen, msglen;
+ 	size_t buf_len, wrapped_buf_len, signature_buf_len;
+ 
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("A");
+ 	if (!databuf) {
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("databuf is NULL");
+ 
+ 		return(-1);
+ 	}
+@@ -716,18 +923,23 @@
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is NULL");
+ 
+ 		return(-1);
+ 	}
+ 
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("B");
+ 	if ((1 + sizeof(bloblen) + sizeof(datalen) + sizeof(flags) + identity->bloblen + databuflen) > sizeof(buf)) {
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Buffer too small to hold outgoing data (need atleast %lli, have only %lli)",
+ 			(long long) (1 + sizeof(bloblen) + sizeof(datalen) + sizeof(flags) + identity->bloblen + databuflen),
+ 			(long long) sizeof(buf)
+ 		);
+ 
+ 		return(-1);
+ 	}
++
++	if (doHash == 1) {
++		flags = SSH2_AGENT_SIGNFLAGS_RSA_SHA2_256;
++	}
+ 
+ 	if (identity->idType == KEY_ID_TYPE) {
+ 		if (identity->keyType == RSA_KEY_TYPE) {
+ 			/* XXX: HACK -- THIS READS A WRAPPED ASN.1 SHA512 DIGEST */
+ 			if (databuflen == 83 && memcmp(databuf, "\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x03\x05\x00\x04\x40", 19) == 0) {
+@@ -737,10 +949,11 @@
+ 				flags = SSH2_AGENT_SIGNFLAGS_RSA_SHA2_512;
+ 			}
+ 		}
+ 	}
+ 
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("C");
+ 	if (doHash == 0) {
+ 		flags |= SSH2_AGENT_SIGNFLAGS_RSA_RAW; 
+ 	}
+ 
+ 	buf_p = buf;
+@@ -754,14 +967,16 @@
+ 
+ 	memcpy(buf_p, identity->blob, identity->bloblen);
+ 	buf_p += identity->bloblen;
+ 
+ 	LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Asking to sign:", databuf, databuflen);
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Flags = %llu", (unsigned long long) flags);
+ 	datalen = htonl(databuflen);
+ 	memcpy(buf_p, &datalen, sizeof(datalen));
+ 	buf_p += sizeof(datalen);
+ 
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("D");
+ 	memcpy(buf_p, databuf, databuflen);
+ 	buf_p += databuflen;
+ 
+ 	flags = htonl(flags);
+ 	memcpy(buf_p, &flags, sizeof(flags));
+@@ -770,10 +985,11 @@
+ 	send_ret = ssh_agent_send(fd, buf, buf_p - buf, 0);
+ 	if (send_ret != (buf_p - buf)) {
+ 		return(-1);
+ 	}
+ 
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("E");
+ 	recv_ret = ssh_agent_recv(fd, buf, sizeof(buf));
+ 	if (recv_ret < 1) {
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Received too little data. Got %lli, expected atleast 1", (long long) recv_ret);
+ 
+ 		return(-1);
+@@ -833,11 +1049,11 @@
+ 			return(-1);
+ 	}
+ }
+ 
+ /* Returns: Size of decrypted data written to "retbuf", or -1 on error */
+-ssize_t ssh_agent_decrypt(int fd, unsigned char *databuf, size_t databuflen, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity) {
++static ssize_t ssh_agent_decrypt(int fd, unsigned char *databuf, size_t databuflen, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity) {
+ 	unsigned char buf[4096], *buf_p;
+ 	uint32_t flags = 0, bloblen, datalen;
+ 	ssize_t recv_ret, send_ret, msglen;
+ 
+ 	if (!databuf) {
+@@ -929,161 +1145,5 @@
+ 
+ 	msglen = ssh_agent_buffer_getstr(buf, sizeof(buf), &buf_p, &retbuf, msglen, 0);
+ 
+ 	return(msglen);
+ }
+-
+-/* Returns: Size of Key stored in retbuf, or -1 on error */
+-ssize_t ssh_agent_getkey(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity) {
+-	unsigned char *buf, *buf_p, *idType, *foundKeyBuf;
+-	uint32_t buf_len, numCerts;
+-	ssize_t idTypeLen, keyLen, foundKeyBufLen;
+-	bool validIdentity;
+-	
+-	if (identity->idType != KEY_ID_TYPE) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Asked to get a key for something that is not a key (idType = %i)", identity->idType);
+-
+-		return(-1);
+-	}
+-
+-	if (!retbuf) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("retbuf is NULL");
+-
+-		return(-1);
+-	}
+-
+-	if (!identity) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is NULL");
+-
+-		return(-1);
+-	}
+-
+-	buf = identity->blob;
+-	buf_len = identity->bloblen;
+-
+-	if (retbuflen < buf_len) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("retbuflen is too small (should be atleast %llu, is %llu)",
+-		    (unsigned long long) buf_len,
+-		    (unsigned long long) retbuflen
+-		);
+-
+-		return(-1);
+-	}
+-
+-	buf_p = buf;
+-
+-	idTypeLen = ssh_agent_buffer_getstr(buf, buf_len, &buf_p, &idType, 0, 2);
+-	validIdentity = true;
+-	if (idTypeLen >= 7 && memcmp(idType, "x509v3-", 7) == 0) {
+-		validIdentity = false;
+-	}
+-
+-	if (!validIdentity) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is invalid (got a certificate)");
+-
+-		return(-1);
+-	}
+-
+-	foundKeyBuf = NULL;
+-	switch (identity->keyType) {
+-		case ECDSA_NIST_P_256_KEY_TYPE:
+-			{
+-				struct ecdsaNISTP256KeyInfo *keyInfo = &identity->keyInfo.ecdsaNISTP256Key;
+-
+-				foundKeyBuf = keyInfo->key;
+-				foundKeyBufLen = keyInfo->keyLen;
+-			}
+-			break;
+-		case RSA_KEY_TYPE:
+-			{
+-				struct rsaKeyInfo *keyInfo = &identity->keyInfo.rsaKey;
+-
+-				LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Not supported, putting this in PKCS#1 format");
+-				return(0);	
+-			}
+-			break;
+-		default:
+-			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("No support for this kind of key: %i", identity->keyType);
+-			break;
+-	}
+-
+-	if (foundKeyBuf == NULL) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Found no public key for this identity");
+-
+-		return(-1);
+-	}
+-
+-	if (foundKeyBufLen > retbuflen) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Unable to return key, does not fit in buffer of %lli bytes (found key is %lli bytes)", (long long) retbuflen, (long long) foundKeyBufLen);
+-
+-		return(-1);
+-	}
+-
+-	memcpy(retbuf, foundKeyBuf, foundKeyBufLen);
+-
+-	return(foundKeyBufLen);
+-}
+-
+-/* Returns: Size of DER encoded X.509 certificate stored in "retbuf", or -1 on error */
+-ssize_t ssh_agent_getcert(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity) {
+-	unsigned char *buf, *buf_p, *idType;
+-	uint32_t bufLen, numCerts;
+-	ssize_t idTypeLen, certLen;
+-	bool validIdentity;
+-
+-	if (identity->idType != CERT_ID_TYPE) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Asked to get a certificate for something that is not a certificate (idType = %i)", identity->idType);
+-
+-		return(-1);
+-	}
+-
+-	if (!retbuf) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("retbuf is NULL");
+-
+-		return(-1);
+-	}
+-
+-	if (!identity) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is NULL");
+-
+-		return(-1);
+-	}
+-
+-	buf = identity->blob;
+-	bufLen = identity->bloblen;
+-
+-	if (retbuflen < bufLen) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("retbuflen is too small (should be atleast %llu, is %llu)",
+-		    (unsigned long long) bufLen,
+-		    (unsigned long long) retbuflen
+-		);
+-
+-		return(-1);
+-	}
+-
+-	buf_p = buf;
+-
+-	idTypeLen = ssh_agent_buffer_getstr(buf, bufLen, &buf_p, &idType, 0, 2);
+-	validIdentity = false;
+-	if (idTypeLen >= 7 && memcmp(idType, "x509v3-", 7) == 0) {
+-		validIdentity = true;
+-	}
+-
+-	if (!validIdentity) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is invalid (not a certificate)");
+-
+-		return(-1);
+-	}
+-
+-	numCerts = ssh_agent_buffer_getint(buf, bufLen, &buf_p);
+-	if (numCerts < 1) {
+-		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Too few certifificates in chain (%llu, should be atleast 1)",
+-			(unsigned long long) numCerts
+-		);
+-	}
+-
+-	certLen = ssh_agent_buffer_getstr(buf, bufLen, &buf_p, &retbuf, 0, 0);
+-	LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("cert", retbuf, certLen);
+-
+-	return(certLen);
+-}
+-
+
+Index: libssh-agent-client.h
+==================================================================
+--- a/libssh-agent-client.h
++++ b/libssh-agent-client.h
+@@ -35,24 +35,31 @@
+ 	RSA_KEY_TYPE,
+ 	ECDSA_NIST_P_256_KEY_TYPE
+ } sshAgentKeyType;
+ 
+ struct ecdsaNISTP256KeyInfo {
+-	unsigned char parametersDER[32];
++	unsigned char parametersDER[1024];
+ 	ssize_t parametersDERLen;
+-	unsigned char keyPointDER[512];
++	unsigned char keyPoint[4096];
++	ssize_t keyPointLen;
++	unsigned char keyPointDER[4096];
+ 	ssize_t keyPointDERLen;
+-	unsigned char key[512];
++	unsigned char key[4096];
+ 	ssize_t keyLen;
+ };
+ 
+ struct rsaKeyInfo {
+ 	void *modulus;
+ 	ssize_t modulusLen;
+ 	void *exponent;
+ 	ssize_t exponentLen;
+ };
++
++struct certInfo {
++	unsigned char cert[16384];
++	ssize_t certLen;
++};
+ 
+ struct ssh_agent_identity {
+ 	uint32_t bloblen;
+ 	unsigned char *blob;
+ 	sshAgentIdType idType;
+@@ -62,33 +69,39 @@
+ 		/** If keyType == ECDSA_NIST_P_256_KEY_TYPE */
+ 		struct ecdsaNISTP256KeyInfo ecdsaNISTP256Key;
+ 
+ 		/** If keyType == RSA_KEY_TYPE */
+ 		struct rsaKeyInfo rsaKey;
++
++		/** If idType == CERT_ID_TYPE */
++		struct certInfo cert;
+ 	} keyInfo;
+ 
+ 	char *comment;
+ };
++
++/* Register a signal handler to deal with SIGPIPE */
++static void ssh_agent_register_sighandler(void);
+ 
+ /* Returns: File descriptor refering to connection to SSH Agent socket */
+ /* PATH -- if NULL, defaults to determining it from the environment */
+-int ssh_agent_connect_socket(const char *path);
++static int ssh_agent_connect_socket(const char *path);
+ 
+ /* Returns: array of struct ssh_agent_identity, NULL terminated */
+-struct ssh_agent_identity *ssh_agent_getidentities(int fd);
++static struct ssh_agent_identity *ssh_agent_getidentities(int fd);
+ 
+ /* Returns: Nothing */
+-void ssh_agent_freeidentities(struct ssh_agent_identity *identities);
++static void ssh_agent_freeidentities(struct ssh_agent_identity *identities);
+ 
+ /* Returns: Size of signed (encrypted) data written to "retbuf", or -1 on error */
+-ssize_t ssh_agent_sign(int fd, unsigned char *databuf, size_t databuflen, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity, int doHash);
++static ssize_t ssh_agent_sign(int fd, unsigned char *databuf, size_t databuflen, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity, int doHash);
+ 
+ /* Returns: Size of decrypted data written to "retbuf", or -1 on error */
+-ssize_t ssh_agent_decrypt(int fd, unsigned char *databuf, size_t databuflen, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity);
++static ssize_t ssh_agent_decrypt(int fd, unsigned char *databuf, size_t databuflen, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity);
+ 
+ /* Returns: Key */
+-ssize_t ssh_agent_getkey(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity);
++static ssize_t ssh_agent_getkey(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity);
+ 
+ /* Returns: Size of DER encoded X.509 certificate stored in "retbuf", or -1 on error */
+-ssize_t ssh_agent_getcert(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity);
++static ssize_t ssh_agent_getcert(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity);
+ 
+ #endif
+
+Index: libssh-agent-pkcs11-provider.c
+==================================================================
+--- a/libssh-agent-pkcs11-provider.c
++++ b/libssh-agent-pkcs11-provider.c
+@@ -22,11 +22,11 @@
+ #ifndef NULL_PTR
+ #  define NULL_PTR 0
+ #endif
+ 
+ #include "pkcs11.h"
+-#include "libssh-agent-client.h"
++#include "libssh-agent-client.c"
+ #include "asn1-x509.h"
+ #include "debug.h"
+ 
+ #ifndef SSH_AGENT_PKCS11_PROVIDER_CRYPTOKI_VERSION_CODE
+ #  define SSH_AGENT_PKCS11_PROVIDER_CRYPTOKI_VERSION_CODE 0x021e00
+@@ -88,10 +88,357 @@
+ static void *libssh_agent_pkcs11_biglock = NULL;
+ static struct libssh_agent_pkcs11_session libssh_agent_pkcs11_sessions[8];
+ static int libssh_agent_pkcs11_initialized = 0;
+ static int libssh_agent_pkcs11_biglock_init = 0;
+ CK_C_INITIALIZE_ARGS libssh_agent_pkcs11_args;
++
++static struct asn1_object *libssh_agent_pkcs11_get_cert_tbs(sshAgentKeyType keyType, unsigned char *publicKey, unsigned long publicKeyLen) {
++	struct asn1_object *tbs, *signatureAlgo = NULL, *pubKeyInfo = NULL;
++
++	switch (keyType) {
++		case ECDSA_NIST_P_256_KEY_TYPE:
++			signatureAlgo = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++				/* ecdsa-with-SHA256 */
++				asn1_x509_new_asn1_object(0, 0x06, "\x2a\x86\x48\xce\x3d\x04\x03\x02", 8),
++				NULL
++			);
++			pubKeyInfo = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++				asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++					/* id-ecPublicKey */
++					asn1_x509_new_asn1_object(0, 0x06, "\x2a\x86\x48\xce\x3d\x02\x01", 7),
++					/* prime256v1 */
++					asn1_x509_new_asn1_object(0, 0x06, "\x2a\x86\x48\xce\x3d\x03\x01\x07", 8),
++					NULL
++				),
++				asn1_x509_new_asn1_object(0, 0x03, publicKey, publicKeyLen),
++				NULL
++			);
++			break;
++		case RSA_KEY_TYPE:
++			signatureAlgo = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++				/* sha256WithRSAEncryption */
++				asn1_x509_new_asn1_object(0, 0x06, "\x2A\x86\x48\x86\xF7\x0D\x01\x01\x0B", 9),
++				asn1_x509_new_asn1_object(0, 0x05, "", 0),
++				NULL
++			);
++			pubKeyInfo = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++				asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++					/* rsaEncryption */
++					asn1_x509_new_asn1_object(0, 0x06, "\x2A\x86\x48\x86\xF7\x0D\x01\x01\x01", 9),
++					asn1_x509_new_asn1_object(0, 0x05, "", 0),
++					NULL
++				),
++				asn1_x509_write_asn1_bitstring(0, publicKey, publicKeyLen),
++				NULL
++			);
++			break;
++	}
++
++	if (signatureAlgo == NULL) {
++		return(NULL);
++	}
++
++	if (pubKeyInfo == NULL) {
++		free(signatureAlgo->asn1rep);
++		free(signatureAlgo);
++
++		return(NULL);
++	}
++
++	tbs = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++		/* Version Wrapper */
++		asn1_x509_new_asn1_object(ASN1_X509_TO_FREE_CONTENTS, 0xA0,
++			/* Version */
++			asn1_x509_new_asn1_object(0, 0x02, "\x02", 1),
++			ASN1_X509_INPUT_IS_ASN1_OBJECT
++		),
++
++		/* Serial Number */
++		asn1_x509_new_asn1_object(0, 0x02, "\x30", 1),
++
++		/* Signature Algorithm */
++		signatureAlgo,
++
++		/* Issuer DN */
++		asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++			asn1_x509_new_asn1_object(1, 0x31,
++				asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++					/* CN */
++					asn1_x509_new_asn1_object(0, 0x06, "\x55\x04\x03", 3),
++					asn1_x509_new_asn1_object(0, 0x0C, "Dummy", 5),
++					NULL
++				),
++				ASN1_X509_INPUT_IS_ASN1_OBJECT
++			),
++			NULL
++		),
++
++		/*
++		 * Validity period
++		 */
++		asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++			asn1_x509_new_asn1_object(0, 0x18, "20220101000000Z", 15),
++			asn1_x509_new_asn1_object(0, 0x18, "20420101000000Z", 15),
++			NULL
++		),
++
++		/* Subject DN */
++		asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++			asn1_x509_new_asn1_object(1, 0x31,
++				asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++					/* CN */
++					asn1_x509_new_asn1_object(0, 0x06, "\x55\x04\x03", 3),
++					asn1_x509_new_asn1_object(0, 0x0C, "Dummy", 5),
++					NULL
++				),
++				ASN1_X509_INPUT_IS_ASN1_OBJECT
++			),
++			NULL
++		),
++
++		/*
++		 * Key information
++		 */
++		pubKeyInfo,
++
++		/*
++		 * Extensions
++		 */
++		asn1_x509_new_asn1_object(ASN1_X509_TO_FREE_CONTENTS, 0xA3,
++			asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++				asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++					asn1_x509_new_asn1_object(0, 0x06, "\x55\x1d\x13", 3),
++					asn1_x509_new_asn1_object(0, 0x01, "\xFF", 1),
++					asn1_x509_new_asn1_object(0, 0x04, "\x30\x03\x01\x01\xFF", 5),
++					NULL
++				),
++				NULL
++			),
++			ASN1_X509_INPUT_IS_ASN1_OBJECT
++		),
++		NULL
++	);
++
++	return(tbs);
++}
++
++static struct asn1_object *libssh_agent_pkcs11_get_cert(sshAgentKeyType keyType, struct asn1_object *tbs, unsigned char *signature, unsigned long signatureLen) {
++	struct asn1_object *signatureAlgo = NULL, *sig, *cert;
++
++	switch (keyType) {
++		case ECDSA_NIST_P_256_KEY_TYPE:
++			signatureAlgo = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++				/* ecdsa-with-SHA256 */
++				asn1_x509_new_asn1_object(0, 0x06, "\x2a\x86\x48\xce\x3d\x04\x03\x02", 8),
++				NULL
++			);
++			break;
++		case RSA_KEY_TYPE:
++			signatureAlgo = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++				/* sha256WithRSAEncryption */
++				asn1_x509_new_asn1_object(0, 0x06, "\x2A\x86\x48\x86\xF7\x0D\x01\x01\x0B", 9),
++				asn1_x509_new_asn1_object(0, 0x05, "", 0),
++				NULL
++			);
++			break;
++	}
++
++	if (signatureAlgo == NULL) {
++		return(NULL);
++	}
++
++	sig = asn1_x509_write_asn1_bitstring(0, signature, signatureLen),
++
++	cert = asn1_x509_write_asn1_sequence(0,
++		/* To-Be-Signed Area */
++		tbs,
++
++		/* Signature Algorithm */
++		signatureAlgo,
++
++		/* Signature */
++		sig,
++		NULL
++	);
++
++	free(signatureAlgo->asn1rep);
++	free(signatureAlgo);
++	free(sig->asn1rep);
++	free(sig);
++
++	return(cert);
++}
++
++static void *libssh_agent_pkcs11_create_cert_rsa(struct ssh_agent_identity *identity, ssize_t *certLen) {
++	struct asn1_object *key_object, *tbs_object, *cert_object, *signature_object;
++	unsigned char raw_signature_buffer[1024], signature_buffer[1024], *r, *s;
++	unsigned char *signature;
++	unsigned long r_len, s_len;
++	ssize_t raw_signature_len, signature_len;
++	void *retval;
++	int fd;
++
++	fd = ssh_agent_connect_socket(NULL);
++	if (fd < 0) {
++		return(NULL);
++	}
++
++	key_object = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS, 
++		asn1_x509_write_asn1_integer(0, identity->keyInfo.rsaKey.modulus, identity->keyInfo.rsaKey.modulusLen),
++		asn1_x509_write_asn1_integer(0, identity->keyInfo.rsaKey.exponent, identity->keyInfo.rsaKey.exponentLen),
++		NULL
++	);
++
++	if (key_object == NULL || key_object->asn1rep == NULL) {
++		close(fd);
++
++		return(NULL);
++	}
++
++	tbs_object = libssh_agent_pkcs11_get_cert_tbs(RSA_KEY_TYPE, key_object->asn1rep, key_object->asn1rep_len);
++	free(key_object->asn1rep);
++	free(key_object);
++
++	if (tbs_object == NULL || tbs_object->asn1rep == NULL) {
++		close(fd);
++
++		return(NULL);
++	}
++
++	raw_signature_len = ssh_agent_sign(fd, tbs_object->asn1rep, tbs_object->asn1rep_len, raw_signature_buffer, sizeof(raw_signature_buffer), identity, 1);
++	close(fd);
++	if (raw_signature_len < 0) {
++		free(tbs_object->asn1rep);
++		free(tbs_object);
++
++		return(NULL);
++	}
++
++	signature_object = asn1_x509_write_asn1_integer(0, raw_signature_buffer, raw_signature_len);
++	if (signature_object == NULL || signature_object->asn1rep == NULL) {
++		free(tbs_object->asn1rep);
++		free(tbs_object);
++
++		return(NULL);
++	}
++
++	signature = raw_signature_buffer;
++	signature_len = raw_signature_len;
++
++	cert_object = libssh_agent_pkcs11_get_cert(RSA_KEY_TYPE, tbs_object, signature, signature_len);
++	if (cert_object == NULL) {
++		free(signature_object->asn1rep);
++		free(signature_object);
++		free(tbs_object->asn1rep);
++		free(tbs_object);
++
++		return(NULL);
++	}
++
++	retval = cert_object->asn1rep;
++	*certLen = cert_object->asn1rep_len;
++
++	free(signature_object->asn1rep);
++	free(signature_object);
++	free(tbs_object->asn1rep);
++	free(tbs_object);
++	free(cert_object);
++
++	return(retval);
++}
++
++static void *libssh_agent_pkcs11_create_cert_ecdsa(struct ssh_agent_identity *identity, ssize_t *certLen) {
++	struct asn1_object *tbs_object, *cert_object, *signature_object;
++	unsigned char raw_signature_buffer[1024], signature_buffer[1024], *r, *s;
++	unsigned char *signature;
++	unsigned long r_len, s_len;
++	ssize_t raw_signature_len, signature_len;
++	void *retval;
++	int fd;
++
++	fd = ssh_agent_connect_socket(NULL);
++	if (fd < 0) {
++		return(NULL);
++	}
++
++	tbs_object = libssh_agent_pkcs11_get_cert_tbs(ECDSA_NIST_P_256_KEY_TYPE, identity->keyInfo.ecdsaNISTP256Key.keyPoint, identity->keyInfo.ecdsaNISTP256Key.keyPointLen);
++
++	raw_signature_len = ssh_agent_sign(fd, tbs_object->asn1rep, tbs_object->asn1rep_len, raw_signature_buffer, sizeof(raw_signature_buffer), identity, 1);
++	close(fd);
++	if (raw_signature_len < 0) {
++		return(NULL);
++	}
++
++	if (raw_signature_len % 2 != 0) {
++		return(NULL);
++	}
++
++	r_len = raw_signature_len / 2;
++	s_len = raw_signature_len / 2;
++	r = &raw_signature_buffer[0];
++	s = &raw_signature_buffer[r_len];
++
++	signature_object = asn1_x509_write_asn1_sequence(ASN1_X509_TO_FREE_ASN1REP | ASN1_X509_TO_FREE_ITEMS,
++		asn1_x509_write_asn1_integer(0, r, r_len),
++		asn1_x509_write_asn1_integer(0, s, s_len),
++		NULL
++	);
++
++	signature = signature_object->asn1rep;
++	signature_len = signature_object->asn1rep_len;
++
++	memcpy(signature_buffer + 1, signature, signature_len);
++	signature_buffer[0] = '\x00';
++
++	free(signature_object->asn1rep);
++	free(signature_object);
++
++	cert_object = libssh_agent_pkcs11_get_cert(ECDSA_NIST_P_256_KEY_TYPE, tbs_object, signature_buffer, signature_len + 1);
++
++	retval = cert_object->asn1rep;
++	*certLen = cert_object->asn1rep_len;
++
++	free(tbs_object->asn1rep);
++	free(tbs_object);
++	free(cert_object);
++
++	return(retval);
++}
++
++static void *libssh_agent_pkcs11_create_cert(struct ssh_agent_identity *identity, ssize_t *certLen) {
++	if (identity->idType == CERT_ID_TYPE) {
++		void *certCopy;
++		ssize_t certCopyLen;
++
++		certCopyLen = identity->keyInfo.cert.certLen;
++
++		certCopy = malloc(certCopyLen);
++		if (certCopy == NULL) {
++			return(NULL);
++		}
++
++		*certLen = certCopyLen;
++		memcpy(certCopy, identity->keyInfo.cert.cert, certCopyLen);
++
++		return(certCopy);
++	} else if (identity->idType == KEY_ID_TYPE) {
++		switch (identity->keyType) {
++			case RSA_KEY_TYPE:
++				return(libssh_agent_pkcs11_create_cert_rsa(identity, certLen));
++				break;
++			case ECDSA_NIST_P_256_KEY_TYPE:
++				return(libssh_agent_pkcs11_create_cert_ecdsa(identity, certLen));
++				break;
++			default:
++				LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("We do not support handling this kind of key: %i", identity->keyType);
++				return(NULL);
++		}
++	}
++
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("We do not support handling this kind of identity: %i", identity->idType);
++	return(NULL);
++}
+ 
+ static unsigned long libssh_agent_pkcs11_getversion(void) {
+ 	static unsigned long retval = 255;
+ 	unsigned long major = 0;
+ 	unsigned long minor = 0;
+@@ -245,11 +592,11 @@
+ 	CK_ULONG ulValueLen;
+ 	CK_OBJECT_CLASS ck_object_class;
+ 	CK_CERTIFICATE_TYPE ck_certificate_type;
+ 	CK_KEY_TYPE ck_key_type;
+ 	CK_UTF8CHAR ucTmpBuf[4096];
+-	unsigned char certificate[16384], key[16384];
++	unsigned char certificate[16384], key[16384], *certificate_tmp;
+ 	ssize_t getcert_ret, getkey_ret, certificate_len = -1, key_len = -1, x509_read_ret;
+ 	int fd;
+ 	int pValue_free;
+ 	sshAgentIdType idType = INVALID_ID_TYPE;
+ 
+@@ -294,11 +641,34 @@
+ 	if (fd >= 0) {
+ 		close(fd);
+ 		fd = -1;
+ 	}
+ 
+-	if (objectclass == CKO_CERTIFICATE && idType != CERT_ID_TYPE) {
++	if (objectclass == CKO_CERTIFICATE && idType == KEY_ID_TYPE) {
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Requesting operations for a certificate on a key, generating a self-signed cert for this request...");
++
++		certificate_tmp = libssh_agent_pkcs11_create_cert(identity, &getcert_ret);
++		if (certificate_tmp == NULL) {
++			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("... self-sign request failed.");
++
++			return(NULL);
++		}
++
++		if (getcert_ret > sizeof(certificate) || getcert_ret < 0) {
++			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("... self-sign request completed, but won't fit in buffer.");
++
++			return(NULL);
++		}
++
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("... self-sign request completed");
++		LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Certificate", certificate_tmp, getcert_ret);
++
++		certificate_len = getcert_ret;
++		memcpy(certificate, certificate_tmp, certificate_len);
++
++		free(certificate_tmp);
++	} else if (objectclass == CKO_CERTIFICATE && idType != CERT_ID_TYPE) {
+ 		return(NULL);
+ 	}
+ 
+ 	for (curr_attr_type = 0; curr_attr_type < 0xce53635f; curr_attr_type++) {
+ 		if (curr_attr_type == 0x800) {
+@@ -462,11 +832,10 @@
+ 					case CKO_CERTIFICATE:
+ 						if (certificate_len > 0) {
+ 							pValue = certificate;
+ 							ulValueLen = certificate_len;
+ 						}
+-
+ 						break;
+ 				}
+ 
+ 				LIBSSH_AGENT_CLIENT_DEBUG_PRINTF(" ... returning %p/%lu", pValue, (unsigned long) ulValueLen);
+ 
+@@ -715,10 +1084,22 @@
+ 						break;
+ 					default:
+ 						LIBSSH_AGENT_CLIENT_DEBUG_PRINTF(" ... but not getting it because the key type isn't an EcDSA Key we know how to lookup (keyType = %i).", identity->keyType);
+ 						break;
+ 				}
++				break;
++			case 0x202 /* CKA_ALWAYS_AUTHENTICATE */:
++			case CKA_SIGN_RECOVER:
++			case CKA_UNWRAP:
++				LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Requesting attribute 0x%08lx ...", (unsigned long) curr_attr_type);
++
++				pValue = &ck_false;
++				ulValueLen = sizeof(ck_false);
++
++				LIBSSH_AGENT_CLIENT_DEBUG_PRINTF(" ... returning %lu (%p/%lu)", (unsigned long) *((CK_BBOOL *) pValue), pValue, (unsigned long) ulValueLen);
++
++				break;
+ 				break;
+ 			default:
+ 				pValue = NULL;
+ 				ulValueLen = (CK_LONG) -1;
+ 				break;
+@@ -766,16 +1147,18 @@
+ 	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Returning %lu objects (%p).", numattrs, retval);
+ 
+ 	return(retval);
+ }
+ 
+-CK_DEFINE_FUNCTION(CK_RV, C_Initialize)(CK_VOID_PTR pInitArgs) {
++__attribute__(( visibility("default") )) CK_DEFINE_FUNCTION(CK_RV, C_Initialize)(CK_VOID_PTR pInitArgs) {
+ 	CK_C_INITIALIZE_ARGS CK_PTR args;
+ 	uint32_t idx;
+ 	int mutex_init_ret;
+ 
+ 	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Called.");
++
++	ssh_agent_register_sighandler();
+ 
+ 	if (pInitArgs != NULL) {
+ 		args = pInitArgs;
+ 		memcpy(&libssh_agent_pkcs11_args, args, sizeof(libssh_agent_pkcs11_args));
+ 
+@@ -1274,23 +1657,11 @@
+ 	/* Verify that the card is actually in the slot. */
+ 	fd = ssh_agent_connect_socket(NULL);
+ 	if (fd >= 0) {
+ 		ssh_identities = ssh_agent_getidentities(fd);
+ 
+-		sigbuflen = ssh_agent_sign(fd, (CK_BYTE_PTR) "X", 1, sigbuf, sizeof(sigbuf), ssh_identities, 1);
+-
+ 		close(fd);
+-
+-		if (ssh_identities) {
+-			ssh_agent_freeidentities(ssh_identities);
+-		}
+-
+-		if (sigbuflen < 0) {
+-			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Error.  Card not present.  Returning CKR_DEVICE_REMOVED");
+-
+-			return(CKR_DEVICE_REMOVED);
+-		}
+ 	}
+ 
+ 	mutex_retval = libssh_agent_pkcs11_mutex_lock(libssh_agent_pkcs11_biglock);
+ 	if (mutex_retval != 0) {
+ 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Error.  Locking failed.");
+@@ -1337,14 +1708,10 @@
+ 
+ 				id_idx = 0;
+ 				curr_ssh_id_idx = 0;
+ 				for (curr_ssh_id = ssh_identities; curr_ssh_id && curr_ssh_id->comment; curr_ssh_id++) {
+ 					for (curr_id_type = CKO_CERTIFICATE; curr_id_type <= CKO_PRIVATE_KEY; curr_id_type++) {
+-						if (curr_id_type == CKO_CERTIFICATE && curr_ssh_id->idType != CERT_ID_TYPE) {
+-							continue;
+-						}
+-
+ 						identities[id_idx].ssh_identity = curr_ssh_id;
+ 
+ 						identities[id_idx].attributes = libssh_agent_pkcs11_get_attributes(curr_id_type, curr_ssh_id, curr_ssh_id_idx, &identities[id_idx].attributes_count);
+ 
+ 						if (identities[id_idx].attributes == NULL) {
+@@ -2943,11 +3310,10 @@
+ 				retval = CKR_OK;
+ 			}
+ 
+ 			break;
+ 		case CKM_SHA1_RSA_PKCS:
+-			/* Accumulate into a SHA1 hash */
+ 			libssh_agent_pkcs11_mutex_unlock(libssh_agent_pkcs11_biglock);
+ 
+ 			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Returning CKR_FUNCTION_NOT_SUPPORTED (%i)", CKR_FUNCTION_NOT_SUPPORTED);
+ 
+ 			return(CKR_FUNCTION_NOT_SUPPORTED);
+@@ -3260,11 +3626,11 @@
+ 	return(CKR_FUNCTION_NOT_PARALLEL);
+ 
+ 	hSession = hSession; /* Supress unused variable warning */
+ }
+ 
+-CK_DEFINE_FUNCTION(CK_RV, C_GetFunctionList)(CK_FUNCTION_LIST_PTR_PTR ppFunctionList) {
++__attribute__(( visibility("default") )) CK_DEFINE_FUNCTION(CK_RV, C_GetFunctionList)(CK_FUNCTION_LIST_PTR_PTR ppFunctionList) {
+ 	CK_FUNCTION_LIST_PTR pFunctionList;
+ 
+ 	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Called.");
+ 
+ 	if (ppFunctionList == NULL) {
+

@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+
+pkg='gnupg'
+version='2.3.8'
+url="https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${version}.tar.bz2"
+sha256='540b7a40e57da261fb10ef521a282e0021532a80fd023e75fb71757e8a4969ed'
+require=(libgpg-error libgcrypt libksba libassuan libnpth libiconv)
+configure_extra=(--disable-shared --enable-static --disable-ldap --disable-dirmngr)
+
+preconfigure() {
+	configure_extra+=(CPPFLAGS="-I$(pwd)/.fakeroot/include" LDFLAGS="-L$(pwd)/.fakeroot/lib")
+}

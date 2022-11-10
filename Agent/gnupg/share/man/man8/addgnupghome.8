@@ -1,0 +1,30 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH ADDGNUPGHOME 8 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B addgnupghome
+\- Create .gnupg home directories
+.SH SYNOPSIS
+.B  addgnupghome
+.I account_1
+.IR account_2 ... account_n
+
+.SH DESCRIPTION
+If GnuPG is installed on a system with existing user accounts, it is
+sometimes required to populate the GnuPG home directory with existing
+files.  Especially a \(oq\fItrustlist.txt\fR\(cq and a keybox with some
+initial certificates are often desired.  This script helps to do this
+by copying all files from \(oq\fI/etc/skel/.gnupg\fR\(cq to the home
+directories of the accounts given on the command line.  It takes care
+not to overwrite existing GnuPG home directories.
+
+
+\fBaddgnupghome\fR is invoked by root as:
+
+.RS 2
+.nf
+addgnupghome account1 account2 ... accountn
+.fi
+.RE
+
+
+

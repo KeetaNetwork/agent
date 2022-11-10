@@ -1,0 +1,13 @@
+#! /usr/bin/env bash
+
+pkg='ssh-agent-pkcs11'
+version='0.0737d85a4a'
+_commit="$(echo "${version}" | cut -f 2 -d .)"
+url="https://chiselapp.com/user/rkeene/repository/ssh-agent-pkcs11/tarball/${_commit}/unnamed-${_commit}.tar.gz"
+sha256='36fe6dbcd384bef02292cb912c4006a7ab2c10094e5d7bb4a6796ca6d8955a29'
+require=()
+configure_extra=()
+
+preconfigure() {
+	./autogen.sh
+}

@@ -1,0 +1,1160 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPGSM 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpgsm
+\- CMS encryption and signing tool
+.SH SYNOPSIS
+.B  gpgsm
+.RB [ \-\-homedir
+.IR dir ]
+.RB [ \-\-options
+.IR file ]
+.RI [ options ]
+.I command
+.RI [ args ]
+
+
+.SH DESCRIPTION
+\fBgpgsm\fR is a tool similar to \fBgpg\fR to provide digital
+encryption and signing services on X.509 certificates and the CMS
+protocol.  It is mainly used as a backend for S/MIME mail processing.
+\fBgpgsm\fR includes a full featured certificate management and
+complies with all rules defined for the German Sphinx project.
+
+
+
+
+.SH COMMANDS
+
+Commands are not distinguished from options except for the fact that
+only one command is allowed.
+
+
+
+
+.SS  Commands not specific to the function
+\ 
+
+.TP
+.B  --version
+Print the program version and licensing information.  Note that you
+cannot abbreviate this command.
+
+.TP
+.B  --help, -h
+Print a usage message summarizing the most useful command-line options.
+Note that you cannot abbreviate this command.
+
+.TP
+.B  --warranty
+Print warranty information.  Note that you cannot abbreviate this
+command.
+
+.TP
+.B  --dump-options
+Print a list of all available options and commands.  Note that you cannot
+abbreviate this command.
+.P
+
+
+
+.SS  Commands to select the type of operation
+\ 
+
+.TP
+.B  --encrypt
+Perform an encryption.  The keys the data is encrypted to must be set
+using the option \fB--recipient\fR.
+
+.TP
+.B  --decrypt
+Perform a decryption; the type of input is automatically determined.  It
+may either be in binary form or PEM encoded; automatic determination of
+base-64 encoding is not done.
+
+.TP
+.B  --sign
+Create a digital signature.  The key used is either the fist one found
+in the keybox or those set with the \fB--local-user\fR option.
+
+.TP
+.B  --verify
+Check a signature file for validity.  Depending on the arguments a
+detached signature may also be checked.
+
+.TP
+.B  --server
+Run in server mode and wait for commands on the \fBstdin\fR.
+
+.TP
+.B  --call-dirmngr \fIcommand\fR [\fIargs\fR]
+Behave as a Dirmngr client issuing the request \fIcommand\fR with the
+optional list of \fIargs\fR.  The output of the Dirmngr is printed
+stdout.  Please note that file names given as arguments should have an
+absolute file name (i.e. commencing with \fB/\fR) because they are
+passed verbatim to the Dirmngr and the working directory of the
+Dirmngr might not be the same as the one of this client.  Currently it
+is not possible to pass data via stdin to the Dirmngr.  \fIcommand\fR
+should not contain spaces.
+
+This is command is required for certain maintaining tasks of the dirmngr
+where a dirmngr must be able to call back to \fBgpgsm\fR.  See the Dirmngr
+manual for details.
+
+.TP
+.B  --call-protect-tool \fIarguments\fR
+Certain maintenance operations are done by an external program call
+\fBgpg-protect-tool\fR; this is usually not installed in a directory
+listed in the PATH variable.  This command provides a simple wrapper to
+access this tool.  \fIarguments\fR are passed verbatim to this command;
+use \(oq--help\(cq to get a list of supported operations.
+
+
+.P
+
+
+
+.SS  How to manage the certificates and keys
+\ 
+
+.TP
+.B  --generate-key
+.TQ
+.B  --gen-key
+This command allows the creation of a certificate signing request or a
+self-signed certificate.  It is commonly used along with the
+\fB--output\fR option to save the created CSR or certificate into a
+file.  If used with the \fB--batch\fR a parameter file is used to
+create the CSR or certificate and it is further possible to create
+non-self-signed certificates.
+
+.TP
+.B  --list-keys
+.TQ
+.B  -k
+List all available certificates stored in the local key database.
+Note that the displayed data might be reformatted for better human
+readability and illegal characters are replaced by safe substitutes.
+
+.TP
+.B  --list-secret-keys
+.TQ
+.B  -K
+List all available certificates for which a corresponding a secret key
+is available.
+
+.TP
+.B  --list-external-keys \fIpattern\fR
+List certificates matching \fIpattern\fR using an external server.  This
+utilizes the \fBdirmngr\fR service.
+
+.TP
+.B  --list-chain
+Same as \fB--list-keys\fR but also prints all keys making up the chain.
+
+
+.TP
+.B  --dump-cert
+.TQ
+.B  --dump-keys
+List all available certificates stored in the local key database using a
+format useful mainly for debugging.
+
+.TP
+.B  --dump-chain
+Same as \fB--dump-keys\fR but also prints all keys making up the chain.
+
+.TP
+.B  --dump-secret-keys
+List all available certificates for which a corresponding a secret key
+is available using a format useful mainly for debugging.
+
+.TP
+.B  --dump-external-keys \fIpattern\fR
+List certificates matching \fIpattern\fR using an external server.
+This utilizes the \fBdirmngr\fR service.  It uses a format useful
+mainly for debugging.
+
+.TP
+.B  --show-certs [\fIfiles\fR]
+This command takes certificate files as input and prints information
+about them in the same format as \fB--dump-cert\fR does.  Each file
+may either contain a single binary certificate or several PEM encoded
+certificates.  If no files are given, the input is taken from stdin.
+
+Please note that the listing format may be changed in future releases
+and that the option \fB--with-colons\fR has currently no effect.
+
+
+.TP
+.B  --keydb-clear-some-cert-flags
+This is a debugging aid to reset certain flags in the key database
+which are used to cache certain certificate statuses.  It is especially
+useful if a bad CRL or a weird running OCSP responder did accidentally
+revoke certificate.  There is no security issue with this command
+because \fBgpgsm\fR always make sure that the validity of a certificate is
+checked right before it is used.
+
+.TP
+.B  --delete-keys \fIpattern\fR
+Delete the keys matching \fIpattern\fR.  Note that there is no command
+to delete the secret part of the key directly.  In case you need to do
+this, you should run the command \fBgpgsm --dump-secret-keys KEYID\fR
+before you delete the key, copy the string of hex-digits in the
+``keygrip'' line and delete the file consisting of these hex-digits
+and the suffix \fB.key\fR from the \(oq\fIprivate-keys-v1.d\fR\(cq directory
+below our GnuPG home directory (usually \(oq\fI~/.gnupg\fR\(cq).
+
+.TP
+.B  --export [\fIpattern\fR]
+Export all certificates stored in the Keybox or those specified by the
+optional \fIpattern\fR. Those pattern consist of a list of user ids
+(see: [how-to-specify-a-user-id]).  When used along with the
+\fB--armor\fR option a few informational lines are prepended before
+each block.  There is one limitation: As there is no commonly agreed
+upon way to pack more than one certificate into an ASN.1 structure,
+the binary export (i.e. without using \fBarmor\fR) works only for
+the export of one certificate.  Thus it is required to specify a
+\fIpattern\fR which yields exactly one certificate.  Ephemeral
+certificate are only exported if all \fIpattern\fR are given as
+fingerprints or keygrips.
+
+.TP
+.B  --export-secret-key-p12 \fIkey-id\fR
+Export the private key and the certificate identified by \fIkey-id\fR
+using the PKCS#12 format.  When used with the \fB--armor\fR option a few
+informational lines are prepended to the output.  Note, that the PKCS#12
+format is not very secure and proper transport security should be used
+to convey the exported key.  (See: [option --p12-charset].)
+
+.TP
+.B  --export-secret-key-p8 \fIkey-id\fR
+.TQ
+.B  --export-secret-key-raw \fIkey-id\fR
+Export the private key of the certificate identified by \fIkey-id\fR
+with any encryption stripped.  The \fB...-raw\fR command exports in
+PKCS#1 format; the \fB...-p8\fR command exports in PKCS#8 format.
+When used with the \fB--armor\fR option a few informational lines are
+prepended to the output.  These commands are useful to prepare a key
+for use on a TLS server.
+
+.TP
+.B  --import [\fIfiles\fR]
+Import the certificates from the PEM or binary encoded files as well as
+from signed-only messages.  This command may also be used to import a
+secret key from a PKCS#12 file.
+
+.TP
+.B  --learn-card
+Read information about the private keys from the smartcard and import
+the certificates from there.  This command utilizes the \fBgpg-agent\fR
+and in turn the \fBscdaemon\fR.
+
+.TP
+.B  --change-passphrase \fIuser_id\fR
+.TQ
+.B  --passwd \fIuser_id\fR
+Change the passphrase of the private key belonging to the certificate
+specified as \fIuser_id\fR.  Note, that changing the passphrase/PIN of a
+smartcard is not yet supported.
+
+.P
+
+
+
+.SH OPTIONS
+
+\fBGPGSM\fR features a bunch of options to control the exact behaviour
+and to change the default configuration.
+
+
+
+
+.SS  How to change the configuration
+\ 
+
+These options are used to change the configuration and are usually found
+in the option file.
+
+
+
+.TP
+.B  --options \fIfile\fR
+Reads configuration from \fIfile\fR instead of from the default
+per-user configuration file.  The default configuration file is named
+\(oq\fIgpgsm.conf\fR\(cq and expected in the \(oq\fI.gnupg\fR\(cq directory directly
+below the home directory of the user.
+
+.TP
+.B  --homedir \fIdir\fR
+Set the name of the home directory to \fIdir\fR. If this option is not
+used, the home directory defaults to \(oq\fI~/.gnupg\fR\(cq.  It is only
+recognized when given on the command line.  It also overrides any home
+directory stated through the environment variable \(oq\fIGNUPGHOME\fR\(cq or
+(on Windows systems) by means of the Registry entry
+\fIHKCU\\Software\\GNU\\GnuPG:HomeDir\fR.
+
+On Windows systems it is possible to install GnuPG as a portable
+application.  In this case only this command line option is
+considered, all other ways to set a home directory are ignored.
+
+To install GnuPG as a portable application under Windows, create an
+empty file named \(oq\fIgpgconf.ctl\fR\(cq in the same directory as the tool
+\(oq\fIgpgconf.exe\fR\(cq.  The root of the installation is then that
+directory; or, if \(oq\fIgpgconf.exe\fR\(cq has been installed directly below
+a directory named \(oq\fIbin\fR\(cq, its parent directory.  You also need to
+make sure that the following directories exist and are writable:
+\(oq\fIROOT/home\fR\(cq for the GnuPG home and \(oq\fIROOT/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/var/cache/gnupg\fR\(cq
+for internal cache files.
+
+
+.TP
+.B  -v
+.TP
+.B  --verbose
+Outputs additional information while running.
+You can increase the verbosity by giving several
+verbose commands to \fBgpgsm\fR, such as \(oq-vv\(cq.
+
+.TP
+.B  --keyserver \fIstring\fR
+This is a deprecated option.  It was used to add an LDAP server to use
+for X.509 certificate and CRL lookup.  The alias \fB--ldapserver\fR
+existed from version 2.2.28 to 2.2.33 and 2.3.2 to 2.3.4 but is now
+entirely ignored.
+
+LDAP servers must be given in the configuration for \fBdirmngr\fR.
+
+.TP
+.B  --policy-file \fIfilename\fR
+Change the default name of the policy file to \fIfilename\fR.  The
+default name is \(oq\fIpolicies.txt\fR\(cq.
+
+.TP
+.B  --agent-program \fIfile\fR
+Specify an agent program to be used for secret key operations.  The
+default value is determined by running the command \fBgpgconf\fR.
+Note that the pipe symbol (\fB|\fR) is used for a regression test
+suite hack and may thus not be used in the file name.
+
+.TP
+.B  --dirmngr-program \fIfile\fR
+Specify a dirmngr program to be used for CRL checks.  The
+default value is \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/bin/dirmngr\fR\(cq.
+
+.TP
+.B  --prefer-system-dirmngr
+This option is obsolete and ignored.
+
+.TP
+.B  --disable-dirmngr
+Entirely disable the use of the Dirmngr.
+
+.TP
+.B  --no-autostart
+Do not start the gpg-agent or the dirmngr if it has not yet been
+started and its service is required.  This option is mostly useful on
+machines where the connection to gpg-agent has been redirected to
+another machines.  If dirmngr is required on the remote machine, it
+may be started manually using \fBgpgconf --launch dirmngr\fR.
+
+.TP
+.B  --no-secmem-warning
+Do not print a warning when the so called "secure memory" cannot be used.
+
+.TP
+.B  --log-file \fIfile\fR
+When running in server mode, append all logging output to \fIfile\fR.
+Use \(oq\fIsocket://\fR\(cq to log to socket.
+
+.P
+
+
+
+.SS  Certificate related options
+\ 
+
+
+.TP
+.B   --enable-policy-checks
+.TQ
+.B  --disable-policy-checks
+By default policy checks are enabled.  These options may be used to
+change it.
+
+.TP
+.B   --enable-crl-checks
+.TQ
+.B  --disable-crl-checks
+By default the CRL checks are enabled and the DirMngr is
+used to check for revoked certificates.  The disable option is most
+useful with an off-line network connection to suppress this check and
+also to avoid that new certificates introduce a web bug by including a
+certificate specific CRL DP.  The disable option also disables an
+issuer certificate lookup via the authorityInfoAccess property of the
+certificate; the \fB--enable-issuer-key-retrieve\fR can be used
+to make use of that property anyway.
+
+.TP
+.B   --enable-trusted-cert-crl-check
+.TQ
+.B  --disable-trusted-cert-crl-check
+By default the CRL for trusted root certificates are checked
+like for any other certificates.  This allows a CA to revoke its own
+certificates voluntary without the need of putting all ever issued
+certificates into a CRL.  The disable option may be used to switch this
+extra check off.  Due to the caching done by the Dirmngr, there will not be
+any noticeable performance gain.  Note, that this also disables possible
+OCSP checks for trusted root certificates.  A more specific way of
+disabling this check is by adding the ``relax'' keyword to the root CA
+line of the \(oq\fItrustlist.txt\fR\(cq
+
+
+.TP
+.B  --force-crl-refresh
+Tell the dirmngr to reload the CRL for each request.  For better
+performance, the dirmngr will actually optimize this by suppressing
+the loading for short time intervals (e.g. 30 minutes). This option
+is useful to make sure that a fresh CRL is available for certificates
+hold in the keybox.  The suggested way of doing this is by using it
+along with the option \fB--with-validation\fR for a key listing
+command.  This option should not be used in a configuration file.
+
+.TP
+.B  --enable-issuer-based-crl-check
+Run a CRL check even for certificates which do not have any CRL
+distribution point.  This requires that a suitable LDAP server has
+been configured in Dirmngr and that the CRL can be found using the
+issuer.  This option reverts to what GnuPG did up to version 2.2.20.
+This option is in general not useful.
+
+.TP
+.B   --enable-ocsp
+.TQ
+.B  --disable-ocsp
+By default OCSP checks are disabled.  The enable option may
+be used to enable OCSP checks via Dirmngr.  If CRL checks
+are also enabled, CRLs will be used as a fallback if for some reason an
+OCSP request will not succeed.  Note, that you have to allow OCSP
+requests in Dirmngr's configuration too (option
+\fB--allow-ocsp\fR) and configure Dirmngr properly.  If you do not do
+so you will get the error code \(oqNot supported\(cq.
+
+.TP
+.B  --auto-issuer-key-retrieve
+If a required certificate is missing while validating the chain of
+certificates, try to load that certificate from an external location.
+This usually means that Dirmngr is employed to search for the
+certificate.  Note that this option makes a "web bug" like behavior
+possible.  LDAP server operators can see which keys you request, so by
+sending you a message signed by a brand new key (which you naturally
+will not have on your local keybox), the operator can tell both your IP
+address and the time when you verified the signature.
+
+
+
+.TP
+.B  --validation-model \fIname\fR
+This option changes the default validation model.  The only possible
+values are "shell" (which is the default), "chain" which forces the
+use of the chain model and "steed" for a new simplified model.  The
+chain model is also used if an option in the \(oq\fItrustlist.txt\fR\(cq or
+an attribute of the certificate requests it.  However the standard
+model (shell) is in that case always tried first.
+
+.TP
+.B  --ignore-cert-extension \fIoid\fR
+Add \fIoid\fR to the list of ignored certificate extensions.  The
+\fIoid\fR is expected to be in dotted decimal form, like
+\fB2.5.29.3\fR.  This option may be used more than once.  Critical
+flagged certificate extensions matching one of the OIDs in the list
+are treated as if they are actually handled and thus the certificate
+will not be rejected due to an unknown critical extension.  Use this
+option with care because extensions are usually flagged as critical
+for a reason.
+
+.P
+
+
+.SS  Input and Output
+\ 
+
+.TP
+.B  --armor
+.TQ
+.B  -a
+Create PEM encoded output.  Default is binary output.
+
+.TP
+.B  --base64
+Create Base-64 encoded output; i.e. PEM without the header lines.
+
+.TP
+.B  --assume-armor
+Assume the input data is PEM encoded.  Default is to autodetect the
+encoding but this is may fail.
+
+.TP
+.B  --assume-base64
+Assume the input data is plain base-64 encoded.
+
+.TP
+.B  --assume-binary
+Assume the input data is binary encoded.
+
+
+.TP
+.B  --p12-charset \fIname\fR
+\fBgpgsm\fR uses the UTF-8 encoding when encoding passphrases for
+PKCS#12 files.  This option may be used to force the passphrase to be
+encoded in the specified encoding \fIname\fR.  This is useful if the
+application used to import the key uses a different encoding and thus
+will not be able to import a file generated by \fBgpgsm\fR.  Commonly
+used values for \fIname\fR are \fBLatin1\fR and \fBCP850\fR.  Note
+that \fBgpgsm\fR itself automagically imports any file with a
+passphrase encoded to the most commonly used encodings.
+
+
+.TP
+.B  --default-key \fIuser_id\fR
+Use \fIuser_id\fR as the standard key for signing.  This key is used if
+no other key has been defined as a signing key.  Note, that the first
+\fB--local-users\fR option also sets this key if it has not yet been
+set; however \fB--default-key\fR always overrides this.
+
+
+.TP
+.B  --local-user \fIuser_id\fR
+.TP
+.B  -u \fIuser_id\fR
+Set the user(s) to be used for signing.  The default is the first
+secret key found in the database.
+
+
+.TP
+.B  --recipient \fIname\fR
+.TQ
+.B  -r
+Encrypt to the user id \fIname\fR.  There are several ways a user id
+may be given (see: [how-to-specify-a-user-id]).
+
+
+.TP
+.B  --output \fIfile\fR
+.TQ
+.B  -o \fIfile\fR
+Write output to \fIfile\fR.  The default is to write it to stdout.
+
+
+
+.TP
+.B  --with-key-data
+Displays extra information with the \fB--list-keys\fR commands.  Especially
+a line tagged \fBgrp\fR is printed which tells you the keygrip of a
+key.  This string is for example used as the file name of the
+secret key.  Implies \fB--with-colons\fR.
+
+
+.TP
+.B  --with-validation
+When doing a key listing, do a full validation check for each key and
+print the result.  This is usually a slow operation because it
+requires a CRL lookup and other operations.
+
+When used along with \fB--import\fR, a validation of the certificate to
+import is done and only imported if it succeeds the test.  Note that
+this does not affect an already available certificate in the DB.
+This option is therefore useful to simply verify a certificate.
+
+
+.TP
+.B  --with-md5-fingerprint
+For standard key listings, also print the MD5 fingerprint of the
+certificate.
+
+.TP
+.B  --with-keygrip
+Include the keygrip in standard key listings.  Note that the keygrip is
+always listed in \fB--with-colons\fR mode.
+
+.TP
+.B  --with-secret
+Include info about the presence of a secret key in public key listings
+done with \fB--with-colons\fR.
+
+.P
+
+
+.SS  How to change how the CMS is created
+\ 
+
+.TP
+.B  --include-certs \fIn\fR
+Using \fIn\fR of -2 includes all certificate except for the root cert,
+-1 includes all certs, 0 does not include any certs, 1 includes only the
+signers cert and all other positive values include up to \fIn\fR
+certificates starting with the signer cert.  The default is -2.
+
+.TP
+.B  --cipher-algo \fIoid\fR
+Use the cipher algorithm with the ASN.1 object identifier \fIoid\fR for
+encryption.  For convenience the strings \fB3DES\fR, \fBAES\fR and
+\fBAES256\fR may be used instead of their OIDs.  The default is
+\fBAES\fR (2.16.840.1.101.3.4.1.2).
+
+.TP
+.B  --digest-algo \fBname\fR
+Use \fBname\fR as the message digest algorithm.  Usually this
+algorithm is deduced from the respective signing certificate.  This
+option forces the use of the given algorithm and may lead to severe
+interoperability problems.
+
+.P
+
+
+
+
+.SS  Doing things one usually do not want to do
+\ 
+
+
+
+.TP
+.B  --chuid \fIuid\fR
+Change the current user to \fIuid\fR which may either be a number or a
+name.  This can be used from the root account to run gpgsm for
+another user.  If \fIuid\fR is not the current UID a standard PATH is
+set and the envvar GNUPGHOME is unset.  To override the latter the
+option \fB--homedir\fR can be used.  This option has only an effect
+when used on the command line.  This option has currently no effect at
+all on Windows.
+
+
+.TP
+.B  --extra-digest-algo \fIname\fR
+Sometimes signatures are broken in that they announce a different digest
+algorithm than actually used.  \fBgpgsm\fR uses a one-pass data
+processing model and thus needs to rely on the announced digest
+algorithms to properly hash the data.  As a workaround this option may
+be used to tell \fBgpgsm\fR to also hash the data using the algorithm
+\fIname\fR; this slows processing down a little bit but allows verification of
+such broken signatures.  If \fBgpgsm\fR prints an error like
+``digest algo 8 has not been enabled'' you may want to try this option,
+with \(oqSHA256\(cq for \fIname\fR.
+
+.TP
+.B  --compliance \fIstring\fR
+Set the compliance mode.  Valid values are shown when using "help" for
+\fIstring\fR.
+
+.TP
+.B  --min-rsa-length \fIn\fR
+This option adjusts the compliance mode "de-vs" for stricter key size
+requirements.  For example, a value of 3000 turns rsa2048 and dsa2048
+keys into non-VS-NfD compliant keys.
+
+.TP
+.B  --require-compliance
+To check that data has been encrypted according to the rules of the
+current compliance mode, a gpgsm user needs to evaluate the status
+lines.  This is allows frontends to handle compliance check in a more
+flexible way.  However, for scripted use the required evaluation of
+the status-line requires quite some effort; this option can be used
+instead to make sure that the gpgsm process exits with a failure if
+the compliance rules are not fulfilled.  Note that this option has
+currently an effect only in "de-vs" mode.
+
+.TP
+.B  --ignore-cert-with-oid \fIoid\fR
+Add \fIoid\fR to the list of OIDs to be checked while reading
+certificates from smartcards. The \fIoid\fR is expected to be in
+dotted decimal form, like \fB2.5.29.3\fR.  This option may be used
+more than once.  As of now certificates with an extended key usage
+matching one of those OIDs are ignored during a \fB--learn-card\fR
+operation and not imported.  This option can help to keep the local
+key database clear of unneeded certificates stored on smartcards.
+
+.TP
+.B  --faked-system-time \fIepoch\fR
+This option is only useful for testing; it sets the system time back or
+forth to \fIepoch\fR which is the number of seconds elapsed since the year
+1970.  Alternatively \fIepoch\fR may be given as a full ISO time string
+(e.g. "20070924T154812").
+
+.TP
+.B  --with-ephemeral-keys
+Include ephemeral flagged keys in the output of key listings.  Note
+that they are included anyway if the key specification for a listing
+is given as fingerprint or keygrip.
+
+.TP
+.B  --compatibility-flags \fIflags\fR
+Set compatibility flags to work around problems due to non-compliant
+certificates or data.  The \fIflags\fR are given as a comma separated
+list of flag names and are OR-ed together.  The special flag "none"
+clears the list and allows to start over with an empty list.  To get a
+list of available flags the sole word "help" can be used.
+
+.TP
+.B  --debug-level \fIlevel\fR
+Select the debug level for investigating problems. \fIlevel\fR may be
+a numeric value or by a keyword:
+
+.RS
+.TP
+.B  none
+No debugging at all.  A value of less than 1 may be used instead of
+the keyword.
+.TP
+.B  basic
+Some basic debug messages.  A value between 1 and 2 may be used
+instead of the keyword.
+.TP
+.B  advanced
+More verbose debug messages.  A value between 3 and 5 may be used
+instead of the keyword.
+.TP
+.B  expert
+Even more detailed messages.  A value between 6 and 8 may be used
+instead of the keyword.
+.TP
+.B  guru
+All of the debug messages you can get. A value greater than 8 may be
+used instead of the keyword.  The creation of hash tracing files is
+only enabled if the keyword is used.
+.RE
+
+How these messages are mapped to the actual debugging flags is not
+specified and may change with newer releases of this program. They are
+however carefully selected to best aid in debugging.
+
+.TP
+.B  --debug \fIflags\fR
+Set debug flags.  All flags are or-ed and \fIflags\fR may be given
+in C syntax (e.g. 0x0042) or as a comma separated list of flag names.
+To get a list of all supported flags the single word "help" can be
+used. This option is only useful for debugging and the behavior may
+change at any time without notice.
+
+Note, that all flags set using this option may get overridden by
+\fB--debug-level\fR.
+
+.TP
+.B  --debug-all
+Same as \fB--debug=0xffffffff\fR
+
+.TP
+.B  --debug-allow-core-dump
+Usually \fBgpgsm\fR tries to avoid dumping core by well written code and by
+disabling core dumps for security reasons.  However, bugs are pretty
+durable beasts and to squash them it is sometimes useful to have a core
+dump.  This option enables core dumps unless the Bad Thing happened
+before the option parsing.
+
+.TP
+.B  --debug-no-chain-validation
+This is actually not a debugging option but only useful as such.  It
+lets \fBgpgsm\fR bypass all certificate chain validation checks.
+
+.TP
+.B  --debug-ignore-expiration
+This is actually not a debugging option but only useful as such.  It
+lets \fBgpgsm\fR ignore all notAfter dates, this is used by the regression
+tests.
+
+.TP
+.B  --passphrase-fd \fBn\fR
+Read the passphrase from file descriptor \fBn\fR. Only the first line
+will be read from file descriptor \fBn\fR. If you use 0 for \fBn\fR,
+the passphrase will be read from STDIN. This can only be used if only
+one passphrase is supplied.
+
+Note that this passphrase is only used if the option \fB--batch\fR
+has also been given.
+
+.TP
+.B  --pinentry-mode \fBmode\fR
+Set the pinentry mode to \fBmode\fR.  Allowed values for \fBmode\fR
+are:
+.RS
+.TP
+.B  default
+Use the default of the agent, which is \fBask\fR.
+.TP
+.B  ask
+Force the use of the Pinentry.
+.TP
+.B  cancel
+Emulate use of Pinentry's cancel button.
+.TP
+.B  error
+Return a Pinentry error (``No Pinentry'').
+.TP
+.B  loopback
+Redirect Pinentry queries to the caller.  Note that in contrast to
+Pinentry the user is not prompted again if he enters a bad password.
+.RE
+
+.TP
+.B  --request-origin \fIorigin\fR
+Tell gpgsm to assume that the operation ultimately originated at
+\fIorigin\fR.  Depending on the origin certain restrictions are applied
+and the Pinentry may include an extra note on the origin.  Supported
+values for \fIorigin\fR are: \fBlocal\fR which is the default,
+\fBremote\fR to indicate a remote origin or \fBbrowser\fR for an
+operation requested by a web browser.
+
+.TP
+.B  --no-common-certs-import
+Suppress the import of common certificates on keybox creation.
+
+.P
+
+All the long options may also be given in the configuration file after
+stripping off the two leading dashes.
+
+
+.SH HOW TO SPECIFY A USER ID
+
+There are different ways to specify a user ID to GnuPG.  Some of them
+are only valid for \fBgpg\fR others are only good for
+\fBgpgsm\fR.  Here is the entire list of ways to specify a key:
+
+
+.TP
+.B  By key Id.
+This format is deduced from the length of the string and its content or
+\fB0x\fR prefix. The key Id of an X.509 certificate are the low 64 bits
+of its SHA-1 fingerprint.  The use of key Ids is just a shortcut, for
+all automated processing the fingerprint should be used.
+
+When using \fBgpg\fR an exclamation mark (!) may be appended to
+force using the specified primary or secondary key and not to try and
+calculate which primary or secondary key to use.
+
+The last four lines of the example give the key ID in their long form as
+internally used by the OpenPGP protocol. You can see the long key ID
+using the option \fB--with-colons\fR.
+
+.RS 2
+.nf
+234567C4
+0F34E556E
+01347A56A
+0xAB123456
+
+234AABBCC34567C4
+0F323456784E56EAB
+01AB3FED1347A5612
+0x234AABBCC34567C4
+.fi
+.RE
+
+
+
+.TP
+.B  By fingerprint.
+This format is deduced from the length of the string and its content or
+the \fB0x\fR prefix.  Note, that only the 20 byte version fingerprint
+is available with \fBgpgsm\fR (i.e. the SHA-1 hash of the
+certificate).
+
+When using \fBgpg\fR an exclamation mark (!) may be appended to
+force using the specified primary or secondary key and not to try and
+calculate which primary or secondary key to use.
+
+The best way to specify a key Id is by using the fingerprint.  This
+avoids any ambiguities in case that there are duplicated key IDs.
+
+.RS 2
+.nf
+1234343434343434C434343434343434
+123434343434343C3434343434343734349A3434
+0E12343434343434343434EAB3484343434343434
+0xE12343434343434343434EAB3484343434343434
+.fi
+.RE
+
+
+\fBgpgsm\fR also accepts colons between each pair of hexadecimal
+digits because this is the de-facto standard on how to present X.509
+fingerprints.  \fBgpg\fR also allows the use of the space
+separated SHA-1 fingerprint as printed by the key listing commands.
+
+.TP
+.B  By exact match on OpenPGP user ID.
+This is denoted by a leading equal sign. It does not make sense for
+X.509 certificates.
+
+.RS 2
+.nf
+=Heinrich Heine <heinrichh@uni-duesseldorf.de>
+.fi
+.RE
+
+.TP
+.B  By exact match on an email address.
+This is indicated by enclosing the email address in the usual way
+with left and right angles.
+
+.RS 2
+.nf
+<heinrichh@uni-duesseldorf.de>
+.fi
+.RE
+
+
+.TP
+.B  By partial match on an email address.
+This is indicated by prefixing the search string with an \fB@\fR.
+This uses a substring search but considers only the mail address
+(i.e. inside the angle brackets).
+
+.RS 2
+.nf
+@heinrichh
+.fi
+.RE
+
+.TP
+.B  By exact match on the subject's DN.
+This is indicated by a leading slash, directly followed by the RFC-2253
+encoded DN of the subject.  Note that you can't use the string printed
+by \fBgpgsm --list-keys\fR because that one has been reordered and modified
+for better readability; use \fB--with-colons\fR to print the raw
+(but standard escaped) RFC-2253 string.
+
+.RS 2
+.nf
+/CN=Heinrich Heine,O=Poets,L=Paris,C=FR
+.fi
+.RE
+
+.TP
+.B  By exact match on the issuer's DN.
+This is indicated by a leading hash mark, directly followed by a slash
+and then directly followed by the RFC-2253 encoded DN of the issuer.
+This should return the Root cert of the issuer.  See note above.
+
+.RS 2
+.nf
+#/CN=Root Cert,O=Poets,L=Paris,C=FR
+.fi
+.RE
+
+
+.TP
+.B  By exact match on serial number and issuer's DN.
+This is indicated by a hash mark, followed by the hexadecimal
+representation of the serial number, then followed by a slash and the
+RFC-2253 encoded DN of the issuer. See note above.
+
+.RS 2
+.nf
+#4F03/CN=Root Cert,O=Poets,L=Paris,C=FR
+.fi
+.RE
+
+.TP
+.B  By keygrip.
+This is indicated by an ampersand followed by the 40 hex digits of a
+keygrip.  \fBgpgsm\fR prints the keygrip when using the command
+\fB--dump-cert\fR.
+
+.RS 2
+.nf
+&D75F22C3F86E355877348498CDC92BD21010A480
+.fi
+.RE
+
+
+.TP
+.B  By substring match.
+This is the default mode but applications may want to explicitly
+indicate this by putting the asterisk in front.  Match is not case
+sensitive.
+
+.RS 2
+.nf
+Heine
+*Heine
+.fi
+.RE
+
+.TP
+.B  . and + prefixes
+These prefixes are reserved for looking up mails anchored at the end
+and for a word search mode.  They are not yet implemented and using
+them is undefined.
+
+
+Please note that we have reused the hash mark identifier which was used
+in old GnuPG versions to indicate the so called local-id.  It is not
+anymore used and there should be no conflict when used with X.509 stuff.
+
+Using the RFC-2253 format of DNs has the drawback that it is not
+possible to map them back to the original encoding, however we don't
+have to do this because our key database stores this encoding as meta
+data.
+
+
+.SH EXAMPLES
+
+.RS 2
+.nf
+$ gpgsm -er goo@bar.net <plaintext >ciphertext
+.fi
+.RE
+
+
+
+.SH FILES
+
+There are a few configuration files to control certain aspects of
+\fBgpgsm\fR's operation. Unless noted, they are expected in the
+current home directory (see: [option --homedir]).
+
+
+.TP
+.B  gpgsm.conf
+This is the standard configuration file read by \fBgpgsm\fR on
+startup.  It may contain any valid long option; the leading two dashes
+may not be entered and the option may not be abbreviated.  This default
+name may be changed on the command line (see: [gpgsm-option --options]).
+You should backup this file.
+
+.TP
+.B  common.conf
+This is an optional configuration file read by \fBgpgsm\fR on
+startup.  It may contain options pertaining to all components of
+GnuPG.  Its current main use is for the "use-keyboxd" option.
+
+.TP
+.B  policies.txt
+This is a list of allowed CA policies.  This file should list the
+object identifiers of the policies line by line.  Empty lines and
+lines starting with a hash mark are ignored.  Policies missing in this
+file and not marked as critical in the certificate will print only a
+warning; certificates with policies marked as critical and not listed
+in this file will fail the signature verification.  You should backup
+this file.
+
+For example, to allow only the policy 2.289.9.9, the file should look
+like this:
+
+.RS
+.RS 2
+.nf
+# Allowed policies
+2.289.9.9
+.fi
+.RE
+.RE
+
+.TP
+.B  qualified.txt
+This is the list of root certificates used for qualified certificates.
+They are defined as certificates capable of creating legally binding
+signatures in the same way as handwritten signatures are.  Comments
+start with a hash mark and empty lines are ignored.  Lines do have a
+length limit but this is not a serious limitation as the format of the
+entries is fixed and checked by \fBgpgsm\fR: A non-comment line starts with
+optional whitespace, followed by exactly 40 hex characters, white space
+and a lowercased 2 letter country code.  Additional data delimited with
+by a white space is current ignored but might late be used for other
+purposes.
+
+Note that even if a certificate is listed in this file, this does not
+mean that the certificate is trusted; in general the certificates listed
+in this file need to be listed also in \(oq\fItrustlist.txt\fR\(cq. This is a global
+file an installed in the sysconf directory (e.g.
+\(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/etc/gnupg/qualified.txt\fR\(cq).
+
+Every time \fBgpgsm\fR uses a certificate for signing or verification
+this file will be consulted to check whether the certificate under
+question has ultimately been issued by one of these CAs.  If this is the
+case the user will be informed that the verified signature represents a
+legally binding (``qualified'') signature.  When creating a signature
+using such a certificate an extra prompt will be issued to let the user
+confirm that such a legally binding signature shall really be created.
+
+Because this software has not yet been approved for use with such
+certificates, appropriate notices will be shown to indicate this fact.
+
+.TP
+.B  help.txt
+This is plain text file with a few help entries used with
+\fBpinentry\fR as well as a large list of help items for
+\fBgpg\fR and \fBgpgsm\fR.  The standard file has English help
+texts; to install localized versions use filenames like \(oq\fIhelp.LL.txt\fR\(cq
+with LL denoting the locale.  GnuPG comes with a set of predefined help
+files in the data directory (e.g. \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/share/gnupg/gnupg/help.de.txt\fR\(cq)
+and allows overriding of any help item by help files stored in the
+system configuration directory (e.g. \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/etc/gnupg/help.de.txt\fR\(cq).
+For a reference of the help file's syntax, please see the installed
+\(oq\fIhelp.txt\fR\(cq file.
+
+
+.TP
+.B  com-certs.pem
+This file is a collection of common certificates used to populated a
+newly created \(oq\fIpubring.kbx\fR\(cq.  An administrator may replace this
+file with a custom one.  The format is a concatenation of PEM encoded
+X.509 certificates.  This global file is installed in the data directory
+(e.g. \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/share/gnupg/com-certs.pem\fR\(cq).
+
+.P
+
+.RE
+Note that on larger installations, it is useful to put predefined files
+into the directory \(oq\fI/etc/skel/.gnupg/\fR\(cq so that newly created users
+start up with a working configuration.  For existing users a small
+helper script is provided to create these files (see: [addgnupghome]).
+
+For internal purposes \fBgpgsm\fR creates and maintains a few other files;
+they all live in the current home directory (see: [option
+--homedir]).  Only \fBgpgsm\fR may modify these files.
+
+
+.TP
+.B  pubring.kbx
+This a database file storing the certificates as well as meta
+information.  For debugging purposes the tool \fBkbxutil\fR may be
+used to show the internal structure of this file.  You should backup
+this file.
+
+.TP
+.B  random_seed
+This content of this file is used to maintain the internal state of the
+random number generator across invocations.  The same file is used by
+other programs of this software too.
+
+.TP
+.B  S.gpg-agent
+If this file exists
+\fBgpgsm\fR will first try to connect to this socket for
+accessing \fBgpg-agent\fR before starting a new \fBgpg-agent\fR
+instance.  Under Windows this socket (which in reality be a plain file
+describing a regular TCP listening port) is the standard way of
+connecting the \fBgpg-agent\fR.
+
+.P
+
+
+
+.SH SEE ALSO
+\fBgpg2\fR(1),
+\fBgpg-agent\fR(1)
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.

@@ -1,0 +1,239 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPG-WKS-SERVER 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpg-wks-server
+\- Server providing the Web Key Service
+.SH SYNOPSIS
+.B gpg-wks-server
+.RI [ options ]
+.B \-\-receive
+.br
+.B gpg-wks-server
+.RI [ options ]
+.B \-\-cron
+.br
+.B gpg-wks-server
+.RI [ options ]
+.B \-\-list-domains
+.br
+.B gpg-wks-server
+.RI [ options ]
+.B \-\-check-key
+.I user-id
+.br
+.B gpg-wks-server
+.RI [ options ]
+.B \-\-install-key
+.I file
+.I user-id
+.br
+.B gpg-wks-server
+.RI [ options ]
+.B \-\-remove-key
+.I user-id
+.br
+.B gpg-wks-server
+.RI [ options ]
+.B \-\-revoke-key
+.I user-id
+
+.SH DESCRIPTION
+The \fBgpg-wks-server\fR is a server side implementation of the
+Web Key Service.  It receives requests for publication, sends
+confirmation requests, receives confirmations, and published the key.
+It also has features to ease the setup and maintenance of a Web Key
+Directory.
+
+When used with the command \fB--receive\fR a single Web Key Service
+mail is processed.  Commonly this command is used with the option
+\fB--send\fR to directly send the created mails back.  See below
+for an installation example.
+
+The command \fB--cron\fR is used for regular cleanup tasks.  For
+example non-confirmed requested should be removed after their expire
+time.  It is best to run this command once a day from a cronjob.
+
+The command \fB--list-domains\fR prints all configured domains.
+Further it creates missing directories for the configuration and
+prints warnings pertaining to problems in the configuration.
+
+The command \fB--check-key\fR (or just \fB--check\fR) checks
+whether a key with the given user-id is installed.  The process returns
+success in this case; to also print a diagnostic use the option
+\fB-v\fR.  If the key is not installed a diagnostic is printed and
+the process returns failure; to suppress the diagnostic, use option
+\fB-q\fR.  More than one user-id can be given; see also option
+\fBwith-file\fR.
+
+The command \fB--install-key\fR manually installs a key into the
+WKD.  The arguments are a file with the keyblock and the user-id to
+install.  If the first argument resembles a fingerprint the key is
+taken from the current keyring; to force the use of a file, prefix the
+first argument with "./".  If no arguments are given the parameters
+are read from stdin; the expected format are lines with the
+fingerprint and the mailbox separated by a space.
+
+The command \fB--remove-key\fR uninstalls a key from the WKD.  The
+process returns success in this case; to also print a diagnostic, use
+option \fB-v\fR.  If the key is not installed a diagnostic is
+printed and the process returns failure; to suppress the diagnostic,
+use option \fB-q\fR.
+
+The command \fB--revoke-key\fR is not yet functional.
+
+
+.SH OPTIONS
+
+\fBgpg-wks-server\fR understands these options:
+
+
+.TP
+.B  -C \fIdir\fR
+.TQ
+.B  --directory \fIdir\fR
+Use \fIdir\fR as top level directory for domains.  The default is
+\(oq\fI/var/lib/gnupg/wks\fR\(cq.
+
+.TP
+.B  --from \fImailaddr\fR
+Use \fImailaddr\fR as the default sender address.
+
+.TP
+.B  --header \fIname\fR=\fIvalue\fR
+Add the mail header "\fIname\fR: \fIvalue\fR" to all outgoing mails.
+
+.TP
+.B  --send
+Directly send created mails using the \fBsendmail\fR command.
+Requires installation of that command.
+
+.TP
+.B  -o \fIfile\fR
+.TQ
+.B  --output \fIfile\fR
+Write the created mail also to \fIfile\fR. Note that the value
+\fB-\fR for \fIfile\fR would write it to stdout.
+
+.TP
+.B  --with-dir
+When used with the command \fB--list-domains\fR print for each
+installed domain the domain name and its directory name.
+
+.TP
+.B  --with-file
+When used with the command \fB--check-key\fR print for each user-id,
+the address, 'i' for installed key or 'n' for not installed key, and
+the filename.
+
+.TP
+.B  --verbose
+Enable extra informational output.
+
+.TP
+.B  --quiet
+Disable almost all informational output.
+
+.TP
+.B  --version
+Print version of the program and exit.
+
+.TP
+.B  --help
+Display a brief help page and exit.
+
+.P
+
+
+.SH EXAMPLES
+
+The Web Key Service requires a working directory to store keys
+pending for publication.  As root create a working directory:
+
+.RS 2
+.nf
+  # mkdir /var/lib/gnupg/wks
+  # chown webkey:webkey /var/lib/gnupg/wks
+  # chmod 2750 /var/lib/gnupg/wks
+.fi
+.RE
+
+Then under your webkey account create directories for all your
+domains.  Here we do it for "example.net":
+
+.RS 2
+.nf
+  $ mkdir /var/lib/gnupg/wks/example.net
+.fi
+.RE
+
+Finally run
+
+.RS 2
+.nf
+  $ gpg-wks-server --list-domains
+.fi
+.RE
+
+to create the required sub-directories with the permissions set
+correctly.  For each domain a submission address needs to be
+configured.  All service mails are directed to that address.  It can
+be the same address for all configured domains, for example:
+
+.RS 2
+.nf
+  $ cd /var/lib/gnupg/wks/example.net
+  $ echo key-submission@example.net >submission-address
+.fi
+.RE
+
+The protocol requires that the key to be published is sent with an
+encrypted mail to the service.  Thus you need to create a key for
+the submission address:
+
+.RS 2
+.nf
+  $ gpg --batch --passphrase '' --quick-gen-key key-submission@example.net
+  $ gpg -K key-submission@example.net
+.fi
+.RE
+
+The output of the last command looks similar to this:
+
+.RS 2
+.nf
+  sec   rsa3072 2016-08-30 [SC]
+        C0FCF8642D830C53246211400346653590B3795B
+  uid           [ultimate] key-submission@example.net
+                bxzcxpxk8h87z1k7bzk86xn5aj47intu@example.net
+  ssb   rsa3072 2016-08-30 [E]
+.fi
+.RE
+
+Take the fingerprint from that output and manually publish the key:
+
+.RS 2
+.nf
+  $ gpg-wks-server --install-key C0FCF8642D830C53246211400346653590B3795B \\
+  >                key-submission@example.net
+.fi
+.RE
+
+Finally that submission address needs to be redirected to a script
+running \fBgpg-wks-server\fR.  The \fBprocmail\fR command can
+be used for this: Redirect the submission address to the user "webkey"
+and put this into webkey's \(oq\fI.procmailrc\fR\(cq:
+
+.RS 2
+.nf
+:0
+* !^From: webkey@example.net
+* !^X-WKS-Loop: webkey.example.net
+|gpg-wks-server -v --receive \\
+     --header X-WKS-Loop=webkey.example.net \\
+     --from webkey@example.net --send
+.fi
+.RE
+
+
+.SH SEE ALSO
+\fBgpg-wks-client\fR(1)

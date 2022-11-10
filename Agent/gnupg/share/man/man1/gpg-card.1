@@ -1,0 +1,876 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPG-CARD 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpg-card
+\- Administrate Smart Cards
+.SH SYNOPSIS
+.B gpg-card
+.RI [ options ]
+.br
+.B gpg-card
+.RI [ options ]
+.I command
+.RI {
+.B --
+.I command
+.RI }
+
+.SH DESCRIPTION
+The \fBgpg-card\fR is used to administrate smart cards and USB
+tokens.  It provides a superset of features from \fBgpg
+--card-edit\fR an can be considered a frontend to \fBscdaemon\fR
+which is a daemon started by \fBgpg-agent\fR to handle smart
+cards.
+
+If \fBgpg-card\fR is invoked without commands an interactive
+mode is used.
+
+If \fBgpg-card\fR is invoked with one or more commands the
+same commands as available in the interactive mode are run from the
+command line.  These commands need to be delimited with a double-dash.
+If a double-dash or a shell specific character is required as part of
+a command the entire command needs to be put in quotes.  If one of
+those commands returns an error the remaining commands are not anymore
+run unless the command was prefixed with a single dash.
+
+A list of commands is available by using the command \fBhelp\fR and a
+brief description of each command is printed by using \fBhelp CMD\fR.
+See the section COMMANDS for a full description.
+
+See the NOTES sections for instructions pertaining to specific cards
+or card applications.
+
+.SH COMMANDS
+
+\fBgpg-card\fR understands the following commands, which have
+options of their own.  The pseudo-option \(oq--\(cq can be used to
+separate command options from arguments; if this pseudo option is used
+on the command line the entire command with options and arguments must
+be quoted, so that it is not mixed up with the \(oq--\(cq as used on
+the command line to separate commands.  Note that a short online help
+is available for all commands by prefixing them with ``help''.
+Command completion in the interactive mode is also supported.
+
+
+.TP
+.B  AUTHENTICATE [--setkey] [--raw] [< \fIfile\fR]|\fIkey\fR]
+.TQ
+.B  AUTH
+Authenticate to the card.  Perform a mutual autentication either by
+reading the key from \fIfile\fR or by taking it from the command line
+as \fIkey\fR.  Without the option \fB--raw\fR the key is expected
+to be hex encoded.  To install a new administration key
+\fB--setkey\fR is used; this requires a prior authentication with
+the old key.  This is used with PIV cards.
+
+
+.TP
+.B  CAFPR [--clear] N
+Change the CA fingerprint number N of an OpenPGP card.  N must be in the
+range 1 to 3.  The option \fB--clear\fR clears the specified
+CA fingerprint N or all of them if N is 0 or not given.
+
+.TP
+.B  FACTORY-RESET
+Do a complete reset of some OpenPGP and PIV cards.  This command
+deletes all data and keys and resets the PINs to their default.  Don't
+worry, you need to confirm before the command proceeds.
+
+.TP
+.B  FETCH
+Retrieve a key using the URL data object of an OpenPGP card or if that
+is missing using the stored fingerprint.
+
+.TP
+.B  FORCESIG
+Toggle the forcesig flag of an OpenPGP card.
+
+.TP
+.B  GENERATE [--force] [--algo=\fIalgo\fR{+\fIalgo2\fR}] \fIkeyref\fR
+Create a new key on a card.  Use \fB--force\fR to overwrite an
+existing key.  Use "help" for \fIalgo\fR to get a list of known
+algorithms.  For OpenPGP cards several algos may be given.  Note that
+the OpenPGP key generation is done interactively unless
+\fB--algo\fR or \fIkeyref\fR are given.
+
+.TP
+.B  KDF-SETUP
+Prepare the OpenPGP card KDF feature for this card.
+
+.TP
+.B  LANG [--clear]
+Change the language info for the card.  This info can be used by
+applications for a personalized greeting.  Up to 4 two-digit language
+identifiers can be entered as a preference.  The option
+\fB--clear\fR removes all identifiers.  GnuPG does not use this
+info.
+
+.TP
+.B  LIST [--cards] [--apps] [--info] [--no-key-lookup] [\fIn\fR] [\fIapp\fR]
+.TQ
+.B  L
+This command reads all information from the current card and display
+them in a human readable format.  The first section shows generic
+information vaialable for all cards.  The next section shows
+information pertaining to keys which depend on the actual card and
+application.
+
+With \fIn\fR given select and list the n-th card;
+with \fIapp\fR also given select that application.
+To select an \fIapp\fR on the current card use "-" for \fIn\fR.
+The serial number of the card may be used instead of \fIn\fR.
+
+The option \fB--cards\fR lists the serial numbers of available
+cards.  The option \fB--apps\fR lists all card applications.  The
+option \fB--info\fR selects a card and prints its serial number.
+The option \fB--no-key-lookup\fR suppresses the listing of matching
+OpenPGP or X.509 keys.
+
+
+.TP
+.B  LOGIN [--clear] [< \fIfile\fR]
+Set the login data object of OpenPGP cards.  If \fIfile\fR is given
+the data is is read from that file.  This allows to store binary data
+in the login field.  The option \fB--clear\fR deletes the login
+data object.
+
+.TP
+.B  NAME [--clear]
+Set the name field of an OpenPGP card.  With option \fB--clear\fR
+the stored name is cleared off the card.
+
+.TP
+.B  PASSWD [--reset|--nullpin] [\fIpinref\fR]
+Change or unblock the PINs.  Note that in interactive mode and without
+a \fIpinref\fR a menu is presented for certain cards."  In
+non-interactive mode and without a \fIpinref\fR a default value i used
+for these cards.  The option \fB--reset\fR is used with TCOS cards
+to reset the PIN using the PUK or vice versa; the option
+\fI--nullpin\fR is used for these cards to set the intial PIN.
+
+.TP
+.B  PRIVATEDO [--clear] \fIn\fR [< \fIfile\fR]
+Change the private data object \fIn\fR of an OpenPGP card.  \fIn\fR
+must be in the range 1 to 4.  If \fIfile\fR is given the data is is
+read from that file.  The option \fB--clear\fR clears the data.
+
+.TP
+.B  QUIT
+.TQ
+.B  Q
+Stop processing and terminate \fBgpg-card\fR.
+
+.TP
+.B  READCERT [--openpgp] \fIcertref\fR > \fIfile\fR
+Read the certificate for key \fIcertref\fR and store it in \fIfile\fR.
+With option \fB--openpgp\fR an OpenPGP keyblock wrapped in a
+dedicated CMS content type (OID=1.3.6.1.4.1.11591.2.3.1) is expected
+and extracted to \fIfile\fR.  Note that for current OpenPGP cards a
+certificate may only be available at the \fIcertref\fR "OPENPGP.3".
+
+.TP
+.B  RESET
+Send a reset to the card daemon.
+
+.TP
+.B  SALUTATION [--clear]
+.TQ
+.B  SALUT
+Change the salutation info for the card.  This info can be used by
+applications for a personalized greeting.  The option \fB--clear\fR
+removes this data object.  GnuPG does not use this info.
+
+.TP
+.B  UIF \fIN\fR [on|off|permanent]
+Change the User Interaction Flag.  That flags tells whether the
+confirmation button of a token shall be used.  \fIn\fR must in the
+range 1 to 3.  "permanent" is the same as "on" but the flag can't be
+changed anmore.
+
+.TP
+.B  UNBLOCK
+Unblock a PIN using a PUK or Reset Code.  Note that OpenPGP cards
+prior to version 2 can't use this; instead the \fBPASSWD\fR can be
+used to set a new PIN.
+
+.TP
+.B  URL [--clear]
+Set the URL data object of an OpenPGP card.  That data object can be
+used by by \fBgpg\fR's \fB--fetch\fR command to retrieve the
+full public key.  The option \fB--clear\fR deletes the content of
+that data object.
+
+.TP
+.B  VERIFY [\fIchvid\fR]
+Verify the PIN identified by \fIchvid\fR or the default PIN.
+
+.TP
+.B  WRITECERT \fIcertref\fR  < \fIfile\fR
+.TQ
+.B  WRITECERT --openpgp \fIcertref\fR [< \fIfile\fR|\fIfpr\fR]
+.TQ
+.B  WRITECERT --clear \fIcertref\fR
+Write a certificate to the card under the id \fIcertref\fR.  The
+option \fB--clear\fR removes the certificate from the card.  The
+option \fB--openpgp\fR expects an OpenPGP keyblock and stores it
+encapsulated in a CMS container; the keyblock is taken from \fIfile\fR
+or directly from the OpenPGP key identified by fingerprint \fIfpr\fR.
+
+.TP
+.B  WRITEKEY [--force] \fIkeyref\fR \fIkeygrip\fR
+Write a private key object identified by \fIkeygrip\fR to the card
+under the id \fIkeyref\fR.  Option \fB--force\fR allows overwriting
+an existing key.
+
+.TP
+.B  YUBIKEY \fIcmd\fR \fIargs\fR
+Various commands pertaining to Yubikey tokens with \fIcmd\fR being:
+.RS
+.TP
+.B  LIST
+List supported and enabled Yubikey applications.
+.TP
+.B  ENABLE  usb|nfc|all [otp|u2f|opgp|piv|oath|fido2|all]
+.TQ
+.B  DISABLE
+Enable or disable the specified or all applications on the
+given interface.
+.RE
+
+.P
+
+.SH NOTES (OPENPGP)
+The support for OpenPGP cards in \fBgpg-card\fR is not yet
+complete.  For missing features, please continue to use \fBgpg
+--card-edit\fR.
+
+.SH NOTES (PIV)
+
+GnuPG has support for PIV cards (``Personal Identity Verification''
+as specified by NIST Special Publication 800-73-4).  This section
+describes how to initialize (personalize) a fresh Yubikey token
+featuring the PIV application (requires Yubikey-5).  We assume that
+the credentials have not yet been changed and thus are:
+.TP
+.B  Authentication key
+This is a 24 byte key described by the hex string 
+.br
+\fB010203040506070801020304050607080102030405060708\fR.
+.TP
+.B  PIV Application PIN
+This is the string \fB123456\fR.
+.TP
+.B  PIN Unblocking Key
+This is the string \fB12345678\fR.
+.P
+See the example section on how to change these defaults.  For
+production use it is important to use secure values for them.  Note that
+the Authentication Key is not queried via the usual Pinentry dialog
+but needs to be entered manually or read from a file.  The use of a
+dedicated machine to personalize tokens is strongly suggested.
+
+To see what is on the card, the command \fBlist\fR can be given.  We
+will use the interactive mode in the following (the string
+\fIgpg/card>\fR is the prompt).  An example output for a fresh card
+is:
+
+.RS 2
+.nf
+gpg/card> list
+Reader ...........: 1050:0407:X:0
+Card type ........: yubikey
+Card firmware ....: 5.1.2
+Serial number ....: D2760001240102010006090746250000
+Application type .: OpenPGP
+Version ..........: 2.1
+[...]
+.fi
+.RE
+
+It can be seen by the ``Application type'' line that GnuPG selected
+the OpenPGP application of the Yubikey.  This is because GnuPG assigns
+the highest priority to the OpenPGP application.  To use the PIV
+application of the Yubikey several methods can be used:
+
+With a Yubikey 5 or later the OpenPGP application on the Yubikey can
+be disabled:
+
+.RS 2
+.nf
+gpg/card> yubikey disable all opgp
+gpg/card> yubikey list
+Application  USB    NFC
+-----------------------
+OTP          yes    yes
+U2F          yes    yes
+OPGP         no     no
+PIV          yes    no
+OATH         yes    yes
+FIDO2        yes    yes
+gpg/card> reset
+.fi
+.RE
+
+The \fBreset\fR is required so that the GnuPG system rereads the
+card.  Note that disabled applications keep all their data and can at
+any time be re-enabled (use \(oqhelp yubikey\(cq).
+
+Another option, which works for all Yubikey versions, is to disable
+the support for OpenPGP cards in scdaemon.  This is done by adding the
+line
+
+.RS 2
+.nf
+disable-application openpgp
+.fi
+.RE
+
+to \(oq\fI~/.gnupg/scdaemon.conf\fR\(cq and by restarting scdaemon, either by
+killing the process or by using \(oqgpgconf --kill scdaemon\(cq.  Finally
+the default order in which card applications are tried by scdaemon can
+be changed.   For example to prefer PIV over OpenPGP it is sufficient
+to add
+
+.RS 2
+.nf
+application-priority piv
+.fi
+.RE
+
+to \(oq\fI~/.gnupg/scdaemon.conf\fR\(cq and to restart \fBscdaemon\fR.
+This has an effect only on tokens which support both, PIV and OpenPGP,
+but does not hamper the use of OpenPGP only tokens.
+
+With one of these methods employed the \fBlist\fR command of
+\fBgpg-card\fR shows this:
+
+.RS 2
+.nf
+gpg/card> list
+Reader ...........: 1050:0407:X:0
+Card type ........: yubikey
+Card firmware ....: 5.1.2
+Serial number ....: FF020001008A77C1
+Application type .: PIV
+Version ..........: 1.0
+Displayed s/n ....: yk-9074625
+PIN usage policy .: app-pin
+PIN retry counter : - 3 -
+PIV authentication: [none]
+      keyref .....: PIV.9A
+Card authenticat. : [none]
+      keyref .....: PIV.9E
+Digital signature : [none]
+      keyref .....: PIV.9C
+Key management ...: [none]
+      keyref .....: PIV.9D
+.fi
+.RE
+
+In case several tokens are plugged into the computer, gpg-card will
+show only one.  To show another token the number of the token (0, 1,
+2, ...) can be given as an argument to the \fBlist\fR command.  The
+command \(oqlist --cards\(cq prints a list of all inserted tokens.
+
+Note that the ``Displayed s/n'' is printed on the token and also
+shown in Pinentry prompts asking for the PIN.  The four standard key
+slots are always shown, if other key slots are initialized they are
+shown as well.  The \fIPIV authentication\fR key (internal reference
+\fIPIV.9A\fR) is used to authenticate the card and the card holder.
+The use of the associated private key is protected by the Application
+PIN which needs to be provided once and the key can the be used until
+the card is reset or removed from the reader or USB port.  GnuPG uses
+this key with its \fISecure Shell\fR support.  The \fICard
+authentication\fR key (\fIPIV.9E\fR) is also known as the CAK and used
+to support physical access applications.  The private key is not
+protected by a PIN and can thus immediately be used.  The \fIDigital
+signature\fR key (\fIPIV.9C\fR) is used to digitally sign documents.
+The use of the associated private key is protected by the Application
+PIN which needs to be provided for each signing operation.  The
+\fIKey management\fR key (\fIPIV.9D\fR) is used for encryption.  The
+use of the associated private key is protected by the Application PIN
+which needs to be provided only once so that decryption operations can
+then be done until the card is reset or removed from the reader or USB
+port.
+
+We now generate three of the four keys.  Note that GnuPG does
+currently not use the the \fICard authentication\fR key; however,
+that key is mandatory by the PIV standard and thus we create it too.
+Key generation requires that we authenticate to the card.  This can be
+done either on the command line (which would reveal the key):
+
+.RS 2
+.nf
+gpg/card> auth 010203040506070801020304050607080102030405060708
+.fi
+.RE
+
+or by reading the key from a file.  That file needs to consist of one
+LF terminated line with the hex encoded key (as above):
+
+.RS 2
+.nf
+gpg/card> auth < myauth.key
+.fi
+.RE
+
+As usual \(oqhelp auth\(cq gives help for this command.  An error
+message is printed if a non-matching key is used.  The authentication
+is valid until a reset of the card or until the card is removed from
+the reader or the USB port.  Note that that in non-interactive mode
+the \(oq<\(cq needs to be quoted so that the shell does not interpret
+it as a its own redirection symbol.
+
+
+Here are the actual commands to generate the keys:
+
+.RS 2
+.nf
+gpg/card> generate --algo=nistp384 PIV.9A
+PIV card no. yk-9074625 detected
+gpg/card> generate --algo=nistp256 PIV.9E
+PIV card no. yk-9074625 detected
+gpg/card> generate --algo=rsa2048 PIV.9C
+PIV card no. yk-9074625 detected
+.fi
+.RE
+
+If a key has already been created for one of the slots an error will
+be printed; to create a new key anyway the option \(oq--force\(cq can be
+used.  Note that only the private and public keys have been created
+but no certificates are stored in the key slots.  In fact, GnuPG uses
+its own non-standard method to store just the public key in place of
+the the certificate.  Other application will not be able to make use
+these keys until \fBgpgsm\fR or another tool has been used to
+create and store the respective certificates.   Let us see what the
+list command now shows:
+
+.RS 2
+.nf
+gpg/card> list
+Reader ...........: 1050:0407:X:0
+Card type ........: yubikey
+Card firmware ....: 5.1.2
+Serial number ....: FF020001008A77C1
+Application type .: PIV
+Version ..........: 1.0
+Displayed s/n ....: yk-9074625
+PIN usage policy .: app-pin
+PIN retry counter : - 3 -
+PIV authentication: 213D1825FDE0F8240CB4E4229F01AF90AC658C2E
+      keyref .....: PIV.9A  (auth)
+      algorithm ..: nistp384
+Card authenticat. : 7A53E6CFFE7220A0E646B4632EE29E5A7104499C
+      keyref .....: PIV.9E  (auth)
+      algorithm ..: nistp256
+Digital signature : 32A6C6FAFCB8421878608AAB452D5470DD3223ED
+      keyref .....: PIV.9C  (sign,cert)
+      algorithm ..: rsa2048
+Key management ...: [none]
+      keyref .....: PIV.9D
+.fi
+.RE
+
+The primary information for each key is the \fIkeygrip\fR, a 40 byte
+hex-string identifying the key.  This keygrip is a unique identifier
+for the specific parameters of a key.  It is used by
+\fBgpg-agent\fR and other parts of GnuPG to associate a private
+key to its protocol specific certificate format (X.509, OpenPGP, or
+SecureShell).  Below the keygrip the key reference along with the key
+usage capabilities are show.  Finally the algorithm is printed in the
+format used by \fB\fR {gpg}.  At that point no other information is
+shown because for these new keys gpg won't be able to find matching
+certificates.
+
+Although we could have created the \fIKey management\fR key also with
+the generate command, we will create that key off-card so that a
+backup exists.  To accomplish this a key needs to be created with
+either \fBgpg\fR or \fBgpgsm\fR or imported in one of these
+tools.  In our example we create a self-signed X.509 certificate (exit
+the gpg-card tool, first):
+
+.RS 2
+.nf
+$ gpgsm --gen-key -o encr.crt
+   (1) RSA
+   (2) Existing key
+   (3) Existing key from card
+Your selection? 1
+What keysize do you want? (3072) 2048
+Requested keysize is 2048 bits
+Possible actions for a RSA key:
+   (1) sign, encrypt
+   (2) sign
+   (3) encrypt
+Your selection? 3
+Enter the X.509 subject name: CN=Encryption key for yk-9074625,O=example,C=DE
+Enter email addresses (end with an empty line):
+> otto@example.net
+>
+Enter DNS names (optional; end with an empty line):
+>
+Enter URIs (optional; end with an empty line):
+>
+Create self-signed certificate? (y/N) y
+These parameters are used:
+    Key-Type: RSA
+    Key-Length: 2048
+    Key-Usage: encrypt
+    Serial: random
+    Name-DN: CN=Encryption key for yk-9074625,O=example,C=DE
+    Name-Email: otto@example.net
+
+Proceed with creation? (y/N)
+Now creating self-signed certificate.  This may take a while ...
+gpgsm: about to sign the certificate for key: &34798AAFE0A7565088101CC4AE31C5C8C74461CB
+gpgsm: certificate created
+Ready.
+$ gpgsm --import encr.crt
+gpgsm: certificate imported
+gpgsm: total number processed: 1
+gpgsm:               imported: 1
+.fi
+.RE
+
+Note the last step which imported the created certificate.  If you
+you instead created a certificate signing request (CSR) instead of a
+self-signed certificate and sent this off to a CA you would do the
+same import step with the certificate received from the CA.  Take note
+of the keygrip (prefixed with an ampersand) as shown during the
+certificate creation or listed it again using \(oqgpgsm
+--with-keygrip -k otto@example.net\(cq.  Now to move the key and
+certificate to the card start \fBgpg-card\fR again and enter:
+
+.RS 2
+.nf
+gpg/card> writekey PIV.9D 34798AAFE0A7565088101CC4AE31C5C8C74461CB
+gpg/card> writecert PIV.9D < encr.crt
+.fi
+.RE
+
+If you entered a passphrase to protect the private key, you will be
+asked for it via the Pinentry prompt.  On success the key and the
+certificate has been written to the card and a \fBlist\fR command
+shows:
+
+.RS 2
+.nf
+[...]
+Key management ...: 34798AAFE0A7565088101CC4AE31C5C8C74461CB
+      keyref .....: PIV.9D  (encr)
+      algorithm ..: rsa2048
+      used for ...: X.509
+        user id ..: CN=Encryption key for yk-9074625,O=example,C=DE
+        user id ..: <otto@example.net>
+.fi
+.RE
+
+In case the same key (identified by the keygrip) has been used for
+several certificates you will see several ``used for'' parts.  With
+this the encryption key is now fully functional and can be used to
+decrypt messages encrypted to this certificate.  \fBTake care:\fR the
+original key is still stored on-disk and should be moved to a backup
+medium.  This can simply be done by copying the file
+\(oq\fI34798AAFE0A7565088101CC4AE31C5C8C74461CB.key\fR\(cq from the directory
+\(oq\fI~/.gnupg/private-keys-v1.d/\fR\(cq to the backup medium and deleting
+the file at its original place.
+
+The final example is to create a self-signed certificate for digital
+signatures.  Leave \fBgpg-card\fR using \fBquit\fR or by pressing
+Control-D and use gpgsm:
+
+.RS 2
+.nf
+$ gpgsm --learn
+$ gpgsm --gen-key -o sign.crt
+Please select what kind of key you want:
+   (1) RSA
+   (2) Existing key
+   (3) Existing key from card
+Your selection? 3
+Serial number of the card: FF020001008A77C1
+Available keys:
+   (1) 213D1825FDE0F8240CB4E4229F01AF90AC658C2E PIV.9A nistp384
+   (2) 7A53E6CFFE7220A0E646B4632EE29E5A7104499C PIV.9E nistp256
+   (3) 32A6C6FAFCB8421878608AAB452D5470DD3223ED PIV.9C rsa2048
+   (4) 34798AAFE0A7565088101CC4AE31C5C8C74461CB PIV.9D rsa2048
+Your selection? 3
+Possible actions for a RSA key:
+   (1) sign, encrypt
+   (2) sign
+   (3) encrypt
+Your selection? 2
+Enter the X.509 subject name: CN=Signing key for yk-9074625,O=example,C=DE
+Enter email addresses (end with an empty line):
+> otto@example.net
+>
+Enter DNS names (optional; end with an empty line):
+>
+Enter URIs (optional; end with an empty line):
+>
+Create self-signed certificate? (y/N)
+These parameters are used:
+    Key-Type: card:PIV.9C
+    Key-Length: 1024
+    Key-Usage: sign
+    Serial: random
+    Name-DN: CN=Signing key for yk-9074625,O=example,C=DE
+    Name-Email: otto@example.net
+
+Proceed with creation? (y/N) y
+Now creating self-signed certificate.  This may take a while ...
+gpgsm: about to sign the certificate for key: &32A6C6FAFCB8421878608AAB452D5470DD3223ED
+gpgsm: certificate created
+Ready.
+$ gpgsm --import sign.crt
+gpgsm: certificate imported
+gpgsm: total number processed: 1
+gpgsm:               imported: 1
+.fi
+.RE
+
+The use of \(oqgpgsm --learn\(cq is currently necessary so that
+gpg-agent knows what keys are available on the card.  The need for
+this command will eventually be removed.  The remaining commands are
+similar to the creation of an on-disk key.  However, here we select
+the \(oqDigital signature\(cq key.  During the creation process you
+will be asked for the Application PIN of the card.  The final step is
+to write the certificate to the card using \fBgpg-card\fR:
+
+.RS 2
+.nf
+gpg/card> writecert PIV.9C < sign.crt
+.fi
+.RE
+
+By running list again we will see the fully initialized card:
+
+.RS 2
+.nf
+Reader ...........: 1050:0407:X:0
+Card type ........: yubikey
+Card firmware ....: 5.1.2
+Serial number ....: FF020001008A77C1
+Application type .: PIV
+Version ..........: 1.0
+Displayed s/n ....: yk-9074625
+PIN usage policy .: app-pin
+PIN retry counter : - [verified] -
+PIV authentication: 213D1825FDE0F8240CB4E4229F01AF90AC658C2E
+      keyref .....: PIV.9A  (auth)
+      algorithm ..: nistp384
+Card authenticat. : 7A53E6CFFE7220A0E646B4632EE29E5A7104499C
+      keyref .....: PIV.9E  (auth)
+      algorithm ..: nistp256
+Digital signature : 32A6C6FAFCB8421878608AAB452D5470DD3223ED
+      keyref .....: PIV.9C  (sign,cert)
+      algorithm ..: rsa2048
+      used for ...: X.509
+        user id ..: CN=Signing key for yk-9074625,O=example,C=DE
+        user id ..: <otto@example.net>
+Key management ...: 34798AAFE0A7565088101CC4AE31C5C8C74461CB
+      keyref .....: PIV.9D  (encr)
+      algorithm ..: rsa2048
+      used for ...: X.509
+        user id ..: CN=Encryption key for yk-9074625,O=example,C=DE
+        user id ..: <otto@example.net>
+.fi
+.RE
+
+It is now possible to sign and to encrypt with this card using gpgsm
+and to use the \(oqPIV authentication\(cq key with ssh:
+
+.RS 2
+.nf
+$ ssh-add -l
+384 SHA256:0qnJ0Y0ehWxKcx2frLfEljf6GCdlO55OZed5HqGHsaU cardno:yk-9074625 (ECDSA)
+.fi
+.RE
+
+As usual use ssh-add with the uppercase \(oq-L\(cq to list the public
+ssh key.  To use the certificates with Thunderbird or Mozilla, please
+consult the Scute manual for details.
+
+If you want to use the same PIV keys also for OpenPGP (for example on
+a Yubikey to avoid switching between OpenPGP and PIV), this is also
+possible:
+
+.RS 2
+.nf
+$ gpgsm --learn
+$ gpg --full-gen-key
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+  (14) Existing key from card
+Your selection? 14
+Serial number of the card: FF020001008A77C1
+Available keys:
+   (1) 213D1825FDE0F8240CB4E4229F01AF90AC658C2E PIV.9A nistp384 (auth)
+   (2) 7A53E6CFFE7220A0E646B4632EE29E5A7104499C PIV.9E nistp256 (auth)
+   (3) 32A6C6FAFCB8421878608AAB452D5470DD3223ED PIV.9C rsa2048 (cert,sign)
+   (4) 34798AAFE0A7565088101CC4AE31C5C8C74461CB PIV.9D rsa2048 (encr)
+Your selection? 3
+Please specify how long the key should be valid.
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0)
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name:
+Email address: otto@example.net
+Comment:
+You selected this USER-ID:
+    "otto@example.net"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+gpg: key C3AFA9ED971BB365 marked as ultimately trusted
+gpg: revocation certificate stored as '[...]D971BB365.rev'
+public and secret key created and signed.
+
+Note that this key cannot be used for encryption.  You may want to use
+the command "--edit-key" to generate a subkey for this purpose.
+pub   rsa2048 2019-04-04 [SC]
+      7F899AE2FB73159DD68A1B20C3AFA9ED971BB365
+uid                      otto@example.net
+.fi
+.RE
+
+Note that you will be asked two times to enter the PIN of your PIV
+card.  If you run \fBgpg\fR in \fB--expert\fR mode you will
+also ge given the option to change the usage flags of the key.  The next
+typescript shows how to add the encryption subkey:
+
+.RS 2
+.nf
+$ gpg --edit-key 7F899AE2FB73159DD68A1B20C3AFA9ED971BB365
+Secret key is available.
+
+sec  rsa2048/C3AFA9ED971BB365
+     created: 2019-04-04  expires: never       usage: SC
+     card-no: FF020001008A77C1
+     trust: ultimate      validity: ultimate
+[ultimate] (1). otto@example.net
+gpg> addkey
+Secret parts of primary key are stored on-card.
+Please select what kind of key you want:
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+   (5) Elgamal (encrypt only)
+   (6) RSA (encrypt only)
+  (14) Existing key from card
+Your selection? 14
+Serial number of the card: FF020001008A77C1
+Available keys:
+   (1) 213D1825FDE0F8240CB4E4229F01AF90AC658C2E PIV.9A nistp384 (auth)
+   (2) 7A53E6CFFE7220A0E646B4632EE29E5A7104499C PIV.9E nistp256 (auth)
+   (3) 32A6C6FAFCB8421878608AAB452D5470DD3223ED PIV.9C rsa2048 (cert,sign)
+   (4) 34798AAFE0A7565088101CC4AE31C5C8C74461CB PIV.9D rsa2048 (encr)
+Your selection? 4
+Please specify how long the key should be valid.
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0)
+Key does not expire at all
+Is this correct? (y/N) y
+Really create? (y/N) y
+
+sec  rsa2048/C3AFA9ED971BB365
+     created: 2019-04-04  expires: never       usage: SC
+     card-no: FF020001008A77C1
+     trust: ultimate      validity: ultimate
+ssb  rsa2048/7067860A98FCE6E1
+     created: 2019-04-04  expires: never       usage: E
+     card-no: FF020001008A77C1
+[ultimate] (1). otto@example.net
+
+gpg> save
+.fi
+.RE
+
+Now you can use your PIV card also with \fBgpg\fR.
+
+
+.SH OPTIONS
+
+\fBgpg-card\fR understands these options:
+
+
+.TP
+.B  --with-colons
+This option has currently no effect.
+
+.TP
+.B  --status-fd \fIn\fR
+Write special status strings to the file descriptor \fIn\fR.  This
+program returns only the status messages SUCCESS or FAILURE which are
+helpful when the caller uses a double fork approach and can't easily
+get the return code of the process.
+
+.TP
+.B  --verbose
+Enable extra informational output.
+
+.TP
+.B  --quiet
+Disable almost all informational output.
+
+.TP
+.B  --version
+Print version of the program and exit.
+
+.TP
+.B  --help
+Display a brief help page and exit.
+
+.TP
+.B  --no-autostart
+Do not start the gpg-agent if it has not yet been started and its
+service is required.  This option is mostly useful on machines where
+the connection to gpg-agent has been redirected to another machines.
+
+.TP
+.B  --no-history
+In interactive mode the command line history is usually saved and
+restored to and from a file below the GnuPG home directory.  This
+option inhibits the use of that file.
+
+.TP
+.B  --agent-program \fIfile\fR
+Specify the agent program to be started if none is running.  The
+default value is determined by running \fBgpgconf\fR with the
+option \fB--list-dirs\fR.
+
+.TP
+.B  --gpg-program \fIfile\fR
+Specify a non-default gpg binary to be used by certain commands.
+
+.TP
+.B  --gpgsm-program \fIfile\fR
+Specify a non-default gpgsm binary to be used by certain commands.
+
+.TP
+.B  --chuid \fIuid\fR
+Change the current user to \fIuid\fR which may either be a number or a
+name.  This can be used from the root account to run gpg-card for
+another user.  If \fIuid\fR is not the current UID a standard PATH is
+set and the envvar GNUPGHOME is unset.  To override the latter the
+option \fB--homedir\fR can be used.  This option has only an effect
+when used on the command line.  This option has currently no effect at
+all on Windows.
+
+.P
+
+.SH SEE ALSO
+\fBscdaemon\fR(1)

@@ -1,0 +1,1906 @@
+diff -uNr gnupg-pkcs11-scd-0.10.0.orig/gnupg-pkcs11-scd/command.c gnupg-pkcs11-scd-0.10.0/gnupg-pkcs11-scd/command.c
+--- gnupg-pkcs11-scd-0.10.0.orig/gnupg-pkcs11-scd/command.c	2022-01-04 09:01:50.000000000 -0800
++++ gnupg-pkcs11-scd-0.10.0/gnupg-pkcs11-scd/command.c	2022-11-08 01:39:28.903678873 -0800
+@@ -30,6 +30,7 @@
+ 
+ #include "common.h"
+ #include "strgetopt.h"
++#include <pkcs11-helper-1.0/pkcs11.h>
+ #include <pkcs11-helper-1.0/pkcs11h-token.h>
+ #include <pkcs11-helper-1.0/pkcs11h-certificate.h>
+ #include "command.h"
+@@ -141,25 +142,67 @@
+ 
+ static
+ gpg_err_code_t
+-get_cert_sexp (
++get_cert_keyinfo (
+ 	assuan_context_t ctx,
+ 	pkcs11h_certificate_id_t cert_id,
+-	gcry_sexp_t *p_sexp
++	keyinfo *p_keyinfo
+ ) {
+ 	gpg_err_code_t error = GPG_ERR_GENERAL;
+-	gcry_sexp_t sexp = NULL;
++	keyinfo keyinfo = NULL;
+ 	unsigned char *blob = NULL;
+ 	size_t blob_size;
+ 
+-	*p_sexp = NULL;
++	*p_keyinfo = NULL;
++	keyinfo = keyinfo_new();
+ 
+ 	if (
+ 		(error = get_cert_blob (ctx, cert_id, &blob, &blob_size)) != GPG_ERR_NO_ERROR ||
+-		(error = keyutil_get_cert_sexp (blob, blob_size, &sexp)) != GPG_ERR_NO_ERROR
++		(error = keyinfo_from_der (keyinfo, blob, blob_size)) != GPG_ERR_NO_ERROR
+ 	) {
+ 		goto cleanup;
+ 	}
+ 
++	*p_keyinfo = keyinfo;
++	keyinfo = NULL;
++
++	error = GPG_ERR_NO_ERROR;
++
++cleanup:
++
++	if (keyinfo != NULL) {
++		keyinfo_free(keyinfo);
++	}
++
++	if (blob != NULL) {
++		free (blob);
++		blob = NULL;
++	}
++
++	return error;
++}
++
++static
++gpg_err_code_t
++get_cert_sexp (
++	assuan_context_t ctx,
++	pkcs11h_certificate_id_t cert_id,
++	gcry_sexp_t *p_sexp
++) {
++	gpg_err_code_t error = GPG_ERR_GENERAL;
++	keyinfo keyinfo = NULL;
++	gcry_sexp_t sexp;
++
++	error = get_cert_keyinfo(ctx, cert_id, &keyinfo);
++	if (error != GPG_ERR_NO_ERROR) {
++		goto cleanup;
++	}
++
++	sexp = keyinfo_to_sexp(keyinfo);
++	if (sexp == NULL) {
++		error = GPG_ERR_GENERAL;
++		goto cleanup;
++	}
++
+ 	*p_sexp = sexp;
+ 	sexp = NULL;
+ 
+@@ -172,9 +215,8 @@
+ 		sexp = NULL;
+ 	}
+ 
+-	if (blob != NULL) {
+-		free (blob);
+-		blob = NULL;
++	if (keyinfo != NULL) {
++		keyinfo_free(keyinfo);
+ 	}
+ 
+ 	return error;
+@@ -348,7 +390,7 @@
+ 			goto retry;
+ 		}
+ 
+-		if ((key_hexgrip = keyutil_get_cert_hexgrip (sexp)) == NULL) {
++		if ((key_hexgrip = keyinfo_get_hexgrip (sexp)) == NULL) {
+ 			error = GPG_ERR_ENOMEM;
+ 			goto retry;
+ 		}
+@@ -487,6 +529,11 @@
+ 
+ 	retry:
+ 
++		if (sexp != NULL) {
++			gcry_sexp_release (sexp);
++			sexp = NULL;
++		}
++
+ 		if (info_cert != NULL) {
+ 			free (info_cert);
+ 			info_cert = NULL;
+@@ -617,7 +664,7 @@
+ 			goto cleanup;
+ 		}
+ 
+-		if ((key_hexgrip = keyutil_get_cert_hexgrip (sexp)) == NULL) {
++		if ((key_hexgrip = keyinfo_get_hexgrip (sexp)) == NULL) {
+ 			error = GPG_ERR_ENOMEM;
+ 			goto cleanup;
+ 		}
+@@ -941,7 +988,7 @@
+ 			goto cleanup;
+ 		}
+ 		if (
+-			(key_hexgrip = keyutil_get_cert_hexgrip (sexp)) == NULL ||
++			(key_hexgrip = keyinfo_get_hexgrip (sexp)) == NULL ||
+ 			(keypairinfo = strdup (key_hexgrip)) == NULL ||
+ 			!encoding_strappend (&keypairinfo, " ") ||
+ 			!encoding_strappend (&keypairinfo, ser)
+@@ -1063,35 +1110,118 @@
+ 	return gpg_error (error);
+ }
+ 
++static CK_RV _pkcs11_keyinfo_mechanism(keyinfo keyinfo, CK_MECHANISM_TYPE_PTR pkcs11_mechanism) {
++	if (keyinfo == NULL) {
++		return CKR_ARGUMENTS_BAD;
++	}
++
++	switch (keyinfo_get_type(keyinfo)) {
++		case KEYINFO_KEY_TYPE_RSA:
++			*pkcs11_mechanism = CKM_RSA_PKCS;
++			return CKR_OK;
++		case KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE:
++			*pkcs11_mechanism = CKM_ECDSA;
++			return CKR_OK;
++		case KEYINFO_KEY_TYPE_UNKNOWN:
++			return CKR_GENERAL_ERROR;
++		case KEYINFO_KEY_TYPE_INVALID:
++			return CKR_GENERAL_ERROR;
++	}
++
++	return CKR_GENERAL_ERROR;
++}
++
++struct prefix_pkcs1 {
++	const char *const name;
++	const unsigned char der[32];
++	const unsigned int der_size;
++	const unsigned int hash_size;
++};
++static struct prefix_pkcs1 prefix_pkcs1_list[] = {
++	{
++		.name = "rmd160",
++		.der = {
++			/* (1.3.36.3.2.1) */
++			0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x24, 0x03,
++			0x02, 0x01, 0x05, 0x00, 0x04, 0x14
++		},
++		.der_size = 15,
++		.hash_size = 20
++	},
++	{
++		.name = "md5",
++		.der = {
++			/* (1.2.840.113549.2.5) */
++			0x30, 0x2c, 0x30, 0x09, 0x06, 0x08, 0x2a, 0x86, 0x48,
++			0x86, 0xf7, 0x0d, 0x02, 0x05, 0x05, 0x00, 0x04, 0x10
++		},
++		.der_size = 18,
++		.hash_size = 16
++	},
++	{
++		.name = "sha1",
++		.der = {
++			/* (1.3.14.3.2.26) */
++			0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03,
++			0x02, 0x1a, 0x05, 0x00, 0x04, 0x14
++		},
++		.der_size = 15,
++		.hash_size = 20
++	},
++	{
++		.name = "sha224",
++		.der = {
++			/* (2.16.840.1.101.3.4.2.4) */
++			0x30, 0x2D, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
++			0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04,
++			0x1C
++		},
++		.der_size = 19,
++		.hash_size = 28
++	},
++	{
++		.name = "sha256",
++		.der = {
++			/* (2.16.840.1.101.3.4.2.1) */
++			0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
++			0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04,
++			0x20
++		},
++		.der_size = 19,
++		.hash_size = 32
++	},
++	{
++		.name = "sha384",
++		.der = {
++			/* (2.16.840.1.101.3.4.2.2) */
++			0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
++			0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04,
++			0x30
++		},
++		.der_size = 19,
++		.hash_size = 48
++	},
++	{
++		.name = "sha512",
++		.der = {
++			/* (2.16.840.1.101.3.4.2.3) */
++			0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
++			0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04,
++			0x40
++		},
++		.der_size = 19,
++		.hash_size = 64
++	},
++	{
++		.name = NULL,
++		.der_size = 0,
++		.hash_size = 0
++	}
++};
++
+ static
+ gpg_error_t _cmd_pksign_type (assuan_context_t ctx, char *line, int typehint)
+ {
+-	static const unsigned char rmd160_prefix[] = /* (1.3.36.3.2.1) */
+-		{ 0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x24, 0x03,
+-		0x02, 0x01, 0x05, 0x00, 0x04, 0x14  };
+-	static const unsigned char md5_prefix[] =   /* (1.2.840.113549.2.5) */
+-		{ 0x30, 0x2c, 0x30, 0x09, 0x06, 0x08, 0x2a, 0x86, 0x48,
+-		0x86, 0xf7, 0x0d, 0x02, 0x05, 0x05, 0x00, 0x04, 0x10  };
+-	static const unsigned char sha1_prefix[] =   /* (1.3.14.3.2.26) */
+-		{ 0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03,
+-		0x02, 0x1a, 0x05, 0x00, 0x04, 0x14  };
+-	static const unsigned char sha224_prefix[] = /* (2.16.840.1.101.3.4.2.4) */
+-		{ 0x30, 0x2D, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48,
+-		0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04,
+-		0x1C  };
+-	static const unsigned char sha256_prefix[] = /* (2.16.840.1.101.3.4.2.1) */
+-		{ 0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86,
+-		0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05,
+-		0x00, 0x04, 0x20  };
+-	static const unsigned char sha384_prefix[] = /* (2.16.840.1.101.3.4.2.2) */
+-		{ 0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86,
+-		0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05,
+-		0x00, 0x04, 0x30  };
+-	static const unsigned char sha512_prefix[] = /* (2.16.840.1.101.3.4.2.3) */
+-		{ 0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86,
+-		0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05,
+-		0x00, 0x04, 0x40  };
+-
+ 	gpg_err_code_t error = GPG_ERR_GENERAL;
+ 	pkcs11h_certificate_id_t cert_id = NULL;
+ 	pkcs11h_certificate_t cert = NULL;
+@@ -1099,19 +1229,16 @@
+ 	cmd_data_t *_data = data;
+ 	int need_free__data = 0;
+ 	int session_locked = 0;
++	keyinfo keyinfo = NULL;
+ 	unsigned char *sig = NULL;
+ 	size_t sig_len;
+-	enum {
+-		INJECT_NONE,
+-		INJECT_RMD160,
+-		INJECT_MD5,
+-		INJECT_SHA1,
+-		INJECT_SHA224,
+-		INJECT_SHA256,
+-		INJECT_SHA384,
+-		INJECT_SHA512
+-	} inject = INJECT_NONE;
++	struct prefix_pkcs1 *inject = NULL;
++	ssize_t data_effective_len;
++	size_t data_offset = 0;
++	CK_MECHANISM_TYPE pkcs11_mechanism;
++	int use_pkcs1;
+ 	char *hash = NULL;
++	int found_hash_algo = 0;
+ 	const char *l;
+ 	const struct strgetopt_option options[] = {
+ 		{"hash", strgtopt_required_argument, &hash, NULL},
+@@ -1129,140 +1256,175 @@
+ 		error = GPG_ERR_INV_DATA;
+ 		goto cleanup;
+ 	}
+-	/*
+-	 * sender prefixed data with algorithm OID
+-	 */
+-	if (hash != NULL) {
+-		if (!strcmp(hash, "rmd160") && data->size == (0x14 + sizeof(rmd160_prefix)) &&
+-			!memcmp (data->data, rmd160_prefix, sizeof (rmd160_prefix))) {
+-			inject = INJECT_NONE;
+-		}
+-		else if (!strcmp(hash, "rmd160") && data->size == 0x14) {
+-			inject = INJECT_RMD160;
+-		}
+-		else if (!strcmp(hash, "md5") && data->size == (0x10 + sizeof(md5_prefix)) &&
+-			!memcmp (data->data, md5_prefix, sizeof (md5_prefix))) {
+-			inject = INJECT_NONE;
+-		}
+-		else if (!strcmp(hash, "md5") && data->size == 0x10) {
+-			inject = INJECT_MD5;
+-		}
+-		else if (!strcmp(hash, "sha1") && data->size == (0x14 + sizeof(sha1_prefix)) &&
+-			!memcmp (data->data, sha1_prefix, sizeof (sha1_prefix))) {
+-			inject = INJECT_NONE;
+-		}
+-		else if (!strcmp(hash, "sha1") && data->size == 0x14) {
+-			inject = INJECT_SHA1;
+-		}
+-		else if (!strcmp(hash, "sha224") && data->size == (0x1c + sizeof(sha224_prefix)) &&
+-			!memcmp (data->data, sha224_prefix, sizeof (sha224_prefix))) {
+-			inject = INJECT_NONE;
+-		}
+-		else if (!strcmp(hash, "sha224") && data->size == 0x1c) {
+-			inject = INJECT_SHA224;
+-		}
+-		else if (!strcmp(hash, "sha256") && data->size == (0x20 + sizeof(sha256_prefix)) &&
+-			!memcmp (data->data, sha256_prefix, sizeof (sha256_prefix))) {
+-			inject = INJECT_NONE;
+-		}
+-		else if (!strcmp(hash, "sha256") && data->size == 0x20) {
+-			inject = INJECT_SHA256;
+-		}
+-		else if (!strcmp(hash, "sha384") && data->size == (0x30 + sizeof(sha384_prefix)) &&
+-			!memcmp (data->data, sha384_prefix, sizeof (sha384_prefix))) {
+-			inject = INJECT_NONE;
+-		}
+-		else if (!strcmp(hash, "sha384") && data->size == 0x30) {
+-			inject = INJECT_SHA384;
+-		}
+-		else if (!strcmp(hash, "sha512") && data->size == (0x40 + sizeof(sha512_prefix)) &&
+-			!memcmp (data->data, sha512_prefix, sizeof (sha512_prefix))) {
+-			inject = INJECT_NONE;
+-		}
+-		else if (!strcmp(hash, "sha512") && data->size == 0x40) {
+-			inject = INJECT_SHA512;
+-		}
+-		else {
+-			common_log (LOG_DEBUG, "unsupported hash algo (hash=%s,size=%d)", hash, data->size);
+-			error = GPG_ERR_UNSUPPORTED_ALGORITHM;
++
++	if (
++		(error = _get_certificate_by_name (
++			ctx,
++			l,
++			typehint,
++			&cert_id,
++			NULL
++		)) != GPG_ERR_NO_ERROR
++	) {
++		goto cleanup;
++	}
++
++	if (
++		(error = get_cert_keyinfo(ctx, cert_id, &keyinfo)) != GPG_ERR_NO_ERROR
++	) {
++		goto cleanup;
++	}
++
++	if (_pkcs11_keyinfo_mechanism(keyinfo, &pkcs11_mechanism) != CKR_OK) {
++		goto cleanup;
++	}
++
++	switch (pkcs11_mechanism) {
++		case CKM_RSA_PKCS:
++			use_pkcs1 = 1;
++			break;
++		case CKM_ECDSA:
++			use_pkcs1 = 0;
++			break;
++		default:
++			error = GPG_ERR_BAD_KEY;
+ 			goto cleanup;
+-		}
+ 	}
+-	else {
+-		if (
+-			data->size == 0x10 + sizeof (md5_prefix) ||
+-			data->size == 0x14 + sizeof (sha1_prefix) ||
+-			data->size == 0x14 + sizeof (rmd160_prefix)
+-		) {
+-			if (
+-				memcmp (data->data, md5_prefix, sizeof (md5_prefix)) &&
+-				memcmp (data->data, sha1_prefix, sizeof (sha1_prefix)) &&
+-				memcmp (data->data, rmd160_prefix, sizeof (rmd160_prefix))
+-			) {
++
++	if (use_pkcs1) {
++		/* Use PKCS1 framing if required by the mechanism */
++
++		/*
++		 * sender prefixed data with algorithm OID
++		 */
++		for (struct prefix_pkcs1 *prefix_pkcs1_check = prefix_pkcs1_list; prefix_pkcs1_check->name != NULL; prefix_pkcs1_check++) {
++			if (hash != NULL) {
++				if (strcmp(hash, prefix_pkcs1_check->name)) {
++					continue;
++				}
++
++				if (data->size == prefix_pkcs1_check->hash_size) {
++					inject = prefix_pkcs1_check;
++
++					found_hash_algo = 1;
++
++					break;
++				}
++			}
++
++			if (data->size == (prefix_pkcs1_check->hash_size + prefix_pkcs1_check->der_size) &&
++				!memcmp (data->data, prefix_pkcs1_check->der, prefix_pkcs1_check->der_size)) {
++
++				inject = NULL;
++
++				found_hash_algo = 1;
++
++				break;
++			}
++		}
++
++		if (!found_hash_algo) {
++			/*
++			 * If a hash algorithm was specified and it was not
++			 * found, return in failure
++			 */
++			if (hash != NULL) {
++				common_log (LOG_DEBUG, "unsupported hash algo (hash=%s,size=%d)", hash, data->size);
+ 				error = GPG_ERR_UNSUPPORTED_ALGORITHM;
+ 				goto cleanup;
+ 			}
+-		}
+-		else {
++
+ 			/*
+ 			 * unknown hash algorithm;
+ 			 * gnupg's scdaemon forces to SHA1
+ 			 */
+-			inject = INJECT_SHA1;
++			for (struct prefix_pkcs1 *prefix_pkcs1_check = prefix_pkcs1_list; prefix_pkcs1_check->name != NULL; prefix_pkcs1_check++) {
++				if (!strcmp(prefix_pkcs1_check->name, "sha1")) {
++					inject = prefix_pkcs1_check;
++
++					break;
++				}
++			}
+ 
+ 			/* When doing auth operation, hash algorithm prefix detection does not work
+ 			 * but data always comes with algorithm appended, so do not append anything
+ 			 * by default. */
+ 			if (typehint == OPENPGP_AUTH) {
+-				inject = INJECT_NONE;
++				inject = NULL;
+ 			}
+ 		}
+-	}
++	} else {
++		/* Non-PKCS1 does not inject anything, but may need to remove wrapping */
++		inject = NULL;
++
++		/* Remove any existing PKCS1 prefix from to-be-signed data */
++		for (struct prefix_pkcs1 *prefix_pkcs1_check = prefix_pkcs1_list; prefix_pkcs1_check->name != NULL; prefix_pkcs1_check++) {
++			if (hash != NULL) {
++				if (strcmp(hash, prefix_pkcs1_check->name)) {
++					continue;
++				}
+ 
+-	if (inject != INJECT_NONE) {
+-		const unsigned char *oid;
+-		size_t oid_size;
+-		switch (inject) {
+-			case INJECT_RMD160:
+-				oid = rmd160_prefix;
+-				oid_size = sizeof (rmd160_prefix);
+-			break;
+-			case INJECT_MD5:
+-				oid = md5_prefix;
+-				oid_size = sizeof (md5_prefix);
+-			break;
+-			case INJECT_SHA1:
+-				oid = sha1_prefix;
+-				oid_size = sizeof (sha1_prefix);
+-			break;
+-			case INJECT_SHA224:
+-				oid = sha224_prefix;
+-				oid_size = sizeof (sha224_prefix);
+-			break;
+-			case INJECT_SHA256:
+-				oid = sha256_prefix;
+-				oid_size = sizeof(sha256_prefix);
+-			break;
+-			case INJECT_SHA384:
+-				oid = sha384_prefix;
+-				oid_size = sizeof(sha384_prefix);
+-			break;
+-			case INJECT_SHA512:
+-				oid = sha512_prefix;
+-				oid_size = sizeof(sha512_prefix);
+-			break;
+-			default:
+-				error = GPG_ERR_INV_DATA;
++				if (data->size == prefix_pkcs1_check->hash_size) {
++					data_offset = 0;
++
++					found_hash_algo = 1;
++
++					break;
++				}
++			}
++
++			if (data->size == (prefix_pkcs1_check->hash_size + prefix_pkcs1_check->der_size) &&
++				!memcmp (data->data, prefix_pkcs1_check->der, prefix_pkcs1_check->der_size)) {
++
++				data_offset = prefix_pkcs1_check->der_size;
++
++				found_hash_algo = 1;
++
++				break;
++			}
++		}
++
++		if (!found_hash_algo) {
++			common_log (LOG_DEBUG, "unsupported hash algo (hash=%s,size=%d)", hash, data->size);
++			error = GPG_ERR_UNSUPPORTED_ALGORITHM;
++			goto cleanup;
++		}
++
++		if (data_offset > 0) {
++			if (data_offset > _data->size) {
++				error = GPG_ERR_TRUNCATED;
++				goto cleanup;
++			}
++
++			need_free__data = 1;
++
++			if ((_data = (cmd_data_t *)malloc (sizeof (cmd_data_t))) == NULL) {
++				error = GPG_ERR_ENOMEM;
++				goto cleanup;
++			}
++
++			_data->size = data->size - data_offset;
++			if ((_data->data = (unsigned char *)malloc (_data->size)) == NULL) {
++				error = GPG_ERR_ENOMEM;
+ 				goto cleanup;
++			}
++
++			memcpy(_data->data, data->data + data_offset, _data->size);
++			data_offset = 0;
+ 		}
++	}
+ 
+-		need_free__data = 1;
++	if (inject != NULL) {
++		const unsigned char *oid = inject->der;
++		size_t oid_size = inject->der_size;
+ 
+ 		if ((_data = (cmd_data_t *)malloc (sizeof (cmd_data_t))) == NULL) {
+ 			error = GPG_ERR_ENOMEM;
+ 			goto cleanup;
+ 		}
+ 
++		need_free__data = 1;
++
+ 		if ((_data->data = (unsigned char *)malloc (data->size + oid_size)) == NULL) {
+ 			error = GPG_ERR_ENOMEM;
+ 			goto cleanup;
+@@ -1276,18 +1438,6 @@
+ 	}
+ 
+ 	if (
+-		(error = _get_certificate_by_name (
+-			ctx,
+-			l,
+-			typehint,
+-			&cert_id,
+-			NULL
+-		)) != GPG_ERR_NO_ERROR
+-	) {
+-		goto cleanup;
+-	}
+-
+-	if (
+ 		(error = common_map_pkcs11_error (
+ 			pkcs11h_certificate_create (
+ 				cert_id,
+@@ -1301,6 +1451,12 @@
+ 		goto cleanup;
+ 	}
+ 
++	data_effective_len = keyinfo_get_data_length(keyinfo, _data->size);
++	if (data_effective_len < 0) {
++		error = GPG_ERR_TRUNCATED;
++		goto cleanup;
++	}
++
+ 	if (
+ 		(error = common_map_pkcs11_error (
+ 			pkcs11h_certificate_lockSession (cert)
+@@ -1314,9 +1470,9 @@
+ 		(error = common_map_pkcs11_error (
+ 			pkcs11h_certificate_signAny (
+ 				cert,
+-				CKM_RSA_PKCS,
++				pkcs11_mechanism,
+ 				_data->data,
+-				_data->size,
++				data_effective_len,
+ 				NULL,
+ 				&sig_len
+ 			)
+@@ -1334,9 +1490,9 @@
+ 		(error = common_map_pkcs11_error (
+ 			pkcs11h_certificate_signAny (
+ 				cert,
+-				CKM_RSA_PKCS,
++				pkcs11_mechanism,
+ 				_data->data,
+-				_data->size,
++				data_effective_len,
+ 				sig,
+ 				&sig_len
+ 			)
+@@ -1365,16 +1521,23 @@
+ 		cert_id = NULL;
+ 	}
+ 
++	if (keyinfo != NULL) {
++		keyinfo_free(keyinfo);
++		keyinfo = NULL;
++	}
++
+ 	if (sig != NULL) {
+ 		free (sig);
+ 		sig = NULL;
+ 	}
+ 
+ 	if (need_free__data) {
+-		free (_data->data);
+-		_data->data = NULL;
+-		free (_data);
+-		_data = NULL;
++		if (_data != NULL) {
++			free (_data->data);
++			_data->data = NULL;
++			free (_data);
++			_data = NULL;
++		}
+ 	}
+ 
+ 	strgetopt_free(options);
+@@ -1495,7 +1658,7 @@
+ 		(error = common_map_pkcs11_error (
+ 			pkcs11h_certificate_decryptAny (
+ 				cert,
+-				CKM_RSA_PKCS, 
++				CKM_RSA_PKCS,
+ 				_data.data,
+ 				_data.size,
+ 				ptext,
+@@ -1688,7 +1851,7 @@
+ 			goto retry;
+ 		}
+ 
+-		if ((key_hexgrip = keyutil_get_cert_hexgrip (sexp)) == NULL) {
++		if ((key_hexgrip = keyinfo_get_hexgrip (sexp)) == NULL) {
+ 			error = GPG_ERR_ENOMEM;
+ 			goto retry;
+ 		}
+@@ -1762,6 +1925,10 @@
+ 		error = GPG_ERR_NO_ERROR;
+ 
+ 	retry:
++		if (sexp != NULL) {
++			gcry_sexp_release(sexp);
++			sexp = NULL;
++		}
+ 
+ 		if (keyinfo_line != NULL) {
+ 			free (keyinfo_line);
+@@ -1816,9 +1983,34 @@
+ 	char *serial = NULL;
+ 	gpg_err_code_t error = GPG_ERR_GENERAL;
+ 	const char *l;
++	int need_certificates = 0;
++	keyinfo keyinfo = NULL;
+ 
+ 	l = strgetopt_getopt(line, NULL);
+ 
++	if (
++		!strcmp (l, "KEY-FPR") ||
++		!strcmp (l, "KEY-ATTR")
++	) {
++		need_certificates = 1;
++	}
++
++	if (need_certificates == 1) {
++		if (
++			(error = common_map_pkcs11_error (
++				pkcs11h_certificate_enumCertificateIds (
++					PKCS11H_ENUM_METHOD_CACHE_EXIST,
++					ctx,
++					PKCS11H_PROMPT_MASK_ALLOW_ALL,
++					NULL,
++					&user_certificates
++				)
++			)) != GPG_ERR_NO_ERROR
++		) {
++			goto cleanup;
++		}
++	}
++
+ 	if (!strcmp (l, "SERIALNO")) {
+ 		if (
+ 			(error = get_serial(ctx, &serial)) != GPG_ERR_NO_ERROR
+@@ -1840,15 +2032,6 @@
+ 	}
+ 	else if (!strcmp (l, "KEY-FPR")) {
+ 		if (
+-			(error = common_map_pkcs11_error (
+-				pkcs11h_certificate_enumCertificateIds (
+-					PKCS11H_ENUM_METHOD_CACHE_EXIST,
+-					ctx,
+-					PKCS11H_PROMPT_MASK_ALLOW_ALL,
+-					NULL,
+-					&user_certificates
+-				)
+-			)) != GPG_ERR_NO_ERROR ||
+ 			(error = send_certificate_list (
+ 				ctx,
+ 				user_certificates,
+@@ -1882,11 +2065,58 @@
+ 	}
+ 	else if (!strcmp (l, "KEY-ATTR")) {
+ 		int i;
++		char buffer[1024];
++		const char *key_named_curve = NULL;
++		int keyAlgo;
++		int skip;
++
++		for (
++			pkcs11h_certificate_id_list_t curr_cert = user_certificates;
++			curr_cert != NULL;
++			curr_cert = curr_cert->next
++		) {
++			/* XXX:TODO: How do I know which key the KEY-ATTR is for ? */
++			error = get_cert_keyinfo(ctx, curr_cert->certificate_id, &keyinfo);
++			if (error != GPG_ERR_NO_ERROR) {
++				goto cleanup;
++			}
++
++		}
++
+ 		for (i=0;i<3;i++) {
+-			char buffer[1024];
++			skip = 0;
++			switch (keyinfo_get_type(keyinfo)) {
++				case KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE:
++					if (i == 1) {
++						keyAlgo = 18 /* PUBKEY_ALGO_ECDH */;
++						skip = 1;
++						break;
++					} else {
++						keyAlgo = 19 /* PUBKEY_ALGO_ECDSA */;
++					}
++
++					key_named_curve = keyinfo_get_key_named_curve(keyinfo);
++					if (key_named_curve == NULL) {
++						skip = 1;
++
++						break;
++					}
++
++					snprintf(buffer, sizeof(buffer), "%d %d %s", i + 1, keyAlgo, key_named_curve);
++					break;
++				case KEYINFO_KEY_TYPE_RSA:
++					keyAlgo = GCRY_PK_RSA;
++
++					snprintf(buffer, sizeof(buffer), "%d 1 %u %u %d", i+1, keyAlgo, keyinfo_get_key_length(keyinfo), 0);
++					break;
++				default:
++					skip = 1;
++					break;
++			}
+ 
+-			/* I am not sure 2048 is right here... */
+-			snprintf(buffer, sizeof(buffer), "%d 1 %u %u %d", i+1, GCRY_PK_RSA, 2048, 0);
++			if (skip == 1) {
++				continue;
++			}
+ 
+ 			if (
+ 				(error = assuan_write_status(
+@@ -1928,6 +2158,10 @@
+ 
+ cleanup:
+ 
++	if (keyinfo != NULL) {
++		keyinfo_free(keyinfo);
++	}
++
+ 	if (user_certificates != NULL) {
+ 		pkcs11h_certificate_freeCertificateIdList (user_certificates);
+ 		user_certificates = NULL;
+@@ -1966,12 +2200,11 @@
+ {
+ 	gpg_err_code_t error = GPG_ERR_GENERAL;
+ 	pkcs11h_certificate_id_t cert_id = NULL;
+-	gcry_mpi_t n_mpi = NULL;
+-	gcry_mpi_t e_mpi = NULL;
++	keyinfo keyinfo;
++	keyinfo_data_list key_parts = NULL, curr_key_part;
+ 	unsigned char *n_hex = NULL;
+ 	unsigned char *e_hex = NULL;
+-	char *n_resp = strdup ("n ");
+-	char *e_resp = strdup ("e ");
++	char *part_resp = NULL;
+ 	unsigned char *blob = NULL;
+ 	char *serial = NULL;
+ 	const char *key = NULL;
+@@ -1985,6 +2218,8 @@
+ 		{NULL, 0, NULL, NULL}
+ 	};
+ 
++	keyinfo = keyinfo_new();
++
+ 	l = strgetopt_getopt(line, options);
+ 
+ 	if (*l == '\x0') {
+@@ -1994,7 +2229,7 @@
+ 
+ 	if (timestamp == NULL) {
+ 		sprintf (_timestamp, "%d", (int)time (NULL));
+-		timestamp = _timestamp;
++		timestamp = strdup(_timestamp);
+ 	}
+ 
+ 	if (
+@@ -2040,74 +2275,58 @@
+ 			&blob,
+ 			&blob_size
+ 		)) != GPG_ERR_NO_ERROR ||
+-		(error = keyutil_get_cert_mpi (
++		(error = keyinfo_from_der(
++			keyinfo,
+ 			blob,
+-			blob_size,
+-			&n_mpi,
+-			&e_mpi
++			blob_size
+ 		)) != GPG_ERR_NO_ERROR
+ 	) {
+ 		goto cleanup;
+ 	}
+ 
+-	if (
+-		gcry_mpi_aprint (
+-			GCRYMPI_FMT_HEX,
+-			&n_hex,
+-			NULL,
+-			n_mpi
+-		) ||
+-		gcry_mpi_aprint (
+-			GCRYMPI_FMT_HEX,
+-			&e_hex,
+-			NULL,
+-			e_mpi
+-		)
+-	) {
+-		error = GPG_ERR_BAD_KEY;
+-		goto cleanup;
+-	}
++	key_parts = keyinfo_get_key_data(keyinfo);
+ 
+-	if (
+-		!encoding_strappend (&n_resp, (char *)n_hex) ||
+-		!encoding_strappend (&e_resp, (char *)e_hex)
+-	) {
+-		error = GPG_ERR_ENOMEM;
+-		goto cleanup;
+-	}
++	for (curr_key_part = key_parts; curr_key_part != NULL; curr_key_part = curr_key_part->next) {
++		part_resp = strdup("");
++		if (
++			!encoding_strappend (&part_resp, (char *) curr_key_part->tag) ||
++			!encoding_strappend (&part_resp, (char *) " ") ||
++			!encoding_strappend (&part_resp, (char *) curr_key_part->value)
++		) {
++			error = GPG_ERR_ENOMEM;
++			goto cleanup;
++		}
+ 
+-	if (
+-		(error = assuan_write_status(
+-			ctx,
+-			"KEY-DATA",
+-			n_resp
+-		)) != GPG_ERR_NO_ERROR
+-	) {
+-		goto cleanup;
+-	}
++		if (
++			(error = assuan_write_status(
++				ctx,
++				(char *) curr_key_part->type,
++				part_resp
++			)) != GPG_ERR_NO_ERROR
++		) {
++			goto cleanup;
++		}
+ 
+-	if (
+-		(error = assuan_write_status(
+-			ctx,
+-			"KEY-DATA",
+-			e_resp
+-		)) != GPG_ERR_NO_ERROR
+-	) {
+-		goto cleanup;
++		free(part_resp);
++		part_resp = NULL;
+ 	}
+ 
+ 	error = GPG_ERR_NO_ERROR;
+ 
+ cleanup:
+ 
+-	if (n_mpi != NULL) {
+-		gcry_mpi_release (n_mpi);
+-		n_mpi = NULL;
++	if (part_resp != NULL) {
++		free(part_resp);
++	}
++
++	if (key_parts != NULL) {
++		keyinfo_data_free(key_parts);
++		key_parts = NULL;
+ 	}
+ 
+-	if (e_mpi != NULL) {
+-		gcry_mpi_release (e_mpi);
+-		e_mpi = NULL;
++	if (keyinfo != NULL) {
++		keyinfo_free(keyinfo);
++		keyinfo = NULL;
+ 	}
+ 
+ 	if (n_hex != NULL) {
+@@ -2120,16 +2339,6 @@
+ 		e_hex = NULL;
+ 	}
+ 
+-	if (n_resp != NULL) {
+-		free (n_resp);
+-		n_resp = NULL;
+-	}
+-
+-	if (e_resp != NULL) {
+-		free (e_resp);
+-		e_resp = NULL;
+-	}
+-
+ 	if (blob != NULL) {
+ 		free (blob);
+ 		blob = NULL;
+diff -uNr gnupg-pkcs11-scd-0.10.0.orig/gnupg-pkcs11-scd/keyutil.c gnupg-pkcs11-scd-0.10.0/gnupg-pkcs11-scd/keyutil.c
+--- gnupg-pkcs11-scd-0.10.0.orig/gnupg-pkcs11-scd/keyutil.c	2021-10-01 12:47:22.000000000 -0700
++++ gnupg-pkcs11-scd-0.10.0/gnupg-pkcs11-scd/keyutil.c	2022-11-08 01:37:37.543526276 -0800
+@@ -35,10 +35,207 @@
+ #if defined(ENABLE_OPENSSL)
+ #include <openssl/x509.h>
+ #include <openssl/rsa.h>
++#include <openssl/evp.h>
++#include <openssl/obj_mac.h>
+ #endif
+ #include "encoding.h"
+ #include "keyutil.h"
+ 
++struct keyinfo_s {
++	/**
++	 * Type of key
++	 */
++	keyinfo_key_type_t type;
++
++	/**
++	 * Key Length (in bits)
++	 */
++	unsigned int key_length;
++	union {
++		/**
++		 * RSA Public Key
++		 */
++		struct {
++			gcry_mpi_t n;
++			gcry_mpi_t e;
++		} rsa;
++
++		/**
++		 * EcDSA Public Key (named curve)
++		 */
++		struct {
++			gcry_mpi_t q;
++			char *named_curve;
++			int named_curve_free;
++		} ecdsa;
++	} data;
++};
++
++/*
++ * If OpenSSL is disabled, define our own copies of these macros to use
++ * as internal IDs
++ */
++#ifndef ENABLE_OPENSSL
++#  define NID_X9_62_prime256v1 1
++#  define NID_secp256k1 2
++#endif
++
++/**
++ * Structure to hold mapping of libgcrypt supported Curve names to SCD protocol curve values
++ */
++struct curve_info_map_s {
++	char *curve_name;
++	char *curve_gpg_value;
++	int curve_id;
++	int key_length;
++};
++
++/**
++ * Mapping of libgcrypt supported Curve names (found
++ * https://www.gnupg.org/documentation/manuals/gcrypt/ECC-key-parameters.html)
++ * to GnuPG SCD protocol Curve value which is the DER-encoded OID minus the
++ * tag (byte 0x06)
++ *
++ * The curve names must exist in GnuPG's openpgp-oid.c
++ */
++static struct curve_info_map_s curve_info_map[] = {
++	/* secp256r1 */
++	{"NIST P-256", "082A8648CE3D030107", NID_X9_62_prime256v1, 256},
++	{"nistp256", "082A8648CE3D030107", NID_X9_62_prime256v1, 256},
++	{"1.2.840.10045.3.1.7", "082A8648CE3D030107", NID_X9_62_prime256v1, 256},
++
++	/* secp256k1 */
++	{"secp256k1", "052B8104000A", NID_secp256k1, 256},
++	{"1.3.132.0.10", "052B8104000A", NID_secp256k1, 256},
++
++	/* Terminator */
++	{NULL, NULL, -1, -1}
++};
++
++/**
++ * Initialize a KeyUtil KeyInfo Object
++ */
++void keyinfo_init(keyinfo keyinfo, keyinfo_key_type_t keytype) {
++	keyinfo->type = keytype;
++	keyinfo->key_length = 0;
++
++	if (keyinfo->type == KEYINFO_KEY_TYPE_RSA || keyinfo->type == KEYINFO_KEY_TYPE_UNKNOWN) {
++		keyinfo->data.rsa.e = NULL;
++		keyinfo->data.rsa.n = NULL;
++	}
++
++	if (keyinfo->type == KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE || keyinfo->type == KEYINFO_KEY_TYPE_UNKNOWN) {
++		keyinfo->data.ecdsa.q = NULL;
++		keyinfo->data.ecdsa.named_curve = NULL;
++		keyinfo->data.ecdsa.named_curve_free = 0;
++	}
++}
++
++/**
++ * Allocate a new KeyInfo object
++ */
++keyinfo keyinfo_new(void) {
++	keyinfo keyinfo;
++
++	keyinfo = malloc(sizeof(*keyinfo));
++	if (keyinfo == NULL) {
++		return NULL;
++	}
++
++	keyinfo_init(keyinfo, KEYINFO_KEY_TYPE_UNKNOWN);
++
++	return keyinfo;
++}
++
++/**
++ * Free any resources held by a KeyUtil KeyInfo object.
++ */
++void keyinfo_free(keyinfo keyinfo) {
++	if (keyinfo == NULL) {
++		return;
++	}
++
++	switch (keyinfo->type) {
++		case KEYINFO_KEY_TYPE_RSA:
++			if (keyinfo->data.rsa.e) {
++				gcry_mpi_release(keyinfo->data.rsa.e);
++				keyinfo->data.rsa.e = NULL;
++			}
++			if (keyinfo->data.rsa.n) {
++				gcry_mpi_release(keyinfo->data.rsa.n);
++				keyinfo->data.rsa.n = NULL;
++			}
++			break;
++		case KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE:
++			if (keyinfo->data.ecdsa.q) {
++				gcry_mpi_release(keyinfo->data.ecdsa.q);
++				keyinfo->data.ecdsa.q = NULL;
++			}
++			if (keyinfo->data.ecdsa.named_curve) {
++				if (keyinfo->data.ecdsa.named_curve_free) {
++					free(keyinfo->data.ecdsa.named_curve);
++				}
++				keyinfo->data.ecdsa.named_curve = NULL;
++			}
++			break;
++		case KEYINFO_KEY_TYPE_UNKNOWN:
++		case KEYINFO_KEY_TYPE_INVALID:
++			/* Nothing to do for unknown types */
++			break;
++	}
++
++	keyinfo->type = KEYINFO_KEY_TYPE_INVALID;
++	keyinfo->key_length = 0;
++
++	free(keyinfo);
++}
++
++keyinfo_key_type_t keyinfo_get_type(keyinfo keyinfo) {
++	return keyinfo->type;
++}
++
++ssize_t keyinfo_get_data_length(keyinfo keyinfo, size_t input_length) {
++	unsigned int key_length;
++
++	if (keyinfo == NULL) {
++		return -1;
++	}
++
++	key_length = keyinfo->key_length / 8;
++
++	switch (keyinfo->type) {
++		case KEYINFO_KEY_TYPE_RSA:
++			if (input_length > key_length) {
++				return -1;
++			} else {
++				return input_length;
++			}
++		case KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE:
++			if (input_length > key_length) {
++				return key_length;
++			} else {
++				return input_length;
++			}
++		case KEYINFO_KEY_TYPE_UNKNOWN:
++		case KEYINFO_KEY_TYPE_INVALID:
++			return -1;
++	}
++
++	return -1;
++}
++
++int keyinfo_get_key_length(keyinfo keyinfo) {
++	return keyinfo->key_length;
++}
++
++const char *keyinfo_get_key_named_curve(keyinfo keyinfo) {
++	if (keyinfo->type != KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE) {
++		return NULL;
++	}
++
++	return keyinfo->data.ecdsa.named_curve;
++}
++
+ #if defined(ENABLE_OPENSSL)
+ #if OPENSSL_VERSION_NUMBER < 0x00908000L
+ typedef unsigned char *my_openssl_d2i_t;
+@@ -60,33 +257,48 @@
+ }
+ #endif
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20500030L)
++static int EVP_PKEY_base_id(const EVP_PKEY *pkey) {
++	return EVP_PKEY_type(pkey->type);
++}
+ #endif
+ 
++#endif
++
++/**
++ * Convert the public key from an X.509 certificate into an already-created
++ * key object
++ */
+ gpg_err_code_t
+-keyutil_get_cert_mpi (
++keyinfo_from_der(
++	keyinfo keyinfo,
+ 	unsigned char *der,
+-	size_t len,
+-	gcry_mpi_t *p_n_mpi,
+-	gcry_mpi_t *p_e_mpi
++	size_t len
+ ) {
++	struct curve_info_map_s *curr;
+ 	gpg_err_code_t error = GPG_ERR_GENERAL;
+ 	gcry_mpi_t n_mpi = NULL;
+ 	gcry_mpi_t e_mpi = NULL;
++	gcry_mpi_t q_mpi = NULL;
+ #if defined(ENABLE_GNUTLS)
+ 	gnutls_x509_crt_t cert = NULL;
+ 	gnutls_datum_t datum = {der, len};
+ 	gnutls_datum_t m = {NULL, 0}, e = {NULL, 0};
+ #elif defined(ENABLE_OPENSSL)
++	int check_result;
+ 	X509 *x509 = NULL;
+ 	EVP_PKEY *pubkey = NULL;
++	EVP_PKEY_CTX *pubkey_ctx = NULL;
+ 	RSA *rsa = NULL;
++	EC_KEY *ec_key = NULL;
++	const EC_POINT *ec_pubkey;
++	const EC_GROUP *ec_group;
+ 	const BIGNUM *n, *e;
+-	char *n_hex = NULL, *e_hex = NULL;
++	int ec_curve_id;
++	BN_CTX *q_ctx = NULL;
++	char *n_hex = NULL, *e_hex = NULL, *q_hex = NULL;
+ #endif
+ 
+-	*p_n_mpi = NULL;
+-	*p_e_mpi = NULL;
+-
+ #if defined(ENABLE_GNUTLS)
+ 	if (gnutls_x509_crt_init (&cert) != GNUTLS_E_SUCCESS) {
+ 		cert = NULL;
+@@ -118,43 +330,163 @@
+ 		error = GPG_ERR_BAD_CERT;
+ 		goto cleanup;
+ 	}
+- 
++
+ 	if ((pubkey = X509_get_pubkey (x509)) == NULL) {
+ 		error = GPG_ERR_BAD_CERT;
+ 		goto cleanup;
+ 	}
+- 
+-	if ((rsa = EVP_PKEY_get1_RSA(pubkey)) == NULL) {
+-		error = GPG_ERR_WRONG_PUBKEY_ALGO;
++
++	pubkey_ctx = EVP_PKEY_CTX_new(pubkey, NULL);
++	if (pubkey_ctx == NULL) {
++		error = GPG_ERR_BAD_CERT;
+ 		goto cleanup;
+ 	}
+ 
+-	RSA_get0_key(rsa, &n, &e, NULL);
++	/**
++	 * Check the public key context
++	 * 1 is success, -2 is not applicable
++	 */
++	check_result = EVP_PKEY_public_check(pubkey_ctx);
++	if (check_result != 1 && check_result != -2) {
++		error = GPG_ERR_WRONG_PUBKEY_ALGO;
++		goto cleanup;
++	}
+ 
+-	n_hex = BN_bn2hex (n);
+-	e_hex = BN_bn2hex (e);
++	if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
++		keyinfo_init(keyinfo, KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE);
++	}
+ 
+-	if(n_hex == NULL || e_hex == NULL) {
+-		error = GPG_ERR_BAD_KEY;
+-		goto cleanup;
++	if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_RSA) {
++		keyinfo_init(keyinfo, KEYINFO_KEY_TYPE_RSA);
+ 	}
+- 
+-	if (
+-		gcry_mpi_scan (&n_mpi, GCRYMPI_FMT_HEX, n_hex, 0, NULL) ||
+-		gcry_mpi_scan (&e_mpi, GCRYMPI_FMT_HEX, e_hex, 0, NULL)
+-	) {
+-		error = GPG_ERR_BAD_KEY;
+-		goto cleanup;
++
++	switch (keyinfo->type) {
++		case KEYINFO_KEY_TYPE_RSA:
++			/* Warning: EVP_PKEY_get1_RSA is deprecated in OpenSSL 3.0 */
++			if ((rsa = EVP_PKEY_get1_RSA(pubkey)) == NULL) {
++				error = GPG_ERR_WRONG_PUBKEY_ALGO;
++				goto cleanup;
++			}
++
++			/* Warning: RSA_get0_key is deprecated in OpenSSL 3.0 */
++			RSA_get0_key(rsa, &n, &e, NULL);
++
++			/* Warning: RSA_size is deprecated in OpenSSL 3.0 */
++			keyinfo->key_length = RSA_size(rsa) * 8;
++
++			n_hex = BN_bn2hex (n);
++			e_hex = BN_bn2hex (e);
++
++			if(n_hex == NULL || e_hex == NULL) {
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++
++			if (
++				gcry_mpi_scan (&n_mpi, GCRYMPI_FMT_HEX, n_hex, 0, NULL) ||
++				gcry_mpi_scan (&e_mpi, GCRYMPI_FMT_HEX, e_hex, 0, NULL)
++			) {
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++			break;
++		case KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE:
++			/* Warning: EVP_PKEY_get1_EC_KEY is deprecated in OpenSSL 3.0 */
++			ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
++			if (ec_key == NULL) {
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++
++			/* Warning: EC_KEY_get0_public_key is deprecated in OpenSSL 3.0 */
++			ec_pubkey = EC_KEY_get0_public_key(ec_key);
++			if (ec_pubkey == NULL) {
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++
++			/* Warning: EC_KEY_get0_group is deprecated in OpenSSL 3.0 */
++			ec_group = EC_KEY_get0_group(ec_key);
++			if (ec_group == NULL) {
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++
++			q_ctx = BN_CTX_new();
++			if (q_ctx == NULL) {
++				error = GPG_ERR_SYSTEM_ERROR;
++				goto cleanup;
++			}
++
++			q_hex = EC_POINT_point2hex(ec_group, ec_pubkey, EC_GROUP_get_point_conversion_form(ec_group), q_ctx);
++			BN_CTX_free(q_ctx);
++
++			if (q_hex == NULL) {
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++
++			if (gcry_mpi_scan (&q_mpi, GCRYMPI_FMT_HEX, q_hex, 0, NULL)) {
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++
++			ec_curve_id = EC_GROUP_get_curve_name(ec_group);
++			if (ec_curve_id == 0) {
++				/* We only support named curves */
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++
++			break;
++		case KEYINFO_KEY_TYPE_UNKNOWN:
++		case KEYINFO_KEY_TYPE_INVALID:
++			error = GPG_ERR_BAD_KEY;
++			goto cleanup;
+ 	}
+ #else
+ #error Invalid configuration.
+ #endif
+ 
+-	*p_n_mpi = n_mpi;
+-	n_mpi = NULL;
+-	*p_e_mpi = e_mpi;
+-	e_mpi = NULL;
+-	error = GPG_ERR_NO_ERROR;
++	switch (keyinfo->type) {
++		case KEYINFO_KEY_TYPE_RSA:
++			keyinfo->data.rsa.n = n_mpi;
++			n_mpi = NULL;
++
++			keyinfo->data.rsa.e = e_mpi;
++			e_mpi = NULL;
++
++			error = GPG_ERR_NO_ERROR;
++			break;
++		case KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE:
++			for (curr = curve_info_map; curr->curve_name != NULL; curr++) {
++				if (curr->curve_id == ec_curve_id) {
++					keyinfo->data.ecdsa.named_curve = curr->curve_name;
++					keyinfo->key_length = curr->key_length;
++
++					break;
++				}
++			}
++
++			if (curr->curve_name == NULL) {
++				/* We couldn't find the named curve in our index */
++				error = GPG_ERR_BAD_KEY;
++				goto cleanup;
++			}
++
++			keyinfo->data.ecdsa.named_curve_free = 0;
++
++			keyinfo->data.ecdsa.q = q_mpi;
++			q_mpi = NULL;
++
++			error = GPG_ERR_NO_ERROR;
++			break;
++		case KEYINFO_KEY_TYPE_UNKNOWN:
++		case KEYINFO_KEY_TYPE_INVALID:
++			error = GPG_ERR_BAD_KEY;
++			goto cleanup;
++			break;
++	}
+ 
+ cleanup:
+ 
+@@ -168,6 +500,11 @@
+ 		e_mpi = NULL;
+ 	}
+ 
++	if (q_mpi != NULL) {
++		gcry_mpi_release (q_mpi);
++		q_mpi = NULL;
++	}
++
+ #if defined(ENABLE_GNUTLS)
+ 
+ 	if (m.data != NULL) {
+@@ -192,16 +529,28 @@
+ 		x509 = NULL;
+ 	}
+ 
++	if (pubkey_ctx) {
++		EVP_PKEY_CTX_free(pubkey_ctx);
++		pubkey_ctx = NULL;
++	}
++
+ 	if (pubkey != NULL) {
+ 		EVP_PKEY_free(pubkey);
+ 		pubkey = NULL;
+ 	}
+ 
+ 	if (rsa != NULL) {
++		/* Warning: RSA_free is deprecated in OpenSSL 3.0 */
+ 		RSA_free(rsa);
+ 		rsa = NULL;
+ 	}
+ 
++	if (ec_key != NULL) {
++		/* Warning: EC_KEY_free is deprecated in OpenSSL 3.0 */
++		EC_KEY_free(ec_key);
++		ec_key = NULL;
++	}
++
+ 	if (n_hex != NULL) {
+ 		OPENSSL_free (n_hex);
+ 		n_hex = NULL;
+@@ -212,75 +561,62 @@
+ 		e_hex = NULL;
+ 	}
+ 
++	if (q_hex != NULL) {
++		OPENSSL_free (q_hex);
++		q_hex = NULL;
++	}
++
+ #else
+ #error Invalid configuration.
+ #endif
+ 
+ 	return error;
+ }
+-/**
+-   Convert X.509 RSA public key into gcrypt internal sexp form. Only RSA
+-   public keys are accepted at the moment. The result is stored in *sexp,
+-   which must be freed (using ) when not needed anymore. *sexp must be
+-   NULL on entry, since it is overwritten.
+-*/
+-gpg_err_code_t
+-keyutil_get_cert_sexp (
+-	unsigned char *der,
+-	size_t len,
+-	gcry_sexp_t *p_sexp
+-) {
+-	gpg_err_code_t error = GPG_ERR_GENERAL;
+-	gcry_mpi_t n_mpi = NULL;
+-	gcry_mpi_t e_mpi = NULL;
+-	gcry_sexp_t sexp = NULL;
+ 
+-	if (
+-		(error = keyutil_get_cert_mpi (
+-			der,
+-			len,
+-			&n_mpi,
+-			&e_mpi
+-		)) != GPG_ERR_NO_ERROR
+-	) {
+-		goto cleanup;
++gcry_sexp_t keyinfo_to_sexp(keyinfo keyinfo) {
++	gcry_sexp_t sexp = NULL, complete_sexp = NULL;
++	gcry_error_t sexp_build_result;
++
++	switch (keyinfo->type) {
++		case KEYINFO_KEY_TYPE_RSA:
++			sexp_build_result = gcry_sexp_build(
++				&sexp,
++				NULL,
++				"(public-key (rsa (n %m) (e %m)))",
++				keyinfo->data.rsa.n,
++				keyinfo->data.rsa.e
++			);
++			break;
++		case KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE:
++			sexp_build_result = gcry_sexp_build(
++				&sexp,
++				NULL,
++				"(public-key (ecc (curve %s) (q %m)))",
++				keyinfo->data.ecdsa.named_curve,
++				keyinfo->data.ecdsa.q
++			);
++			break;
++		case KEYINFO_KEY_TYPE_UNKNOWN:
++		case KEYINFO_KEY_TYPE_INVALID:
++			sexp_build_result = 1;
++			break;
+ 	}
+ 
+-	if (
+-		gcry_sexp_build (
+-			&sexp,
+-			NULL,
+-			"(public-key (rsa (n %m) (e %m)))",
+-			n_mpi,
+-			e_mpi
+-		)
+-	) {
+-		error = GPG_ERR_BAD_KEY;
++	if (sexp_build_result != 0) {
+ 		goto cleanup;
+ 	}
+ 
+-	*p_sexp = sexp;
++	complete_sexp = sexp;
+ 	sexp = NULL;
+-	error = GPG_ERR_NO_ERROR;
+ 
+ cleanup:
+ 
+-	if (n_mpi != NULL) {
+-		gcry_mpi_release (n_mpi);
+-		n_mpi = NULL;
+-	}
+-
+-	if (e_mpi != NULL) {
+-		gcry_mpi_release (e_mpi);
+-		e_mpi = NULL;
+-	}
+-
+ 	if (sexp != NULL) {
+ 		gcry_sexp_release (sexp);
+ 		sexp = NULL;
+ 	}
+ 
+-	return error;
++	return complete_sexp;
+ }
+ 
+ #if 0
+@@ -302,7 +638,7 @@
+ #endif
+ 
+ /** Calculate hex-encoded keygrip of public key in sexp. */
+-char *keyutil_get_cert_hexgrip (gcry_sexp_t sexp)
++char *keyinfo_get_hexgrip (gcry_sexp_t sexp)
+ {
+ 	char *ret = NULL;
+ 	unsigned char grip[20];
+@@ -313,3 +649,197 @@
+ 
+ 	return ret;
+ }
++
++void keyinfo_data_free(keyinfo_data_list list) {
++	keyinfo_data_list next, curr;
++
++	if (list == NULL) {
++		return;
++	}
++
++	for (curr = list; curr != NULL; curr = next) {
++		next = curr->next;
++
++		if (curr->value != NULL) {
++			if (curr->value_free != NULL) {
++				curr->value_free(curr->value);
++			}
++		}
++
++		if (curr->tag != NULL) {
++			if (curr->tag_free != NULL) {
++				curr->tag_free(curr->tag);
++			}
++		}
++
++		free(curr);
++	}
++}
++
++static unsigned char *_keyinfo_lookup_named_curve(const char *named_curve) {
++	struct curve_info_map_s *curr;
++
++	for (curr = curve_info_map; curr->curve_name != NULL; curr++) {
++		if (strcmp(curr->curve_name, named_curve) == 0) {
++			return (unsigned char *) curr->curve_gpg_value;
++		}
++	}
++
++	return NULL;
++}
++
++keyinfo_data_list keyinfo_get_key_data(keyinfo keyinfo) {
++	keyinfo_data_list first = NULL, n_item = NULL, e_item = NULL, q_item = NULL, curve_item = NULL;
++	unsigned char *n_hex = NULL;
++	unsigned char *e_hex = NULL;
++	unsigned char *q_hex = NULL;
++	unsigned char *curve_value = NULL;
++
++	if (keyinfo->type == KEYINFO_KEY_TYPE_INVALID) {
++		return NULL;
++	}
++
++	if (keyinfo->type != KEYINFO_KEY_TYPE_UNKNOWN) {
++		return NULL;
++	}
++
++	switch (keyinfo->type) {
++		case KEYINFO_KEY_TYPE_RSA:
++			if (
++				gcry_mpi_aprint (
++					GCRYMPI_FMT_HEX,
++					&n_hex,
++					NULL,
++					keyinfo->data.rsa.n
++				) ||
++				gcry_mpi_aprint (
++					GCRYMPI_FMT_HEX,
++					&e_hex,
++					NULL,
++					keyinfo->data.rsa.e
++				)
++			) {
++				break;
++			}
++
++			e_item = malloc(sizeof(*e_item));
++			if (e_item == NULL) {
++				break;
++			}
++			e_item->next = NULL;
++			e_item->type = (unsigned char *) "KEY-DATA";
++			e_item->tag = (unsigned char *) "e";
++			e_item->value = e_hex;
++			e_item->value_free = gcry_free;
++			e_item->tag_free = NULL;
++
++			n_item = malloc(sizeof(*n_item));
++			if (n_item == NULL) {
++				break;
++			}
++			n_item->next = e_item;
++			n_item->type = (unsigned char *) "KEY-DATA";
++			n_item->tag = (unsigned char *) "n";
++			n_item->value = n_hex;
++			n_item->value_free = gcry_free;
++			n_item->tag_free = NULL;
++
++			first = n_item;
++			n_item = NULL;
++			e_item = NULL;
++			n_hex = NULL;
++			e_hex = NULL;
++
++			break;
++		case KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE:
++			if (
++				gcry_mpi_aprint (
++					GCRYMPI_FMT_HEX,
++					&q_hex,
++					NULL,
++					keyinfo->data.ecdsa.q
++				)
++			) {
++				break;
++			}
++
++			curve_item = malloc(sizeof(*curve_item));
++			if (curve_item == NULL) {
++				break;
++			}
++
++			curve_value = _keyinfo_lookup_named_curve(keyinfo->data.ecdsa.named_curve);
++			if (curve_value == NULL) {
++				break;
++			}
++
++			curve_item->next = NULL;
++			curve_item->type = (unsigned char *) "KEY-DATA";
++			curve_item->tag = (unsigned char *) "curve";
++			curve_item->value = curve_value;
++			curve_item->value_free = NULL;
++			curve_item->tag_free = NULL;
++
++			q_item = malloc(sizeof(*q_item));
++			if (q_item == NULL) {
++				break;
++			}
++			q_item->next = curve_item;
++			q_item->type = (unsigned char *) "KEY-DATA";
++			q_item->tag = (unsigned char *) "q";
++			q_item->value = q_hex;
++			q_item->value_free = gcry_free;
++			q_item->tag_free = NULL;
++
++			first = q_item;
++			q_item = NULL;
++			q_hex = NULL;
++			curve_value = NULL;
++			break;
++		case KEYINFO_KEY_TYPE_UNKNOWN:
++		case KEYINFO_KEY_TYPE_INVALID:
++			break;
++	}
++
++	if (n_hex != NULL) {
++		gcry_free(n_hex);
++		n_hex = NULL;
++	}
++
++	if (e_hex != NULL) {
++		gcry_free(e_hex);
++		e_hex = NULL;
++	}
++
++	if (q_hex != NULL) {
++		gcry_free(q_hex);
++		q_hex = NULL;
++	}
++
++	if (n_item != NULL) {
++		free(n_item);
++		n_item = NULL;
++	}
++
++	if (e_item != NULL) {
++		free(e_item);
++		e_item = NULL;
++	}
++
++	if (curve_value != NULL) {
++		free(curve_value);
++		curve_value = NULL;
++	}
++
++	if (q_item != NULL) {
++		free(q_item);
++		q_item = NULL;
++	}
++
++	if (curve_item != NULL) {
++		free(curve_item);
++		curve_item = NULL;
++	}
++
++	return first;
++}
+diff -uNr gnupg-pkcs11-scd-0.10.0.orig/gnupg-pkcs11-scd/keyutil.h gnupg-pkcs11-scd-0.10.0/gnupg-pkcs11-scd/keyutil.h
+--- gnupg-pkcs11-scd-0.10.0.orig/gnupg-pkcs11-scd/keyutil.h	2021-03-19 10:23:43.000000000 -0700
++++ gnupg-pkcs11-scd-0.10.0/gnupg-pkcs11-scd/keyutil.h	2022-11-08 01:37:37.543995988 -0800
+@@ -31,21 +31,85 @@
+ #ifndef __KEYUTIL_H
+ #define __KEYUTIL_H
+ 
+-gpg_err_code_t
+-keyutil_get_cert_mpi (
+-	unsigned char *der,
+-	size_t len,
+-	gcry_mpi_t *p_n_mpi,
+-	gcry_mpi_t *p_e_mpi
+-);
+-
+-gpg_err_code_t
+-keyutil_get_cert_sexp (
+-	unsigned char *der,
+-	size_t len,
+-	gcry_sexp_t *p_sexp
+-);
++#include "common.h"
++
++typedef enum {
++	KEYINFO_KEY_TYPE_INVALID = -1,
++	KEYINFO_KEY_TYPE_UNKNOWN = 0,
++	KEYINFO_KEY_TYPE_RSA,
++	KEYINFO_KEY_TYPE_ECDSA_NAMED_CURVE
++} keyinfo_key_type_t;
++
++struct keyinfo_s;
++typedef struct keyinfo_s *keyinfo;
++
++struct keyinfo_data_list_s {
++	struct keyinfo_data_list_s *next;
++	unsigned char *type;
++	unsigned char *tag;
++	unsigned char *value;
++	void (*value_free)(void *);
++	void (*tag_free)(void *);
++};
++typedef struct keyinfo_data_list_s *keyinfo_data_list;
++
++
++/**
++ * Instantiate a new key
++ */
++keyinfo keyinfo_new(void);
++
++/**
++ * Free a key
++ */
++void keyinfo_free(keyinfo keyinfo);
++
++/**
++ * Get the Key Type (RSA, ECDSA) from a key
++ */
++keyinfo_key_type_t keyinfo_get_type(keyinfo keyinfo);
++
++/**
++ * Get the size of data which may be signed/encrypted
++ */
++ssize_t keyinfo_get_data_length(keyinfo keyinfo, size_t input_length);
++
++/**
++ * Get the size of the key (in bits)
++ */
++int keyinfo_get_key_length(keyinfo keyinfo);
++
++/**
++ * Get the named curve for a key (or NULL if there is no named curve or it's
++ * not applicable).  The returned data has the same lifetime of the keyinfo
++ * input.
++ */
++const char *keyinfo_get_key_named_curve(keyinfo keyinfo);
++
++/**
++ * Parse a DER-encoded X.509 certificate into a key
++ */
++gpg_err_code_t keyinfo_from_der(keyinfo keyinfo, unsigned char *der, size_t len);
++
++/**
++ * Produce a libgcrypt S-expression representing a key
++ */
++gcry_sexp_t keyinfo_to_sexp(keyinfo keyinfo);
++
++/**
++ * Produce a "hexgrip" from a libgcrypt S-expression representing a key
++ */
++char *keyinfo_get_hexgrip(gcry_sexp_t sexp);
++
++/**
++ * Get the serialized form of a key, in parts as a linked list
++ */
++keyinfo_data_list keyinfo_get_key_data(keyinfo keyinfo);
++
++/**
++ * Free the list of serialized parts of a key
++ */
++void keyinfo_data_free(keyinfo_data_list list);
+ 
+-char *keyutil_get_cert_hexgrip (gcry_sexp_t sexp);
+ 
+ #endif

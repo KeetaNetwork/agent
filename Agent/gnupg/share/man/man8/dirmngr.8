@@ -1,0 +1,856 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH DIRMNGR 8 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B dirmngr
+\- GnuPG's network access daemon
+.SH SYNOPSIS
+.B  dirmngr
+.RI [ options ]
+.I command
+.RI [ args ]
+
+.SH DESCRIPTION
+Since version 2.1 of GnuPG, \fBdirmngr\fR takes care of accessing
+the OpenPGP keyservers.  As with previous versions it is also used as
+a server for managing and downloading certificate revocation lists
+(CRLs) for X.509 certificates, downloading X.509 certificates, and
+providing access to OCSP providers.  Dirmngr is invoked internally by
+\fBgpg\fR, \fBgpgsm\fR, or via the \fBgpg-connect-agent\fR
+tool.
+
+
+
+
+
+.SH COMMANDS
+
+Commands are not distinguished from options except for the fact that
+only one command is allowed.
+
+.TP
+.B  --version
+Print the program version and licensing information.  Note that you cannot
+abbreviate this command.
+
+.TP
+.B  --help, -h
+Print a usage message summarizing the most useful command-line options.
+Note that you cannot abbreviate this command.
+
+.TP
+.B  --dump-options
+Print a list of all available options and commands.  Note that you cannot
+abbreviate this command.
+
+.TP
+.B  --server
+Run in server mode and wait for commands on the \fBstdin\fR.  The
+default mode is to create a socket and listen for commands there.
+This is only used for testing.
+
+.TP
+.B  --daemon
+Run in background daemon mode and listen for commands on a socket.
+This is the way \fBdirmngr\fR is started on demand by the other
+GnuPG components.  To force starting \fBdirmngr\fR it is in
+general best to use \fBgpgconf --launch dirmngr\fR.
+
+.TP
+.B  --supervised
+Run in the foreground, sending logs to stderr, and listening on file
+descriptor 3, which must already be bound to a listening socket.  This
+option is deprecated and not supported on Windows.
+
+.TP
+.B  --list-crls
+List the contents of the CRL cache on \fBstdout\fR. This is probably
+only useful for debugging purposes.
+
+.TP
+.B  --load-crl \fIfile\fR
+This command requires a filename as additional argument, and it will
+make Dirmngr try to import the CRL in \fIfile\fR into it's cache.
+Note, that this is only possible if Dirmngr is able to retrieve the
+CA's certificate directly by its own means.  In general it is better
+to use \fBgpgsm\fR's \fB--call-dirmngr loadcrl filename\fR command
+so that \fBgpgsm\fR can help dirmngr.
+
+.TP
+.B  --fetch-crl \fIurl\fR
+This command requires an URL as additional argument, and it will make
+dirmngr try to retrieve and import the CRL from that \fIurl\fR into
+it's cache.  This is mainly useful for debugging purposes.  The
+\fBdirmngr-client\fR provides the same feature for a running dirmngr.
+
+.TP
+.B  --shutdown
+This commands shuts down an running instance of Dirmngr.  This command
+has currently no effect.
+
+.TP
+.B  --flush
+This command removes all CRLs from Dirmngr's cache.  Client requests
+will thus trigger reading of fresh CRLs.
+
+.P
+
+
+.SH OPTIONS
+
+Note that all long options with the exception of \fB--options\fR
+and \fB--homedir\fR may also be given in the configuration file
+after stripping off the two leading dashes.
+
+
+.TP
+.B  --options \fIfile\fR
+Reads configuration from \fIfile\fR instead of from the default
+per-user configuration file.  The default configuration file is named
+\(oq\fIdirmngr.conf\fR\(cq and expected in the home directory.
+
+.TP
+.B  --homedir \fIdir\fR
+Set the name of the home directory to \fIdir\fR.  This option is only
+effective when used on the command line.  The default is
+the directory named \(oq\fI.gnupg\fR\(cq directly below the home directory
+of the user unless the environment variable \fBGNUPGHOME\fR has been set
+in which case its value will be used.  Many kinds of data are stored within
+this directory.
+
+
+.TP
+.B  -v
+.TP
+.B  --verbose
+Outputs additional information while running.
+You can increase the verbosity by giving several
+verbose commands to \fBdirmngr\fR, such as \fB-vv\fR.
+
+
+.TP
+.B  --log-file \fIfile\fR
+Append all logging output to \fIfile\fR.  This is very helpful in
+seeing what the agent actually does.  Use \(oq\fIsocket://\fR\(cq to log to
+socket.
+
+.TP
+.B  --debug-level \fIlevel\fR
+Select the debug level for investigating problems.  \fIlevel\fR may be a
+numeric value or by a keyword:
+
+.RS
+.TP
+.B  none
+No debugging at all.  A value of less than 1 may be used instead of
+the keyword.
+.TP
+.B  basic
+Some basic debug messages.  A value between 1 and 2 may be used
+instead of the keyword.
+.TP
+.B  advanced
+More verbose debug messages.  A value between 3 and 5 may be used
+instead of the keyword.
+.TP
+.B  expert
+Even more detailed messages.  A value between 6 and 8 may be used
+instead of the keyword.
+.TP
+.B  guru
+All of the debug messages you can get. A value greater than 8 may be
+used instead of the keyword.  The creation of hash tracing files is
+only enabled if the keyword is used.
+.RE
+
+How these messages are mapped to the actual debugging flags is not
+specified and may change with newer releases of this program. They are
+however carefully selected to best aid in debugging.
+
+.TP
+.B  --debug \fIflags\fR
+Set debug flags.  All flags are or-ed and \fIflags\fR may be given in
+C syntax (e.g. 0x0042) or as a comma separated list of flag names.  To
+get a list of all supported flags the single word "help" can be used.
+This option is only useful for debugging and the behavior may change
+at any time without notice.
+
+.TP
+.B  --debug-all
+Same as \fB--debug=0xffffffff\fR
+
+.TP
+.B  --tls-debug \fIlevel\fR
+Enable debugging of the TLS layer at \fIlevel\fR.  The details of the
+debug level depend on the used TLS library and are not set in stone.
+
+.TP
+.B  --debug-wait \fIn\fR
+When running in server mode, wait \fIn\fR seconds before entering the
+actual processing loop and print the pid.  This gives time to attach a
+debugger.
+
+.TP
+.B  --disable-check-own-socket
+On some platforms \fBdirmngr\fR is able to detect the removal of
+its socket file and shutdown itself.  This option disable this
+self-test for debugging purposes.
+
+.TP
+.B  -s
+.TQ
+.B  --sh
+.TQ
+.B  -c
+.TQ
+.B  --csh
+Format the info output in daemon mode for use with the standard Bourne
+shell respective the C-shell. The default is to guess it based on the
+environment variable \fBSHELL\fR which is in almost all cases
+sufficient.
+
+.TP
+.B  --force
+Enabling this option forces loading of expired CRLs; this is only
+useful for debugging.
+
+.TP
+.B  --use-tor
+.TQ
+.B  --no-use-tor
+The option \fB--use-tor\fR switches Dirmngr and thus GnuPG into
+``Tor mode'' to route all network access via Tor (an anonymity
+network).  Certain other features are disabled in this mode.  The
+effect of \fB--use-tor\fR cannot be overridden by any other command
+or even by reloading dirmngr.  The use of \fB--no-use-tor\fR
+disables the use of Tor.  The default is to use Tor if it is available
+on startup or after reloading dirmngr.  The test on the availability of
+Tor is done by trying to connect to a SOCKS proxy at either port 9050
+or 9150; if another type of proxy is listening on one of these ports,
+you should use \fB--no-use-tor\fR.
+
+.TP
+.B  --standard-resolver
+This option forces the use of the system's standard DNS resolver code.
+This is mainly used for debugging.  Note that on Windows a standard
+resolver is not used and all DNS access will return the error ``Not
+Implemented'' if this option is used.  Using this together with enabled
+Tor mode returns the error ``Not Enabled''.
+
+.TP
+.B  --recursive-resolver
+When possible use a recursive resolver instead of a stub resolver.
+
+.TP
+.B  --resolver-timeout \fIn\fR
+Set the timeout for the DNS resolver to N seconds.  The default are 30
+seconds.
+
+.TP
+.B  --connect-timeout \fIn\fR
+.TP
+.B  --connect-quick-timeout \fIn\fR
+Set the timeout for HTTP and generic TCP connection attempts to N
+seconds.  The value set with the quick variant is used when the
+--quick option has been given to certain Assuan commands.  The quick
+value is capped at the value of the regular connect timeout.  The
+default values are 15 and 2 seconds.  Note that the timeout values are
+for each connection attempt; the connection code will attempt to
+connect all addresses listed for a server.
+
+.TP
+.B  --listen-backlog \fIn\fR
+Set the size of the queue for pending connections.  The default is 64.
+
+.TP
+.B  --allow-version-check
+Allow Dirmngr to connect to \fBhttps://versions.gnupg.org\fR to get
+the list of current software versions.  If this option is enabled
+the list is retrieved in case the local
+copy does not exist or is older than 5 to 7 days.  See the option
+\fB--query-swdb\fR of the command \fBgpgconf\fR for more
+details.  Note, that regardless of this option a version check can
+always be triggered using this command:
+
+.RS 2
+.nf
+       gpg-connect-agent --dirmngr 'loadswdb --force' /bye
+.fi
+.RE
+
+
+.TP
+.B  --keyserver \fIname\fR
+Use \fIname\fR as your keyserver.  This is the server that \fBgpg\fR
+communicates with to receive keys, send keys, and search for
+keys.  The format of the \fIname\fR is a URI:
+`scheme:[//]keyservername[:port]' The scheme is the type of keyserver:
+"hkp" for the HTTP (or compatible) keyservers, "ldap" for the LDAP
+keyservers, or "mailto" for the Graff email keyserver. Note that your
+particular installation of GnuPG may have other keyserver types
+available as well. Keyserver schemes are case-insensitive. After the
+keyserver name, optional keyserver configuration options may be
+provided.  These are the same as the \fB--keyserver-options\fR of
+\fBgpg\fR, but apply only to this particular keyserver.
+
+Most keyservers synchronize with each other, so there is generally no
+need to send keys to more than one server. Somes keyservers use round
+robin DNS to give a different keyserver each time you use it.
+
+If exactly two keyservers are configured and only one is a Tor hidden
+service (.onion), Dirmngr selects the keyserver to use depending on
+whether Tor is locally running or not.  The check for a running Tor is
+done for each new connection.
+
+If no keyserver is explicitly configured, dirmngr will use the
+built-in default of \fBhttps://keyserver.ubuntu.com\fR.
+
+Windows users with a keyserver running on their Active Directory
+may use the short form \fBldap:///\fR for \fIname\fR to access this directory.
+
+For accessing anonymous LDAP keyservers \fIname\fR is in general just
+a \fBldaps://ldap.example.com\fR.  A BaseDN parameter should never be
+specified.  If authentication is required things are more complicated
+and two methods are available:
+
+The modern method (since version 2.2.28) is to use the very same syntax
+as used with the option \fB--ldapserver\fR.  Please see over
+there for details; here is an example:
+
+.RS 2
+.nf
+       keyserver ldap:ldap.example.com::uid=USERNAME,ou=GnuPG Users,
+       dc=example,dc=com:PASSWORD::starttls
+.fi
+.RE
+
+       The other method is to use a full URL for \fIname\fR; for example:
+
+.RS 2
+.nf
+       keyserver ldaps://ldap.example.com/????bindname=uid=USERNAME
+       %2Cou=GnuPG%20Users%2Cdc=example%2Cdc=com,password=PASSWORD
+.fi
+.RE
+
+       Put this all on one line without any spaces and keep the '%2C'
+       as given.  Replace USERNAME, PASSWORD, and the 'dc' parts
+       according to the instructions received from your LDAP
+       administrator.  Note that only simple authentication
+       (i.e. cleartext passwords) is supported and thus using ldaps is
+       strongly suggested (since 2.2.28 "ldaps" defaults to port 389
+       and uses STARTTLS).  On Windows authentication via AD can be
+       requested by adding \fBgpgNtds=1\fR after the fourth question
+       mark instead of the bindname and password parameter.
+
+
+
+.TP
+.B  --nameserver \fIipaddr\fR
+In ``Tor mode'' Dirmngr uses a public resolver via Tor to resolve DNS
+names.  If the default public resolver, which is \fB8.8.8.8\fR, shall
+not be used a different one can be given using this option.  Note that
+a numerical IP address must be given (IPv6 or IPv4) and that no error
+checking is done for \fIipaddr\fR.
+
+.TP
+.B  --disable-ipv4
+.TP
+.B  --disable-ipv6
+Disable the use of all IPv4 or IPv6 addresses.
+
+.TP
+.B  --disable-ldap
+Entirely disables the use of LDAP.
+
+.TP
+.B  --disable-http
+Entirely disables the use of HTTP.
+
+.TP
+.B  --ignore-http-dp
+When looking for the location of a CRL, the to be tested certificate
+usually contains so called CRL Distribution Point (DP) entries
+which are URLs describing the way to access the CRL.  The first found DP
+entry is used.  With this option all entries using the HTTP
+scheme are ignored when looking for a suitable DP.
+
+.TP
+.B  --ignore-ldap-dp
+This is similar to \fB--ignore-http-dp\fR but ignores entries using
+the LDAP scheme.  Both options may be combined resulting in
+ignoring DPs entirely.
+
+.TP
+.B  --ignore-ocsp-service-url
+Ignore all OCSP URLs contained in the certificate.  The effect is to
+force the use of the default responder.
+
+.TP
+.B  --honor-http-proxy
+If the environment variable \(oq\fIhttp_proxy\fR\(cq has been set, use its
+value to access HTTP servers.
+
+.TP
+.B  --http-proxy \fIhost\fR[:\fIport\fR]
+Use \fIhost\fR and \fIport\fR to access HTTP servers.  The use of this
+option overrides the environment variable \(oq\fIhttp_proxy\fR\(cq regardless
+whether \fB--honor-http-proxy\fR has been set.
+
+
+.TP
+.B  --ldap-proxy \fIhost\fR[:\fIport\fR]
+Use \fIhost\fR and \fIport\fR to connect to LDAP servers.  If \fIport\fR
+is omitted, port 389 (standard LDAP port) is used.  This overrides any
+specified host and port part in a LDAP URL and will also be used if host
+and port have been omitted from the URL.
+
+.TP
+.B  --only-ldap-proxy
+Never use anything else but the LDAP "proxy" as configured with
+\fB--ldap-proxy\fR.  Usually \fBdirmngr\fR tries to use other
+configured LDAP server if the connection using the "proxy" failed.
+
+
+.TP
+.B  --ldapserverlist-file \fIfile\fR
+Read the list of LDAP servers to consult for CRLs and X.509 certificates from
+file instead of the default per-user ldap server list file. The default
+value for \fIfile\fR is \(oq\fIdirmngr_ldapservers.conf\fR\(cq.
+
+This server list file contains one LDAP server per line in the format
+
+\fBhostname:port:username:password:base_dn:flags\fR
+
+Lines starting with a  \(oq#\(cq are comments.
+
+Note that as usual all strings entered are expected to be UTF-8 encoded.
+Obviously this will lead to problems if the password has originally been
+encoded as Latin-1.  There is no other solution here than to put such a
+password in the binary encoding into the file (i.e. non-ascii characters
+won't show up readable). ([The \fBgpgconf\fR tool might be
+helpful for frontends as it enables editing this configuration file using
+percent-escaped strings.])
+
+
+.TP
+.B  --ldapserver \fIspec\fR
+This is an alternative way to specify LDAP servers for CRL and X.509
+certificate retrieval.  If this option is used the servers configured
+in \(oq\fIdirmngr_ldapservers.conf\fR\(cq (or the file given by
+\fB--ldapserverlist-file\fR) are cleared.  Note that
+\(oq\fIdirmngr_ldapservers.conf\fR\(cq is not read again by a reload
+signal. However, \fB--ldapserver\fR options are read again.
+
+\fIspec\fR is either a proper LDAP URL or a colon delimited list of
+the form
+
+\fBhostname:port:username:password:base_dn:flags:\fR
+
+with an optional prefix of \fBldap:\fR (but without the two slashes
+which would turn this into a proper LDAP URL).  \fBflags\fR is a list
+of one or more comma delimited keywords:
+.RS
+.TP
+.B  plain
+The default: Do not use a TLS secured connection at all; the default
+port is 389.
+.TP
+.B  starttls
+Use STARTTLS to secure the connection; the default port is 389.
+.TP
+.B  ldaptls
+Tunnel LDAP through a TLS connection; the default port is 636.
+.TP
+.B  ntds
+On Windows authenticate the LDAP connection using the Active Directory
+with the current user.
+.TP
+.B  areconly
+On Windows use only the A or AAAA record when resolving the LDAP
+server name.
+.RE
+
+Note that in an URL style specification the scheme \fBldaps://\fR
+refers to STARTTLS and _not_ to LDAP-over-TLS.
+
+
+.TP
+.B  --ldaptimeout \fIsecs\fR
+Specify the number of seconds to wait for an LDAP query before timing
+out.  The default are 15 seconds.  0 will never timeout.
+
+
+.TP
+.B  --add-servers
+This option makes dirmngr add any servers it discovers when validating
+certificates against CRLs to the internal list of servers to consult for
+certificates and CRLs.  This option should in general not be used.
+
+This option might be useful when trying to validate a certificate that
+has a CRL distribution point that points to a server that is not
+already listed in the ldapserverlist.  Dirmngr will always go to this
+server and try to download the CRL, but chances are high that the
+certificate used to sign the CRL is located on the same server. So if
+dirmngr doesn't add that new server to list, it will often not be able
+to verify the signature of the CRL unless the \fB--add-servers\fR
+option is used.
+
+Caveat emptor: Using this option may enable denial-of-service attacks
+and leak search requests to unknown third parties.  This is because
+arbitrary servers are added to the internal list of LDAP servers which
+in turn is used for all unspecific LDAP queries as well as a fallback
+for queries which did not return a result.
+
+
+.TP
+.B  --allow-ocsp
+This option enables OCSP support if requested by the client.
+
+OCSP requests are rejected by default because they may violate the
+privacy of the user; for example it is possible to track the time when
+a user is reading a mail.
+
+
+.TP
+.B  --ocsp-responder \fIurl\fR
+Use \fIurl\fR as the default OCSP Responder if the certificate does
+not contain information about an assigned responder.  Note, that
+\fB--ocsp-signer\fR must also be set to a valid certificate.
+
+.TP
+.B  --ocsp-signer \fIfpr\fR|\fIfile\fR
+Use the certificate with the fingerprint \fIfpr\fR to check the
+responses of the default OCSP Responder.  Alternatively a filename can be
+given in which case the response is expected to be signed by one of the
+certificates described in that file.  Any argument which contains a
+slash, dot or tilde is considered a filename.  Usual filename expansion
+takes place: A tilde at the start followed by a slash is replaced by the
+content of \(oq\fIHOME\fR\(cq, no slash at start describes a relative filename
+which will be searched at the home directory.  To make sure that the
+\fIfile\fR is searched in the home directory, either prepend the name
+with "./" or use a name which contains a dot.
+
+If a response has been signed by a certificate described by these
+fingerprints no further check upon the validity of this certificate is
+done.
+
+The format of the \fIFILE\fR is a list of SHA-1 fingerprint, one per
+line with optional colons between the bytes.  Empty lines and lines
+prefix with a hash mark are ignored.
+
+
+.TP
+.B  --ocsp-max-clock-skew \fIn\fR
+The number of seconds a skew between the OCSP responder and them local
+clock is accepted.  Default is 600 (10 minutes).
+
+.TP
+.B  --ocsp-max-period \fIn\fR
+Seconds a response is at maximum considered valid after the time given
+in the thisUpdate field.  Default is 7776000 (90 days).
+
+.TP
+.B  --ocsp-current-period \fIn\fR
+The number of seconds an OCSP response is considered valid after the
+time given in the NEXT_UPDATE datum.  Default is 10800 (3 hours).
+
+
+.TP
+.B  --max-replies \fIn\fR
+Do not return more that \fIn\fR items in one query.  The default is
+10.
+
+.TP
+.B  --ignore-cert-extension \fIoid\fR
+Add \fIoid\fR to the list of ignored certificate extensions.  The
+\fIoid\fR is expected to be in dotted decimal form, like
+\fB2.5.29.3\fR.  This option may be used more than once.  Critical
+flagged certificate extensions matching one of the OIDs in the list
+are treated as if they are actually handled and thus the certificate
+won't be rejected due to an unknown critical extension.  Use this
+option with care because extensions are usually flagged as critical
+for a reason.
+
+.TP
+.B  --ignore-cert \fIfpr\fR|\fIfile\fR
+Entirely ignore certificates with the fingerprint \fIfpr\fR.  As an
+alternative to the fingerprint a filename can be given in which case
+all certificates described in that file are ignored.  Any argument
+which contains a slash, dot or tilde is considered a filename.  Usual
+filename expansion takes place: A tilde at the start followed by a
+slash is replaced by the content of \(oq\fIHOME\fR\(cq, no slash at start
+describes a relative filename which will be searched at the home
+directory.  To make sure that the \fIfile\fR is searched in the home
+directory, either prepend the name with "./" or use a name which
+contains a dot.  The format of such a file is a list of SHA-1
+fingerprint, one per line with optional colons between the bytes.
+Empty lines and lines prefixed with a hash mark are ignored.
+
+This option is useful as a quick workaround to exclude certain
+certificates from the system store.
+
+
+.TP
+.B  --hkp-cacert \fIfile\fR
+Use the root certificates in \fIfile\fR for verification of the TLS
+certificates used with \fBhkps\fR (keyserver access over TLS).  If
+the file is in PEM format a suffix of \fB.pem\fR is expected for
+\fIfile\fR.  This option may be given multiple times to add more
+root certificates.  Tilde expansion is supported.
+
+If no \fBhkp-cacert\fR directive is present, dirmngr will use the
+system CAs.
+
+.P
+
+
+
+.SH EXAMPLES
+
+Here is an example on how to show dirmngr's internal table of OpenPGP
+keyserver addresses.  The output is intended for debugging purposes
+and not part of a defined API.
+
+.RS 2
+.nf
+  gpg-connect-agent --dirmngr 'keyserver --hosttable' /bye
+.fi
+.RE
+
+To inhibit the use of a particular host you have noticed in one of the
+keyserver pools, you may use
+
+.RS 2
+.nf
+ gpg-connect-agent --dirmngr 'keyserver --dead pgpkeys.bnd.de' /bye
+.fi
+.RE
+
+The description of the \fBkeyserver\fR command can be printed using
+
+.RS 2
+.nf
+ gpg-connect-agent --dirmngr 'help keyserver' /bye
+.fi
+.RE
+
+
+
+
+.SH FILES
+
+Dirmngr makes use of several directories when running in daemon mode:
+There are a few configuration files to control the operation of
+dirmngr.  By default they may all be found in the current home
+directory (see: [option --homedir]).
+
+
+.TP
+.B  dirmngr.conf
+This is the standard configuration file read by \fBdirmngr\fR on
+startup.  It may contain any valid long option; the leading two dashes
+may not be entered and the option may not be abbreviated.  This file
+is also read after a \fBSIGHUP\fR however not all options will
+actually have an effect.  This default name may be changed on the
+command line (see: [option --options]).  You should backup this file.
+
+.TP
+.B  /etc/gnupg/trusted-certs
+This directory should be filled with certificates of Root CAs you
+are trusting in checking the CRLs and signing OCSP Responses.
+
+Usually these are the same certificates you use with the applications
+making use of dirmngr.  It is expected that each of these certificate
+files contain exactly one DER encoded certificate in a file
+with the suffix \(oq\fI.crt\fR\(cq or \(oq\fI.der\fR\(cq.  \fBdirmngr\fR reads
+those certificates on startup and when given a SIGHUP.  Certificates
+which are not readable or do not make up a proper X.509 certificate
+are ignored; see the log file for details.
+
+Applications using dirmngr (e.g. gpgsm) can request these
+certificates to complete a trust chain in the same way as with the
+extra-certs directory (see below).
+
+Note that for OCSP responses the certificate specified using the option
+\fB--ocsp-signer\fR is always considered valid to sign OCSP requests.
+
+.TP
+.B  /etc/gnupg/extra-certs
+This directory may contain extra certificates which are preloaded
+into the internal cache on startup. Applications using dirmngr (e.g. gpgsm)
+can request cached certificates to complete a trust chain.
+This is convenient in cases you have a couple intermediate CA certificates
+or certificates usually used to sign OCSP responses.
+These certificates are first tried before going
+out to the net to look for them.  These certificates must also be
+DER encoded and suffixed with \(oq\fI.crt\fR\(cq or \(oq\fI.der\fR\(cq.
+
+.TP
+.B  ~/.gnupg/crls.d
+This directory is used to store cached CRLs.  The \(oq\fIcrls.d\fR\(cq
+part will be created by dirmngr if it does not exists but you need to
+make sure that the upper directory exists.
+
+.P
+
+Several options control the use of trusted certificates for TLS and
+CRLs.  Here is an Overview on the use and origin of those Root CA
+certificates:
+
+.TP
+.B  System
+
+These System root certificates are used by:  FIXME
+
+The origin of the system provided certificates depends on the
+platform.  On Windows all certificates from the Windows System Stores
+\fBROOT\fR and \fBCA\fR are used.
+
+On other platforms the certificates are read from the first file found
+form this list: \(oq\fI/etc/ssl/ca-bundle.pem\fR\(cq,
+\(oq\fI/etc/ssl/certs/ca-certificates.crt\fR\(cq,
+\(oq\fI/etc/pki/tls/cert.pem\fR\(cq,
+\(oq\fI/usr/local/share/certs/ca-root-nss.crt\fR\(cq,
+\(oq\fI/etc/ssl/cert.pem\fR\(cq.
+
+.TP
+.B  GnuPG
+
+The GnuPG specific certificates stored in the directory
+\(oq\fI/etc/gnupg/trusted-certs\fR\(cq are only used to validate CRLs.
+
+
+.TP
+.B  OpenPGP keyserver
+
+For accessing the OpenPGP keyservers the only certificates used are
+those set with the configuration option \fBhkp-cacert\fR.
+
+.TP
+.B  OpenPGP keyserver pool
+
+This is usually only one certificate read from the file
+\(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/share/gnupg/gnupg/sks-keyservers.netCA.pem\fR\(cq.  If this
+certificate exists it is used to access the special keyservers
+\fBhkps.pool.sks-keyservers.net\fR (or \(oq\fIhkps://keys.gnupg.net\fR\(cq).
+
+.P
+
+Please note that \fBgpgsm\fR accepts Root CA certificates for its
+own purposes only if they are listed in its file \(oq\fItrustlist.txt\fR\(cq.
+\fBdirmngr\fR does not make use of this list - except FIXME.
+
+
+.SH NOTES
+
+To be able to see diagnostics it is often useful to put at least the
+following lines into the configuration file
+\(oq\fI~/gnupg/dirmngr.conf\fR\(cq:
+
+.RS 2
+.nf
+log-file ~/dirmngr.log
+verbose
+.fi
+.RE
+
+You may want to check the log file to see whether all desired root CA
+certificates are correctly loaded.
+
+To be able to perform OCSP requests you probably want to add the line:
+
+.RS 2
+.nf
+allow-ocsp
+.fi
+.RE
+
+To make sure that new options are read or that after the installation
+of a new GnuPG versions the right dirmngr version is running, you
+should kill an existing dirmngr so that a new instance is started as
+needed by the otehr components:
+
+.RS 2
+.nf
+gpgconf --kill dirmngr
+.fi
+.RE
+
+Direct interfaction with the dirmngr is possible by using the command
+
+.RS 2
+.nf
+gpg-connect-agent --dirmngr
+.fi
+.RE
+
+Enter \fBHELP\fR at the prompt to see a list of commands and enter
+\fBHELP\fR followed by a command name to get help on that command.
+
+
+
+
+.SH SIGNALS
+
+A running \fBdirmngr\fR may be controlled by signals, i.e. using
+the \fBkill\fR command to send a signal to the process.
+
+Here is a list of supported signals:
+
+
+.TP
+.B  SIGHUP
+This signal flushes all internally cached CRLs as well as any cached
+certificates.  Then the certificate cache is reinitialized as on
+startup.  Options are re-read from the configuration file.  Instead of
+sending this signal it is better to use
+.RS 2
+.nf
+gpgconf --reload dirmngr
+.fi
+.RE
+
+.TP
+.B  SIGTERM
+Shuts down the process but waits until all current requests are
+fulfilled.  If the process has received 3 of these signals and requests
+are still pending, a shutdown is forced.  You may also use
+.RS 2
+.nf
+gpgconf --kill dirmngr
+.fi
+.RE
+instead of this signal
+
+.TP
+.B  SIGINT
+Shuts down the process immediately.
+
+
+.TP
+.B  SIGUSR1
+This prints some caching statistics to the log file.
+
+.P
+
+
+
+
+.SH SEE ALSO
+\fBgpgsm\fR(1),
+\fBdirmngr-client\fR(1)
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.
+
+
