@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		02780041291A28F000B8BA11 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780040291A28F000B8BA11 /* Color.swift */; };
+		AE8D4F14291C372C00D91FAE /* ConfigWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */; };
+		AE8D4F16291C376000D91FAE /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F15291C376000D91FAE /* Commands.swift */; };
+		AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */; };
 		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
@@ -43,6 +46,9 @@
 
 /* Begin PBXFileReference section */
 		02780040291A28F000B8BA11 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigWriter.swift; sourceTree = "<group>"; };
+		AE8D4F15291C376000D91FAE /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
+		AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutor.swift; sourceTree = "<group>"; };
 		AEB3919F29146F40006A0F88 /* Agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
 		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -169,6 +175,9 @@
 			isa = PBXGroup;
 			children = (
 				AEB392312919B3EA006A0F88 /* Setup.swift */,
+				AE8D4F15291C376000D91FAE /* Commands.swift */,
+				AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */,
+				AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */,
 				AEEB99B9291B188E009557BC /* Grabber.swift */,
 			);
 			path = Setup;
@@ -280,14 +289,17 @@
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
 				AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */,
 				AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */,
+				AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */,
 				AEB391D5291471EE006A0F88 /* RequestType.swift in Sources */,
 				AEB392342919CB9C006A0F88 /* Data+Extract.swift in Sources */,
 				AEB3923C2919D5E0006A0F88 /* PublicKeyFileStoreController.swift in Sources */,
 				AEB391D729147208006A0F88 /* ResponseType.swift in Sources */,
+				AE8D4F14291C372C00D91FAE /* ConfigWriter.swift in Sources */,
 				AEB391DC29147485006A0F88 /* Secret.swift in Sources */,
 				02780041291A28F000B8BA11 /* Color.swift in Sources */,
 				AEB391D9291472AF006A0F88 /* OpenSSHKeyWriter.swift in Sources */,
 				AEB392362919CDE3006A0F88 /* PersistentAuthenticationContext.swift in Sources */,
+				AE8D4F16291C376000D91FAE /* Commands.swift in Sources */,
 				AEB392322919B3EA006A0F88 /* Setup.swift in Sources */,
 				AEB3923A2919D2A7006A0F88 /* OpenSSHReader.swift in Sources */,
 				AEB391DE291474A2006A0F88 /* Algorithm.swift in Sources */,
@@ -449,6 +461,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Agent/gnupg/lib",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keeta.agent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -477,6 +493,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Agent/gnupg/lib",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keeta.agent;

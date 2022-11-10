@@ -60,4 +60,11 @@ gnupg-pkcs11-scd[82711]: S CERTINFO 101
         
         XCTAssertEqual(expectedKeyGrip, Grabber.keyGrip(from: keyGripInput))
     }
+    
+    // TODO: verify no bad signatures
+    /*
+     gpg: 16 good signatures
+     gpg: 1 bad signature
+     gpg: 654 signatures not checked due to missing keys
+     */
 }
