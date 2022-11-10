@@ -6,28 +6,45 @@
 //
 
 import SwiftUI
+import Combine
 
 struct GithubButton: View {
     @Environment(\.openURL) var openURL
+    @ObservedObject var storage: Storage = .shared
     
     var body: some View {
         Button {
-            guard let githubUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback") else { return }
-            openURL(githubUrl)
+            if storage.user == nil {
+                guard let githubUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback") else { return }
+                openURL(githubUrl)
+            }
         } label: {
             HStack {
-                Image("github")
-                    .resizable()
+                if let user = storage.user {
+                    AsyncImage(url: URL(string: user.github.avatarUrl)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        KeetaColor.black
+                    }
                     .scaledToFit()
-                    .frame(width: 24, height: 24)
-                Text(verbatim: "Connect with Github")
+                    .frame(width: 20, height: 20)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 8))
+                    Text(user.github.username)
+                } else {
+                    Image("github")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 8))
+                    Text("Connect with Github")
+                }
             }
-        }
-        .frame(width: 226, height: 56)
-        .buttonStyle(.plain)
-        .background(KeetaColor.black)
-        .foregroundColor(KeetaColor.yellow)
-        .cornerRadius(40)
+        }.padding(10)
+            .buttonStyle(.plain)
+            .background(KeetaColor.black)
+            .foregroundColor(KeetaColor.yellow)
+            .cornerRadius(18)
     }
 }
 

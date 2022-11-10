@@ -1,24 +1,11 @@
 //
-//  OAuth.swift
+//  GithubAPI.swift
 //  Agent
 //
 //  Created by Ty Schenk on 11/8/22.
 //
 
 import Foundation
-import keeta_secure_storage
-import KeychainSwift
-
-class Storage: ObservableObject {
-
-    let storage = SecureStorage(keychain: KeychainSwift())
-    @Published private(set) var token: String?
-    
-    func storeToken(token: String) {
-        try? storage.store(token, for: "keeta_agent_github")
-        self.token = try? storage.object(for: "keeta_agent_github")
-    }
-}
 
 class API {
     var session = URLSession.shared
@@ -32,56 +19,13 @@ class API {
     }
 }
 
-struct GithubToken: Codable {
-    let token: String
-}
-
-struct GithubUser: Codable {
-    let username: String
-    let avatarUrl: String
-    
-    enum CodingKeys: String, CodingKey {
-        case username = "login"
-        case avatarUrl = "avatar_url"
-    }
-}
-
-struct Email: Codable {
-    let email: String
-    let verified: Bool
-}
-
-struct GithubGPG: Codable {
-    let id: String
-    let name: String
-    let primaryKeyId: Int
-    let keyId: String
-    let publicKey: String
-    let emails: [Email]
-    let canSign: Bool
-    let canCertify: Bool
-    let revoked: Bool
-    
-    enum CodingKeys: String, CodingKey {
-        case id,
-             name,
-             primaryKeyId = "primary_key_id",
-             keyId = "key_id",
-             publicKey = "public_key",
-             emails,
-             canSign = "can_sign",
-             canCertify = "can_certify",
-             revoked
-    }
-}
-
 struct GithubAPI {
     static func pullUser(token: String) async -> GithubUser? {
         guard let url = URL(string: "https://api.github.com/user") else { return nil }
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
-        
+
         return try? await API().load(from: request)
     }
     

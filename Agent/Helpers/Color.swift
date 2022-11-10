@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct KeetaColor {
-    static let black = Color("KeetaBlack")
-    static let gray = Color("KeetaGray")
-    static let lightGray = Color("KeetaLightGray")
     static let yellow = Color("KeetaYellow")
     static let red = Color("KeetaRed")
+    static let black = Color("KeetaBlack")
+    static let gray = Color("KeetaGray")
+    static let gray40 = Color("KeetaGray40")
+    static let gray50 = Color("KeetaGray50")
 }

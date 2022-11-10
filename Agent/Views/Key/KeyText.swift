@@ -15,7 +15,7 @@ struct KeyText: View {
             -----END PGP PUBLIC KEY BLOCK-----
         """)
         .fixedSize(horizontal: false, vertical: true)
-        .foregroundColor(KeetaColor.yellow)
+        .foregroundColor(KeetaColor.gray40)
         .multilineTextAlignment(.leading)
         .padding(EdgeInsets(top: 0, leading: 24, bottom: 24, trailing: 24))
     }

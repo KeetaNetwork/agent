@@ -17,7 +17,7 @@ struct KeyView: View {
         .background(KeetaColor.black)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(KeetaColor.lightGray, lineWidth: 1)
+                .stroke(KeetaColor.gray50, lineWidth: 1)
         )
         .cornerRadius(16)
     }
