@@ -17,6 +17,17 @@ struct keeta_secretiveApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .handlesExternalEvents(preferring: ["keeta-agent://"], allowing: ["*"])
+                .onOpenURL { url in
+                    guard let githubToken = url.description.GithubToken()?.value else { return }
+//                    GithubAPI.pullUser(token: githubToken)
+                }
+            
+        }
+        .commands {
+            CommandGroup(replacing: CommandGroupPlacement.newItem) {
+                EmptyView()
+            }
         }
     }
 }
