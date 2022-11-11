@@ -5,67 +5,89 @@ enum Config {
      export SSH_AUTH_SOCK=/Users/dscheutz/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
      */
     case socketAuth(homeDirectory: String)
-    /*
-     auto-key-retrieve
-     no-emit-version
-     agent-program /Users/dscheutz/gnupg-2.3.8/bin/gpg-agent
-     */
-    case gpg
-    /*
-     scdaemon-program /Users/dscheutz/gnupg-pkcs11-scd-0.10.0/bin/gnupg-pkcs11-scd
-     pinentry-program /opt/homebrew/bin/pinentry
-     */
-    case gpgAgent
-    /*
-     providers keeta
-     provider-keeta-library /Users/dscheutz/ssh-agent-pkcs11-0.0737d85a4a/lib/libssh-agent-pkcs11-provider.dylib
-     */
-    case gnupgPkcs11
+    
+    case gpg(agentPath: String)
+    case gpgAgent(pkcs11Path: String)
+    case gnupgPkcs11(libsshPath: String)
     
     var payload: String {
         switch self {
         case .socketAuth(let homeDirectory):
             let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
             return "export SSH_AUTH_SOCK=\(socketPath)"
+            
         // IdentityAgent
         // "Host *\n\tIdentityAgent \(socketPath)"
-        case .gpg:
-            return ""
-        case .gpgAgent:
-            return ""
-        case .gnupgPkcs11:
-            return ""
+        
+        case .gpg(let agentPath):
+            return "agent-program \(agentPath)"
+        
+        case .gpgAgent(let pkcs11Path):
+            return "scdaemon-program \(pkcs11Path)"
+        case .gnupgPkcs11(let libsshPath):
+            return "providers keeta" + "\n" + "provider-keeta-library \(libsshPath)"
         }
     }
     
-    var filePath: String {
+    var folderPath: String? {
+        switch self {
+        case .socketAuth:
+            return nil
+        // IdentityAgent
+        // .ssh/config
+        case .gpg, .gpgAgent, .gnupgPkcs11:
+            return ".keeta_agent"
+        }
+    }
+    
+    var filename: String {
         switch self {
         case .socketAuth:
             return ".zshrc"
         // IdentityAgent
         // .ssh/config
         case .gpg:
-            return ""
+            return "gpg.conf"
         case .gpgAgent:
-            return ""
+            return "gpg-agent.conf"
         case .gnupgPkcs11:
-            return ""
+            return "gnupg-pkcs11-scd.conf"
         }
     }
 }
 
 final class ConfigWriter {
+
+    private static let configDirectory = "\(NSHomeDirectory())"
     
     static func add(config: Config) throws {
-        let fileURL = URL(fileURLWithPath: "\(NSHomeDirectory())/\(config.filePath)")
+        let fileManager = FileManager.default
+        
+        var filePath = configDirectory
+        if let directory = config.folderPath {
+            filePath.append("/\(directory)")
+            
+            if !fileManager.fileExists(atPath: filePath) {
+                try fileManager.createDirectory(at: .init(fileURLWithPath: filePath), withIntermediateDirectories: true)
+            }
+        }
+        
+        let fileURL = URL(fileURLWithPath: filePath.appending("/\(config.filename)"))
         let text = config.payload
+        
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            let data = text.data(using: .utf8)!
+            fileManager.createFile(atPath: fileURL.path, contents: data)
+            return
+        }
         
         let handle: FileHandle
         handle = try FileHandle(forUpdating: fileURL)
         
         let existing = try handle.readToEnd() ?? .init()
         let existingString = String(data: existing, encoding: .utf8) ?? ""
-        let existingLines = existingString.split(whereSeparator: \.isNewline)
+        // TODO: check if line isn't a comment
+//        let existingLines = existingString.split(whereSeparator: \.isNewline)
         
         guard !existingString.contains(text) else { return }
         

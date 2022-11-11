@@ -1,6 +1,10 @@
 import Foundation
 
 let homeDirectory = NSHomeDirectory() + "/Library/Agent/Data"
+let gpgAgentPath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
+let gpgPath = Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
+let pkcs11Path = Bundle.main.url(forResource: "gnupg/bin/gnupg-pkcs11-scd", withExtension: "")!.path
+let libsshPath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-provider", withExtension: "dylib")!.path
 
 func createHomeDirectory() {
     if !FileManager.default.fileExists(atPath: homeDirectory) {

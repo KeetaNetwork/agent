@@ -1,7 +1,7 @@
 import XCTest
 @testable import Agent
 
-final class keeta_secretiveTests: XCTestCase {
+final class GrabberTests: XCTestCase {
 
     let gpgInput = """
 -----BEGIN PGP PUBLIC KEY BLOCK-----

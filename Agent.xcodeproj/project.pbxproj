@@ -49,6 +49,7 @@
 		AEEB99BA291B188E009557BC /* Grabber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEB99B9291B188E009557BC /* Grabber.swift */; };
 		AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF00416291A1AE600EA576C /* Dependencies.swift */; };
 		AEFA7467291C78DF00066571 /* gnupg in Resources */ = {isa = PBXBuildFile; fileRef = AEFA7466291C78DF00066571 /* gnupg */; };
+		AEFA746D291D9AF400066571 /* SetupTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEFA746C291D9AF400066571 /* SetupTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +108,7 @@
 		AEEB99B9291B188E009557BC /* Grabber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grabber.swift; sourceTree = "<group>"; };
 		AEF00416291A1AE600EA576C /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		AEFA7466291C78DF00066571 /* gnupg */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gnupg; sourceTree = "<group>"; };
+		AEFA746C291D9AF400066571 /* SetupTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,6 +225,7 @@
 			isa = PBXGroup;
 			children = (
 				AEB391B429146F41006A0F88 /* GrabberTests.swift */,
+				AEFA746C291D9AF400066571 /* SetupTest.swift */,
 			);
 			path = "keeta-secretiveTests";
 			sourceTree = "<group>";
@@ -419,6 +422,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AEB391B529146F41006A0F88 /* GrabberTests.swift in Sources */,
+				AEFA746D291D9AF400066571 /* SetupTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
