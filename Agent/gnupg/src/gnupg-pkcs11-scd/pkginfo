@@ -5,7 +5,7 @@ version='0.10.0'
 url="https://github.com/alonbl/gnupg-pkcs11-scd/releases/download/gnupg-pkcs11-scd-${version}/gnupg-pkcs11-scd-${version}.tar.bz2"
 sha256='29bf29e7780f921c6d3a11f608e2b0483c1bb510c5afa8473090249dd57c5249'
 require=(libgpg-error libgcrypt libassuan libressl pkcs11-helper)
-configure_extra=(--disable-shared --enable-static)
+configure_extra=(--disable-shared --enable-static --with-gnupg-home='~/.keeta_agent')
 
 preconfigure() {
 	configure_extra+=(

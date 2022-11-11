@@ -1,0 +1,22 @@
+diff -uNr gnupg-2.3.8.orig/config.h.in gnupg-2.3.8/config.h.in
+--- gnupg-2.3.8.orig/config.h.in	2022-10-13 08:57:17.000000000 -0700
++++ gnupg-2.3.8/config.h.in	2022-11-09 12:10:04.665406798 -0800
+@@ -895,14 +895,14 @@
+  * Note that the homedir must not end in a slash.  */
+ #ifdef HAVE_DOSISH_SYSTEM
+ # ifdef HAVE_DRIVE_LETTERS
+-#  define GNUPG_DEFAULT_HOMEDIR "c:/gnupg"
++#  define GNUPG_DEFAULT_HOMEDIR "c:/keeta"
+ # else
+-#  define GNUPG_DEFAULT_HOMEDIR "/gnupg"
++#  define GNUPG_DEFAULT_HOMEDIR "/keeta"
+ # endif
+ #elif defined(__VMS)
+-#define GNUPG_DEFAULT_HOMEDIR "/SYS$LOGIN/gnupg"
++#define GNUPG_DEFAULT_HOMEDIR "/SYS$LOGIN/keetaagent"
+ #else
+-#define GNUPG_DEFAULT_HOMEDIR "~/.gnupg"
++#define GNUPG_DEFAULT_HOMEDIR "~/.keeta_agent"
+ #endif
+ #define GNUPG_PRIVATE_KEYS_DIR  "private-keys-v1.d"
+ #define GNUPG_PUBLIC_KEYS_DIR   "public-keys.d"
