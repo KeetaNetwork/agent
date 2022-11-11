@@ -1,6 +1,6 @@
 import Foundation
 
-let homeDirectory = NSHomeDirectory() + "/Library/Agent/Data"
+let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
 let configFolderName = ".keeta_agent"
 let gpgAgentPath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
 let gpgPath = Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
