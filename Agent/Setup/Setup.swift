@@ -6,6 +6,7 @@ let gpgAgentPath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExten
 let gpgPath = Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
 let pkcs11Path = Bundle.main.url(forResource: "gnupg/bin/gnupg-pkcs11-scd", withExtension: "")!.path
 let libsshPath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-provider", withExtension: "dylib")!.path
+let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
 
 func createHomeDirectory() {
     if !FileManager.default.fileExists(atPath: homeDirectory) {

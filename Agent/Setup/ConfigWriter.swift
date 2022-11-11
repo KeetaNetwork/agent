@@ -10,14 +10,18 @@ enum Config {
         switch self {
         case .socketAuth:
             return ["export SSH_AUTH_SOCK"]
-        default: return []
+        case .gpg:
+            return ["agent-program"]
+        case .gpgAgent:
+            return ["scdaemon-program"]
+        case .gnupgPkcs11:
+            return ["providers", "provider-keeta-library"]
         }
     }
     
     var payload: String {
         switch self {
-        case .socketAuth(let homeDirectory):
-            let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
+        case .socketAuth(let socketPath):
             return "export SSH_AUTH_SOCK=\(socketPath)"
             
         // IdentityAgent
@@ -72,7 +76,11 @@ final class ConfigWriter {
             filePath.append("/\(directory)")
             
             if !fileManager.fileExists(atPath: filePath) {
-                try fileManager.createDirectory(at: .init(fileURLWithPath: filePath), withIntermediateDirectories: true)
+                try fileManager.createDirectory(
+                    at: .init(fileURLWithPath: filePath),
+                    withIntermediateDirectories: true,
+                    attributes: [.posixPermissions: 448]
+                )
             }
         }
         

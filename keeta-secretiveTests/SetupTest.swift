@@ -17,5 +17,11 @@ final class SetupTest: XCTestCase {
 //
 //        let inputFile = createKeyInput(for: "Test User", email: "test@keeta.com", keyGrip: keyGrip)
 //        let keyId = try await CommandExecutor.execute(.exportGPG(inputFilePath: inputFile)).grap(Grabber.keyId)
+    
+    func test_setupGPGAgent() async throws {
+        try await Task.sleep(nanoseconds: 1_500_000_000)
+        
+        _ = try await CommandExecutor.execute(.setupGPGAgent).grap(Grabber.keyGrip)
+    }
     }
 }

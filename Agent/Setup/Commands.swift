@@ -54,7 +54,7 @@ enum Command {
         case .killGPGConf:
             return ["zsh", "-ls", "-c", "gpgconf --kill all"]
         case .setupGPGAgent:
-            return ["bash", "-c", "\(gpgAgentPath) --server gpg-agent-connect <<<$'RELOADAGENT\nSCD LEARN\nEOF'"]
+            return ["bash", "-c", "\(gpgAgentPath) --server gpg-agent-connect <<<$'RELOADAGENT\nSCD LEARN'"]
         case .checkCardStatus:
             return ["--card-status"]
         case .exportGPG(let filePath):

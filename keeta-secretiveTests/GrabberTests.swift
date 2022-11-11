@@ -76,4 +76,13 @@ gpg: 654 signatures not checked due to missing keys
         XCTAssertTrue(Grabber.hasBadSignatures(from: badSignaturesInput))
         XCTAssertFalse(Grabber.hasBadSignatures(from: validSignaturesInput))
     }
+    
+    // List keys output
+    /*
+     /Users/dscheutz/.keeta_agent/pubring.kbx
+     ----------------------------------------
+     pub   nistp256 2022-11-11 [SC]
+           1C7E7D7B8D8CD1217919A7CB9C913CF83D6996DF
+     uid           [ultimate] Keeta Test <test@keeta.com>
+     */
 }
