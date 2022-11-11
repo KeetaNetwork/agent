@@ -13,7 +13,7 @@ struct HeaderView: View {
         HStack {
             Text("Secure Enclave")
                 .foregroundColor(KeetaColor.yellow)
-                .font(.title)
+                .font(.largeTitle)
             Spacer()
             GithubButton()
         }

@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct KeyText: View {
+    @ObservedObject var storage: Storage = .shared
+    
     var body: some View {
-        Text("""
-            -----BEGIN PGP PUBLIC KEY BLOCK-----
-             TEST TEXT
-            -----END PGP PUBLIC KEY BLOCK-----
-        """)
-        .fixedSize(horizontal: false, vertical: true)
-        .foregroundColor(KeetaColor.gray40)
-        .multilineTextAlignment(.leading)
-        .padding(EdgeInsets(top: 0, leading: 24, bottom: 24, trailing: 24))
+        if let key = storage.key {
+            Text(key.key)
+            .fixedSize(horizontal: false, vertical: true)
+            .foregroundColor(KeetaColor.gray40)
+            .multilineTextAlignment(.leading)
+            .padding(EdgeInsets(top: AgentSpacing.zero, leading: AgentSpacing.large, bottom: AgentSpacing.large, trailing: AgentSpacing.large))
+        }
     }
 }
 

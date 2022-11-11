@@ -7,8 +7,6 @@
 
 import Foundation
 
-//keeta-agent://token=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
-
 extension String {
     func GithubToken() -> URLQueryItem? {
         guard let url = URL(string: self),

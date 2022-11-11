@@ -20,6 +20,7 @@ class API {
 }
 
 struct GithubAPI {
+    
     static func pullUser(token: String) async -> GithubUser? {
         guard let url = URL(string: "https://api.github.com/user") else { return nil }
         var request = URLRequest(url: url)

@@ -24,6 +24,8 @@
 		0278005A291A696400B8BA11 /* KeyIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780059291A696400B8BA11 /* KeyIcon.swift */; };
 		0278005C291A699A00B8BA11 /* KeyCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278005B291A699A00B8BA11 /* KeyCopy.swift */; };
 		02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */ = {isa = PBXBuildFile; productRef = 02780062291A6DBF00B8BA11 /* keeta-secure-storage */; };
+		02D9C586291E0D4D00586CEB /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D9C585291E0D4D00586CEB /* GPGKey.swift */; };
+		02D9C58A291E139600586CEB /* AgentSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D9C589291E139600586CEB /* AgentSpacing.swift */; };
 		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
@@ -74,6 +76,8 @@
 		02780057291A693E00B8BA11 /* KeyText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyText.swift; sourceTree = "<group>"; };
 		02780059291A696400B8BA11 /* KeyIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyIcon.swift; sourceTree = "<group>"; };
 		0278005B291A699A00B8BA11 /* KeyCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCopy.swift; sourceTree = "<group>"; };
+		02D9C585291E0D4D00586CEB /* GPGKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKey.swift; sourceTree = "<group>"; };
+		02D9C589291E139600586CEB /* AgentSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentSpacing.swift; sourceTree = "<group>"; };
 		AEB3919F29146F40006A0F88 /* Agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
 		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -124,6 +128,7 @@
 				02577372291B5687003E0889 /* AgentUser.swift */,
 				02577374291B56A0003E0889 /* GithubUser.swift */,
 				02577376291B56B5003E0889 /* GithubGPG.swift */,
+				02D9C585291E0D4D00586CEB /* GPGKey.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -133,6 +138,7 @@
 			children = (
 				02780040291A28F000B8BA11 /* Color.swift */,
 				02780046291A539000B8BA11 /* Link.swift */,
+				02D9C589291E139600586CEB /* AgentSpacing.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -357,6 +363,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02D9C586291E0D4D00586CEB /* GPGKey.swift in Sources */,
 				0278004A291A615500B8BA11 /* KeyView.swift in Sources */,
 				AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */,
 				AEB391CF291470A9006A0F88 /* SocketController.swift in Sources */,
@@ -365,6 +372,7 @@
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
 				AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */,
 				AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */,
+				02D9C58A291E139600586CEB /* AgentSpacing.swift in Sources */,
 				AEB391D5291471EE006A0F88 /* RequestType.swift in Sources */,
 				AEB392342919CB9C006A0F88 /* Data+Extract.swift in Sources */,
 				0278005A291A696400B8BA11 /* KeyIcon.swift in Sources */,

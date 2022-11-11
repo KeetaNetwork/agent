@@ -14,7 +14,7 @@ struct KeyHeader: View {
             Spacer()
             KeyCopy()
         }
-        .padding(EdgeInsets(top: 24.0, leading: 24.0, bottom: 24.0, trailing: 24.0))
+        .padding(EdgeInsets(top: AgentSpacing.large, leading: AgentSpacing.large, bottom: AgentSpacing.large, trailing: AgentSpacing.large))
     }
 }
 
