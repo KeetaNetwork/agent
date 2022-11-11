@@ -34,6 +34,10 @@ final class Grabber {
         return result.count == length ? result : nil
     }
     
+    static func hasBadSignatures(from output: String) -> Bool {
+        output.contains("bad signature")
+    }
+    
     static func gpgKey(from output: String) -> String? {
         let start = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
         let end = "-----END PGP PUBLIC KEY BLOCK-----"
