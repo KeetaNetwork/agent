@@ -1,12 +1,9 @@
 import Foundation
 
 enum Command {
-    /// export SSH_AUTH_SOCK=/Users/dscheutz/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
-    case socketAuth(path: String)
-    
     /// GPG
     
-    /// /usr/bin/env bash -c 'gpgconf --kill all'
+    /// /usr/bin/env zsh -ls -c gpgconf --kill all
     case killGPGConf
     
     /// ./gpg-agent --server gpg-connect-agent
@@ -20,7 +17,7 @@ enum Command {
     /// ./gpg --expert --full-generate-key
     /// - inputs: 13, {keyGrip}, Q, {lifetime: 0}, Y, {full name}, {email}, return key, O
     /// - output: keyId
-    case exportGPG
+    case exportGPG(inputFilePath: String)
     
     /// ./gpg --check-signatures
     /// - output:  good & bad signatures
@@ -43,42 +40,25 @@ enum Command {
     
     var executable: String {
         switch self {
-        case .socketAuth:
-            return "usr/bin"
-        case .killGPGConf:
+        case .killGPGConf, .setupGPGAgent:
             return "/usr/bin/env"
-        case .setupGPGAgent:
-            return Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
-//            return "./gpg-agent"
         case .checkCardStatus, .exportGPG, .checkGPGKeys, .signGPG:
-            return Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
-//            return "./gpg"
+            return gpgPath
         case .gitEnableGPGSigning, .gitSetSigningKey, .gitSetGPGProgram:
             return "/usr/bin/git"
         }
     }
     
-//    var isAlias: Bool {
-//        switch self {
-//        case .killGPGConf, .setupGPGAgent, .checkCardStatus, .exportGPG, .checkGPGKeys, .signGPG:
-//            return false
-//        case .gitEnableGPGSigning, .gitSetSigningKey, .gitSetGPGProgram:
-//            return true
-//        }
-//    }
-
     var commands: [String] {
         switch self {
-        case .socketAuth(let path):
-            return ["export", "SSH_AUTH_SOCK=\(path)"]
         case .killGPGConf:
-            return ["bash", "-c", "'gpgconf --kill all'"]
+            return ["zsh", "-ls", "-c", "gpgconf --kill all"]
         case .setupGPGAgent:
-            return ["-server", "gpg-connect-agent"]
+            return ["bash", "-c", "\(gpgAgentPath) --server gpg-agent-connect <<<$'RELOADAGENT\nSCD LEARN\nEOF'"]
         case .checkCardStatus:
             return ["--card-status"]
-        case .exportGPG:
-            return ["-expert --full-generate-key"]
+        case .exportGPG(let filePath):
+            return ["--batch", "--generate-key \(filePath)"]// "--full-generate-key"]
         case .checkGPGKeys:
             return ["--check-signatures"]
         case .signGPG(let message, let keyId):

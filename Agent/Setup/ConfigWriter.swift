@@ -1,14 +1,18 @@
 import Foundation
 
 enum Config {
-    /*
-     export SSH_AUTH_SOCK=/Users/dscheutz/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
-     */
     case socketAuth(homeDirectory: String)
-    
     case gpg(agentPath: String)
     case gpgAgent(pkcs11Path: String)
     case gnupgPkcs11(libsshPath: String)
+    
+    var linesToRemoveWithPrefix: [String] {
+        switch self {
+        case .socketAuth:
+            return ["export SSH_AUTH_SOCK"]
+        default: return []
+        }
+    }
     
     var payload: String {
         switch self {
@@ -36,7 +40,7 @@ enum Config {
         // IdentityAgent
         // .ssh/config
         case .gpg, .gpgAgent, .gnupgPkcs11:
-            return ".keeta_agent"
+            return configFolderName
         }
     }
     
@@ -58,9 +62,9 @@ enum Config {
 
 final class ConfigWriter {
 
-    private static let configDirectory = "\(NSHomeDirectory())"
+    static let configDirectory = "\(NSHomeDirectory())"
     
-    static func add(config: Config) throws {
+    static func add(_ config: Config) throws {
         let fileManager = FileManager.default
         
         var filePath = configDirectory
@@ -86,9 +90,16 @@ final class ConfigWriter {
         
         let existing = try handle.readToEnd() ?? .init()
         let existingString = String(data: existing, encoding: .utf8) ?? ""
-        // TODO: check if line isn't a comment
-//        let existingLines = existingString.split(whereSeparator: \.isNewline)
+        var existingLines = existingString.split(whereSeparator: \.isNewline)
         
+        config.linesToRemoveWithPrefix.forEach { prefixToRemove in
+            let indexesToRemove: [Int] = existingLines.enumerated()
+                .compactMap { $0.element.hasPrefix(prefixToRemove) ? $0.offset : nil }
+            
+            indexesToRemove.forEach { existingLines.remove(at: $0) }
+        }
+        
+        // TODO: check if line isn't a comment
         guard !existingString.contains(text) else { return }
         
         try handle.seekToEnd()

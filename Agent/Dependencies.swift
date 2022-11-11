@@ -21,7 +21,7 @@ class Dependencies {
 //        try! Self.all.store.create(name: "Roy 2")
         
         Task {
-            try await setupKeeta()
+            try await createGpgKey(fullName:email:)
         }
     }
     
