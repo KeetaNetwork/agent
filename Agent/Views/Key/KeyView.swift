@@ -53,7 +53,7 @@ struct KeyView: View {
                         if !name.isEmpty && !email.isEmpty && isValidEmail(email) {
                             storage.generateKey(name: name, email: email)
                         } else {
-                            showingAlert = true
+                            showingAlert.toggle()
                         }
                     } label: {
                         Text("Generate GPG Key")

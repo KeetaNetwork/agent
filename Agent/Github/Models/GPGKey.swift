@@ -7,14 +7,12 @@
 
 import Foundation
 
-typealias Key = String
-
 struct GPGUser: Codable {
     let name: String
     let email: String
 }
 
 struct GPGKey: Codable {
-    let key: Key
+    let key: String
     let user: GPGUser
 }

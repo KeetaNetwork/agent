@@ -42,7 +42,7 @@ class Storage: ObservableObject {
     
     private func storeGPG(key: GPGKey) {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
-            try? self.storage.store(user, for: "keeta_agent_key")
+            try? self.storage.store(key, for: "keeta_agent_key")
             guard let key: GPGKey = try? storage.object(for: "keeta_agent_key") else { return }
             
             DispatchQueue.main.async {
