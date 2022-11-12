@@ -38,7 +38,7 @@ struct GithubButton: View {
                             .scaledToFit()
                             .frame(width: 20, height: 20)
                             .padding(EdgeInsets(top: AgentSpacing.zero, leading: AgentSpacing.zero, bottom: AgentSpacing.zero, trailing: AgentSpacing.small))
-                        Text("Connect with Github")
+                        Text("Sync with Github")
                     }
                 }
             }.padding(10)

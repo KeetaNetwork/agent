@@ -17,7 +17,7 @@ struct keeta_secretiveApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .handlesExternalEvents(preferring: ["keeta-agent://"], allowing: ["*"])
+                .handlesExternalEvents(preferring: ["keeta-agent"], allowing: ["keeta-agent"])
                 .onOpenURL { url in
                     Task {
                         guard let githubToken = url.description.GithubToken()?.value,
@@ -27,10 +27,6 @@ struct keeta_secretiveApp: App {
                     }
                 }
         }
-        .commands {
-            CommandGroup(replacing: CommandGroupPlacement.newItem) {
-                EmptyView()
-            }
-        }
+        .handlesExternalEvents(matching: Set(arrayLiteral: "*"))
     }
 }

@@ -26,11 +26,13 @@ struct KeyView: View {
                             .foregroundColor(KeetaColor.yellow)
                             .font(.title)
                         Text("Please enter the following information, which will be associated with your GPG key.")
-                            .font(.subheadline)
+                            .font(.title3)
                             .foregroundColor(KeetaColor.gray40)
                     }
                     VStack(alignment: .leading, spacing: AgentSpacing.medium) {
                         Text("Full Name")
+                            .foregroundColor(KeetaColor.yellow)
+                            .font(.title3)
                         TextField("", text: $name)
                             .textFieldStyle(.plain)
                             .padding(.horizontal, 10)
@@ -40,6 +42,8 @@ struct KeyView: View {
                                     .stroke(KeetaColor.yellow, lineWidth: 1)
                             )
                         Text("Email")
+                            .foregroundColor(KeetaColor.yellow)
+                            .font(.title3)
                         TextField("", text: $email)
                             .textFieldStyle(.plain)
                             .padding(.horizontal, 10)
@@ -57,6 +61,7 @@ struct KeyView: View {
                         }
                     } label: {
                         Text("Generate GPG Key")
+                            .font(.title3)
                             .foregroundColor(KeetaColor.black)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 20)

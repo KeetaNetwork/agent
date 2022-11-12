@@ -16,7 +16,7 @@ struct KeyIcon: View {
                 .frame(width: 24, height: 24)
             Text("GPG Key")
                 .foregroundColor(KeetaColor.yellow)
-                .font(.headline)
+                .font(.title3)
         }
     }
 }

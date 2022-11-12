@@ -24,7 +24,7 @@ struct KeyCopy: View {
             pasteboard.setString(key, forType: .tabularText)
             copied.toggle()
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.75) {
                 copied.toggle()
             }
             
@@ -36,7 +36,7 @@ struct KeyCopy: View {
                     .frame(width: 20, height: 20)
                     .opacity(copied ? 0 : 1)
                 Text(copied ? "Copied!" : "Copy")
-                    .font(.headline)
+                    .font(.title3)
             }
         }
         .buttonStyle(.plain)
