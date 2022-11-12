@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct HeaderView: View {
+    
     var body: some View {
         HStack {
-            Text("Dashboard")
+            Text("Secure Enclave")
                 .foregroundColor(KeetaColor.yellow)
-                .font(.title)
+                .font(.largeTitle)
             Spacer()
             GithubButton()
         }

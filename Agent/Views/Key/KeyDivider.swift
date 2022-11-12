@@ -11,8 +11,8 @@ struct KeyDivider: View {
     var body: some View {
         Spacer()
             .frame(width: 552, height: 1)
-            .background(KeetaColor.lightGray)
-            .padding(EdgeInsets(top: 0, leading: 0, bottom: 24.0, trailing: 0))
+            .background(KeetaColor.gray50)
+            .padding(EdgeInsets(top: 0, leading: 0, bottom: AgentSpacing.large, trailing: 0))
     }
 }
 
