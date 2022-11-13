@@ -9,6 +9,8 @@ let libsshPath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-pro
 
 final class GPGService {
     
+    private let keyCurve = "nistp256"
+    
     func setupConfigs() {
         do {
             try ConfigWriter.add(.gpg(agentPath: gpgAgentPath))
@@ -23,23 +25,30 @@ final class GPGService {
     func createGpgKey(fullName: String, email: String) async throws -> String {
         try await CommandExecutor.execute(.killGPGConf).expectIsEmpty()
         
-        // TODO: check that key doesn't already exist for that email!
-        
         let keyGrip = try await CommandExecutor.execute(.setupGPGAgent).grap(Grabber.keyGrip)
         
         try await CommandExecutor.execute(.restartGPGAgent)
         
         try await CommandExecutor.execute(.checkCardStatus).expectFalse(Grabber.hasBadSignatures)
         
-        let inputPath = createKeyInput(for: fullName, email: email, keyGrip: keyGrip)
-        let keyId = try await CommandExecutor.execute(.createGPGKey(inputFilePath: inputPath)).grap(Grabber.keyId)
+        let existingKeys = try await CommandExecutor.execute(.listGPGKeys).value
         
-        // TODO: setup git
-//        let shortKeyId = try await CommandExecutor.execute(.listGPGKeys).grab(Grabber.shortKeyId)
-//        try await conifgureGit(with: shortKeyId)
+        let keyId: String
         
-        let publicGPGKey = try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
-        return publicGPGKey
+        if existingKeys.contains(email) {
+            guard let key = Grabber.shortKeyId(from: existingKeys, for: email, keyCurve: keyCurve) else {
+                throw NSError(domain: "Couldn't get existing GPG key", code: 500)
+            }
+            keyId = key
+        } else {
+            let inputPath = createKeyInput(for: fullName, email: email, keyGrip: keyGrip)
+            try await CommandExecutor.execute(.createGPGKey(inputFilePath: inputPath))
+            keyId = try await CommandExecutor.execute(.listGPGKeys).grap { Grabber.shortKeyId(from: $0, for: email, keyCurve: keyCurve) }
+        }
+        
+        try await conifgureGit(with: keyId)
+        
+        return try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
     }
 
     func sign(message: String, keyId: String) async throws -> String {
@@ -52,7 +61,7 @@ final class GPGService {
     private func createKeyInput(for realName: String, email: String, keyGrip: String) -> String {
         let input = """
     Key-Type: ECDSA
-    Key-Curve: nistp256
+    Key-Curve: \(keyCurve)
     Key-Grip: \(keyGrip)
     Name-Real: \(realName)
     Name-Email: \(email)

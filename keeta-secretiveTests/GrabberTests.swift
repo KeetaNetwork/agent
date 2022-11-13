@@ -27,18 +27,6 @@ Is420W6zOi2DdvSbU/jqIAhvo/afKtVwMguG
         XCTAssertEqual(expectedKey, Grabber.gpgKey(from: randomString + gpgInput + randomString))
     }
     
-    let keyIDInput =
-"""
-gpg: revocation certificate stored as '/Users/dscheutz/.keeta_agent/openpgp-revocs.d/A998E164986E87625FEDF2D16A4319704247D564.rev'
-"""
-    
-    func test_grab_keyID() {
-        let expectedKeyId = "A998E164986E87625FEDF2D16A4319704247D564"
-        
-        XCTAssertEqual(expectedKeyId, Grabber.keyId(from: keyIDInput))
-        XCTAssertEqual(expectedKeyId, Grabber.keyId(from: keyIDInput + randomString))
-    }
-    
     let keyGripInput = """
 gnupg-pkcs11-scd[82711]: chan_0 -> S APPTYPE PKCS11
 S SERIALNO D2760001240111503131988FDBF81111
@@ -53,6 +41,30 @@ gnupg-pkcs11-scd[82711]: S CERTINFO 101
         let expectedKeyGrip = "50312962CADCCD7F6AE2F50E18D4B8433BB96DC2"
         
         XCTAssertEqual(expectedKeyGrip, Grabber.keyGrip(from: keyGripInput))
+    }
+    
+    let longKeyIdsInput = """
+pub  nistp256/48AD001ABA8F9248 2022-11-13 [SCA]
+      CBCBC441383E2F8D6BA7C6E248AD001ABA8F9248
+uid                 [ultimate] Ty <ty@keeta.com>
+
+pub  nistp256/127B4C05D34B50AD 2022-11-13 [SCA]
+      6202F16CF5C1C6FEAF889EC8127B4C05D34B50AD
+uid                 [ultimate] David Scheutz <dscheutz@keeta.com>
+
+pub  nistp256/48AD001ABA8F9248 2022-11-13 [SCA]
+      CBCBC441383E2F8D6BA7C6E248AD001ABA8F9248
+uid                 [ultimate] Ty <ty@keeta.com>
+"""
+    
+    func test_grab_shortKeyId() {
+        let expectedKeyId = "127B4C05D34B50AD"
+        let keyCurve = "nistp256"
+        let validEmail = "dscheutz@keeta.com"
+        let invalidEmail = "invalid@keeta.com"
+        
+        XCTAssertEqual(expectedKeyId, Grabber.shortKeyId(from: longKeyIdsInput, for: validEmail, keyCurve: keyCurve))
+        XCTAssertNil(Grabber.shortKeyId(from: longKeyIdsInput, for: invalidEmail, keyCurve: keyCurve))
     }
     
     let badSignaturesInput = """

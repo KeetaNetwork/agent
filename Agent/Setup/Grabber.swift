@@ -19,17 +19,25 @@ final class Grabber {
         return String(line.prefix(length))
     }
     
-    static func keyId(from output: String) -> String? {
-        let range = NSRange(location: 0, length: output.utf16.count)
-        let length = 40
-        do {
-            // TODO: do it properly!
-            let regex = try NSRegularExpression(pattern: "[A-Z0-9]{\(length)}\\.rev")//
-            guard let match = regex.firstMatch(in: output, range: range) else { return nil }
-            return String(output[Range(match.range, in: output)!].dropLast(4))
-        } catch {
-            return nil
-        }
+    static func shortKeyId(from output: String, for email: String, keyCurve: String) -> String? {
+        let startPrefix = "pub"
+        let length = 16
+        
+        let lines = output.split(whereSeparator: \.isNewline)
+        
+        guard let keyIndex = lines.indices.firstIndex(where: { index in
+            let emailIndex = index + 2
+            return lines[index].hasPrefix(startPrefix)
+                && lines.indices.contains(emailIndex)
+                && lines[emailIndex].contains(email)
+        }) else { return nil }
+        
+        var key = String(lines[keyIndex])
+        key = key.replacingOccurrences(of: startPrefix, with: "")
+        key = key.trimmingCharacters(in: .whitespaces)
+        key = key.replacingOccurrences(of: "\(keyCurve)/", with: "")
+        
+        return key.count >= length ? String(key.prefix(length)) : nil
     }
     
     static func hasBadSignatures(from output: String) -> Bool {
