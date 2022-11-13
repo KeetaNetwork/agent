@@ -21,6 +21,10 @@ class API {
 
 struct GithubAPI {
     
+    private let storage = Storage.shared
+    
+    static let githubButtonUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:public_key,write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback")!
+    
     static func pullUser(token: String) async -> GithubUser? {
         guard let url = URL(string: "https://api.github.com/user") else { return nil }
         var request = URLRequest(url: url)
@@ -30,24 +34,39 @@ struct GithubAPI {
         return try? await API().load(from: request)
     }
     
-    static func uploadGPG(token: String, key: String) {
-        Task {
-            guard let url = URL(string: "https://api.github.com/user/gpg_keys") else { return }
-            var request = URLRequest(url: url)
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            request.httpMethod = "POST"
-            
-            let json: [String: Any] = [
-                "name": "Keeta Agent",
-                "armored_public_key": key
-            ]
-            
-            let jsonData = try? JSONSerialization.data(withJSONObject: json)
-            request.httpBody = jsonData
-            
-            let res: GithubGPG = try await API().load(from: request)
-            print(res)
-        }
+    static func uploadGPG(key: String) async throws {
+        guard let url = URL(string: "https://api.github.com/user/gpg_keys") else { return }
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(Storage.shared.user?.token ?? "")", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
         
+        let json: [String: Any] = [
+            "name": "Keeta Agent",
+            "armored_public_key": key
+        ]
+        
+        let jsonData = try? JSONSerialization.data(withJSONObject: json)
+        request.httpBody = jsonData
+        
+        let resultData: GithubGPG = try await API().load(from: request)
+        debugPrint(resultData)
+    }
+    
+    static func uploadSSH(key: String) async throws {
+        guard let url = URL(string: "https://api.github.com/user/keys") else { return }
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(Storage.shared.user?.token ?? "")", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        
+        let json: [String: Any] = [
+            "title": "Keeta Agent",
+            "key": key
+        ]
+        
+        let jsonData = try? JSONSerialization.data(withJSONObject: json)
+        request.httpBody = jsonData
+        
+        let resultData: GithubSSH = try await API().load(from: request)
+        debugPrint(resultData)
     }
 }

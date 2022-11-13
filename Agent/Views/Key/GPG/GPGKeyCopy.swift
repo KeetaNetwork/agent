@@ -1,5 +1,5 @@
 //
-//  KeyCopy.swift
+//  GPGKeyCopy.swift
 //  Agent
 //
 //  Created by Ty Schenk on 11/8/22.
@@ -7,21 +7,21 @@
 
 import SwiftUI
 
-struct KeyCopy: View {
+struct GPGKeyCopy: View {
     @ObservedObject var storage: Storage = .shared
     @State private var showingAlert = false
     @State private var copied = false
     
     var body: some View {
         Button {
-            guard let key = storage.key?.key else {
+            guard let key = storage.user?.gpgKey else {
                 showingAlert.toggle()
                 return
             }
             
             let pasteboard = NSPasteboard.general
             pasteboard.declareTypes([.string], owner: nil)
-            pasteboard.setString(key, forType: .tabularText)
+            pasteboard.setString(key.key, forType: .tabularText)
             copied.toggle()
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.75) {
@@ -49,6 +49,6 @@ struct KeyCopy: View {
 
 struct KeyCopy_Previews: PreviewProvider {
     static var previews: some View {
-        KeyCopy()
+        GPGKeyCopy()
     }
 }

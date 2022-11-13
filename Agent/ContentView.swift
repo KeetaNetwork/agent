@@ -10,12 +10,17 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.openURL) var openURL
+    @ObservedObject var storage: Storage = .shared
     
     var body: some View {
         VStack(alignment: .leading) {
             HeaderView()
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 24, trailing: 0))
-            KeyView()
+            if let _ = storage.user {
+                KeyView()
+            } else {
+                GenerateView()
+            }
             Spacer()
             KeetaButton()
         }

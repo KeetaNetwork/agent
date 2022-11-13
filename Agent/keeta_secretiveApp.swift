@@ -22,8 +22,7 @@ struct keeta_secretiveApp: App {
                     Task {
                         guard let githubToken = url.description.GithubToken()?.value,
                               let user = await GithubAPI.pullUser(token: githubToken) else { return }
-                        let agentUser = AgentUser(token: githubToken, github: user)
-                        Storage.shared.storeUser(user: agentUser)
+                        Storage.shared.storeGithubUser(user: user, token: githubToken)
                     }
                 }
         }

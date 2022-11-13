@@ -15,21 +15,15 @@ class Storage: ObservableObject {
     
     let storage = SecureStorage(keychain: KeychainSwift())
     @Published private(set) var user: AgentUser?
-    @Published private(set) var key: GPGKey?
     
     private init() {
-        // attempt to load GPG key from storage
-        if let key: GPGKey = try? storage.object(for: "keeta_agent_key") {
-            self.key = key
-        }
-        
         // attempt to load user details from storage
         if let user: AgentUser = try? storage.object(for: "keeta_agent_user") {
             self.user = user
         }
     }
     
-    func storeUser(user: AgentUser) {
+    private func storeUser(user: AgentUser) {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
             try? self.storage.store(user, for: "keeta_agent_user")
             guard let user: AgentUser = try? storage.object(for: "keeta_agent_user") else { return }
@@ -40,21 +34,24 @@ class Storage: ObservableObject {
         }
     }
     
-    private func storeGPG(key: GPGKey) {
-        DispatchQueue.global(qos: .userInitiated).async { [self] in
-            try? self.storage.store(key, for: "keeta_agent_key")
-            guard let key: GPGKey = try? storage.object(for: "keeta_agent_key") else { return }
-            
-            DispatchQueue.main.async {
-                self.key = key
-            }
-        }
+    func storeGithubUser(user: GithubUser, token: String) {
+        guard let currentUser = self.user else { return }
+        let updatedUser = AgentUser(token: token, github: user, gpgKey: currentUser.gpgKey, sshKey: currentUser.sshKey)
+        storeUser(user: updatedUser)
     }
     
-    func generateKey(name: String, email: String) {
+    func generateKeys(name: String, email: String) {
         let TEMP_KEY = "TEST KEY ONLY"
         let user = GPGUser(name: name, email: email)
-        let key = GPGKey(key: TEMP_KEY, user: user)
-        storeGPG(key: key)
+        let gpgKey = GPGKey(key: TEMP_KEY, user: user)
+        let sshKey = SSHKey(key: TEMP_KEY)
+        let agentUser = AgentUser(gpgKey: gpgKey, sshKey: sshKey)
+        
+//        Task {
+//            try await GithubAPI.uploadGPG(key: gpgKey)
+//            try await GithubAPI.uploadSSH(key: sshKey)
+//        }
+        
+        storeUser(user: agentUser)
     }
 }

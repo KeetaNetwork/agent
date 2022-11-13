@@ -13,16 +13,15 @@ struct GithubButton: View {
     @ObservedObject var storage: Storage = .shared
     
     var body: some View {
-        if let _ = storage.key {
+        if let _ = storage.user {
             Button {
-                if storage.user == nil {
-                    guard let githubUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback") else { return }
-                    openURL(githubUrl)
+                if storage.user?.github == nil {
+                    openURL(GithubAPI.githubButtonUrl)
                 }
             } label: {
                 HStack {
-                    if let user = storage.user {
-                        AsyncImage(url: URL(string: user.github.avatarUrl)) { image in
+                    if let user = storage.user?.github {
+                        AsyncImage(url: URL(string: user.avatarUrl)) { image in
                             image.resizable()
                         } placeholder: {
                             KeetaColor.black
@@ -31,7 +30,7 @@ struct GithubButton: View {
                         .frame(width: 20, height: 20)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .padding(EdgeInsets(top: AgentSpacing.zero, leading: AgentSpacing.zero, bottom: AgentSpacing.zero, trailing: AgentSpacing.small))
-                        Text(user.github.username)
+                        Text(user.username)
                     } else {
                         Image("github")
                             .resizable()
@@ -41,11 +40,11 @@ struct GithubButton: View {
                         Text("Sync with Github")
                     }
                 }
-            }.padding(10)
+            }.padding(20)
                 .buttonStyle(.plain)
                 .background(KeetaColor.black)
                 .foregroundColor(KeetaColor.yellow)
-                .cornerRadius(18)
+                .cornerRadius(25)
         }
     }
 }

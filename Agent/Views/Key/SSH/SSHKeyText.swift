@@ -1,17 +1,17 @@
 //
-//  KeyText.swift
+//  SSHKeyText.swift
 //  Agent
 //
-//  Created by Ty Schenk on 11/8/22.
+//  Created by Ty Schenk on 11/12/22.
 //
 
 import SwiftUI
 
-struct KeyText: View {
+struct SSHKeyText: View {
     @ObservedObject var storage: Storage = .shared
     
     var body: some View {
-        if let key = storage.key {
+        if let key = storage.user?.sshKey {
             Text(key.key)
             .fixedSize(horizontal: false, vertical: true)
             .foregroundColor(KeetaColor.gray40)
@@ -21,8 +21,8 @@ struct KeyText: View {
     }
 }
 
-struct KeyText_Previews: PreviewProvider {
+struct SSHKeyText_Previews: PreviewProvider {
     static var previews: some View {
-        KeyText()
+        SSHKeyText()
     }
 }
