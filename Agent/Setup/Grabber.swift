@@ -20,18 +20,16 @@ final class Grabber {
     }
     
     static func keyId(from output: String) -> String? {
-        let lines = output.split(whereSeparator: \.isNewline)
+        let range = NSRange(location: 0, length: output.utf16.count)
         let length = 40
-        
-        guard let startIndex = lines.firstIndex(where: { $0.hasPrefix("pub ") }),
-              let endIndex = lines.firstIndex(where: { $0.hasPrefix("uid ") }),
-                endIndex > startIndex else { return nil }
-        let result = lines[startIndex + 1].trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // TODO: verify email
-//        lines[endIndex].contains("email")
-        
-        return result.count == length ? result : nil
+        do {
+            // TODO: do it properly!
+            let regex = try NSRegularExpression(pattern: "[A-Z0-9]{\(length)}\\.rev")//
+            guard let match = regex.firstMatch(in: output, range: range) else { return nil }
+            return String(output[Range(match.range, in: output)!].dropLast(4))
+        } catch {
+            return nil
+        }
     }
     
     static func hasBadSignatures(from output: String) -> Bool {

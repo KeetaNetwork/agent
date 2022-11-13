@@ -11,7 +11,7 @@ class SecureEnclaveStore: SecretStore {
     private let unauthenticatedThreshold: TimeInterval = 1
     private var persistedAuthenticationContexts: [Secret.ID: PersistentAuthenticationContext] = [:]
     
-    init() {
+    func setup() {
         loadSecrets()
     }
     

@@ -2,26 +2,19 @@ import XCTest
 @testable import Agent
 
 final class SetupTest: XCTestCase {
-    func test_commands() async throws {
-        try setupConfigs()
+    func test_setup() async throws {
+        await wait()
         
-        try await Task.sleep(nanoseconds: 3_000_000_000)
-        
-        try await createGpgKey(fullName: "Test", email: "test@keeta.com")
-        
-//        try await CommandExecutor.execute(.killGPGConf)
-//
-//        let keyGrip = try await CommandExecutor.execute(.setupGPGAgent).grap(Grabber.keyGrip)
-//
-//        try await CommandExecutor.execute(.checkCardStatus)
-//
-//        let inputFile = createKeyInput(for: "Test User", email: "test@keeta.com", keyGrip: keyGrip)
-//        let keyId = try await CommandExecutor.execute(.exportGPG(inputFilePath: inputFile)).grap(Grabber.keyId)
-    
-    func test_setupGPGAgent() async throws {
-        try await Task.sleep(nanoseconds: 1_500_000_000)
-        
-        _ = try await CommandExecutor.execute(.setupGPGAgent).grap(Grabber.keyGrip)
+        _ = try await GPGService().createGpgKey(fullName: "Keeta Test", email: "\(UUID().uuidString)@keeta.com")
     }
+    
+    func test_listGPGKeys() async throws {
+        _ = try await CommandExecutor.execute(.listGPGKeys)
+    }
+    
+    // MARK: Helper
+    
+    private func wait(_ duration: TimeInterval = 1) async {
+        try! await Task.sleep(nanoseconds: UInt64(duration) * 1_000_000_000)
     }
 }

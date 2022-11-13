@@ -29,17 +29,11 @@ Is420W6zOi2DdvSbU/jqIAhvo/afKtVwMguG
     
     let keyIDInput =
 """
-Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
-gpg: revocation certificate stored as '/Users/dscheutz/.gnupg/openpgp-revocs.d/B660BFA02C848FC4D44278979B50949C9847ABD0.rev'
-public and secret key created and signed.
-
-pub   nistp256 2022-11-08 [SC]
-      B660BFA02C848FC4D44278979B50949C9847ABD0
-uid                      David Scheutz <dscheutz@keeta.com>
+gpg: revocation certificate stored as '/Users/dscheutz/.keeta_agent/openpgp-revocs.d/A998E164986E87625FEDF2D16A4319704247D564.rev'
 """
     
     func test_grab_keyID() {
-        let expectedKeyId = "B660BFA02C848FC4D44278979B50949C9847ABD0"
+        let expectedKeyId = "A998E164986E87625FEDF2D16A4319704247D564"
         
         XCTAssertEqual(expectedKeyId, Grabber.keyId(from: keyIDInput))
         XCTAssertEqual(expectedKeyId, Grabber.keyId(from: keyIDInput + randomString))

@@ -11,17 +11,28 @@ enum Command {
     /// - output: key grip
     case setupGPGAgent
     
+    /// ./gpg-connect-agent reloadagent /bye
+    case restartGPGAgent
+    
     /// ./gpg --card-status
     case checkCardStatus
     
-    /// ./gpg --expert --full-generate-key
+    /// ./gpg --batch --generate-key
     /// - inputs: 13, {keyGrip}, Q, {lifetime: 0}, Y, {full name}, {email}, return key, O
     /// - output: keyId
-    case exportGPG(inputFilePath: String)
+    case createGPGKey(inputFilePath: String)
     
     /// ./gpg --check-signatures
     /// - output:  good & bad signatures
     case checkGPGKeys
+    
+    /// ./gpg --list-keys
+    /// - output:  existing GPG keys
+    case listGPGKeys
+    
+    /// ./gpg --export --armor  {keyId}
+    /// - output: public GPG key
+    case exportGPGKey(keyId: String)
     
     /// echo -n "{message}" | ./gpg --armor --clearsign --textmode -u {keyId}
     /// - output: GPG signed message
@@ -42,7 +53,9 @@ enum Command {
         switch self {
         case .killGPGConf, .setupGPGAgent:
             return "/usr/bin/env"
-        case .checkCardStatus, .exportGPG, .checkGPGKeys, .signGPG:
+        case .restartGPGAgent:
+            return gpgAgentConnectPath
+        case .checkCardStatus, .createGPGKey, .checkGPGKeys, .listGPGKeys, .exportGPGKey, .signGPG:
             return gpgPath
         case .gitEnableGPGSigning, .gitSetSigningKey, .gitSetGPGProgram:
             return "/usr/bin/git"
@@ -54,13 +67,19 @@ enum Command {
         case .killGPGConf:
             return ["zsh", "-ls", "-c", "gpgconf --kill all"]
         case .setupGPGAgent:
-            return ["bash", "-c", "\(gpgAgentPath) --server gpg-agent-connect <<<$'RELOADAGENT\nSCD LEARN'"]
+            return ["bash", "-c", "\(gpgAgentPath) --server gpg-connect-agent <<<$'RELOADAGENT\nSCD LEARN'"]
+        case .restartGPGAgent:
+            return ["reloadagent", "/bye"]
         case .checkCardStatus:
             return ["--card-status"]
-        case .exportGPG(let filePath):
-            return ["--batch", "--generate-key \(filePath)"]// "--full-generate-key"]
+        case .createGPGKey(let filePath):
+            return ["--batch", "--expert", "--full-generate-key", "\(filePath)"]
         case .checkGPGKeys:
             return ["--check-signatures"]
+        case .listGPGKeys:
+            return ["--list-keys", "--keyid-format=long"]
+        case .exportGPGKey(let keyId):
+            return ["--export", "--armor", keyId]
         case .signGPG(let message, let keyId):
             return ["echo", "-n \"\(message)\"", "| ./gpg", "--armor", "--clearsign", "--textmode", "-u \(keyId)"]
         case .gitEnableGPGSigning:

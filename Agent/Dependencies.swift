@@ -1,30 +1,30 @@
 import Foundation
 
+let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
+let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
+
 class Dependencies {
     static let all = Dependencies()
     
+    private(set) lazy var gpgService = GPGService()
     private(set) lazy var store = SecureEnclaveStore()
     private(set) lazy var publicKeyFileStoreController = PublicKeyFileStoreController(homeDirectory: homeDirectory)
     private(set) lazy var agent: SSHAgent = SSHAgent(store: store)
     private(set) lazy var socket: SocketController = SocketController(path: socketPath)
     
-    static func setup() {
+    func setup() {
         createHomeDirectory()
         
-        DispatchQueue.main.async {
-            Self.all.socket.handler = Self.all.agent.handle(reader:writer:)
-        }
+//        gpgService.setupConfigs()
         
-//        try! Self.all.store.create(name: "Roy 2")
+        store.setup()
         
-        Task {
-            try await createGpgKey(fullName:email:)
-        }
+        socket.handler = agent.handle(reader:writer:)
     }
     
     // MARK: Helper
     
-    private static func createHomeDirectory() {
+    private func createHomeDirectory() {
         if !FileManager.default.fileExists(atPath: homeDirectory) {
             try! FileManager.default.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
         }
