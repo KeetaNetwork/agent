@@ -9,8 +9,9 @@ struct CopyButton: View {
     var body: some View {
         Button(action: {
             let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
             pasteboard.declareTypes([.string], owner: nil)
-            pasteboard.setString(value, forType: .tabularText)
+            pasteboard.setString(value, forType: .string)
             copied.toggle()
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.75) {

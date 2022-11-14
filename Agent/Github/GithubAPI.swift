@@ -16,7 +16,8 @@ final class GithubAPI {
         
     private let token: String
     private let api = API()
-    
+    private let keyTitle = "Keeta Agent"
+    private let baseUrl = "https://api.github.com"
     init(token: String) {
         self.token = token
     }
@@ -24,7 +25,7 @@ final class GithubAPI {
     static let githubButtonUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:public_key,write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback")!
     
     func pullUser() async -> GithubUser? {
-        guard let url = URL(string: "https://api.github.com/user") else { return nil }
+        guard let url = URL(string: baseUrl + "/user") else { return nil }
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
@@ -32,13 +33,13 @@ final class GithubAPI {
     }
     
     func uploadGPG(key: String) async throws {
-        guard let url = URL(string: "https://api.github.com/user/gpg_keys") else { return }
+        guard let url = URL(string: baseUrl + "/user/gpg_keys") else { return }
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
         
         let json: [String: Any] = [
-            "name": "Keeta Agent",
+            "name": keyTitle,
             "armored_public_key": key
         ]
         
@@ -50,13 +51,13 @@ final class GithubAPI {
     }
     
     func uploadSSH(key: String) async throws {
-        guard let url = URL(string: "https://api.github.com/user/keys") else { return }
+        guard let url = URL(string: baseUrl + "/user/keys") else { return }
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
         
         let json: [String: Any] = [
-            "title": "Keeta Agent",
+            "title": keyTitle,
             "key": key
         ]
         
