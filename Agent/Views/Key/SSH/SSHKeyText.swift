@@ -5,11 +5,11 @@ struct SSHKeyText: View {
     
     var body: some View {
         Text(key.value)
-        .fixedSize(horizontal: false, vertical: true)
-        .foregroundColor(KeetaColor.gray40)
-        .multilineTextAlignment(.leading)
-        .padding(.horizontal, AgentSpacing.large)
-        .padding(.bottom, AgentSpacing.large)
+            .fixedSize(horizontal: false, vertical: true)
+            .foregroundColor(KeetaColor.gray40)
+            .multilineTextAlignment(.leading)
+            .padding(.horizontal, AgentSpacing.large)
+            .padding(.bottom, AgentSpacing.large)
     }
 }
 
