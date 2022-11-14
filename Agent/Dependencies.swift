@@ -13,8 +13,6 @@ class Dependencies {
     func setup() {
         createHomeDirectory()
         
-        secureEnlave.setup()
-        
         keetaAgent.setup()
     }
     

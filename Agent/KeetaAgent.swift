@@ -21,9 +21,13 @@ final class KeetaAgent: ObservableObject {
     }
     
     func setup() {
+        print(gpgPath)
+        
         gpgKey = storage.gpgKey
         sshKey = storage.sshKey
         githubUser = storage.githubUser
+        
+        secureEnlave.setup()
         
         socket.handler = agent.handle(reader:writer:)
         
