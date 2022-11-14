@@ -1,8 +1,9 @@
 import Foundation
 
 protocol Secret {
-    typealias ID = Data
+    typealias ID = String
     
+    var id: ID { get }
     /// A user-facing string identifying the Secret.
     var name: String { get }
     /// The algorithm this secret uses.
@@ -15,14 +16,8 @@ protocol Secret {
     var publicKey: Data { get }
 }
 
-extension Secret {
-    var id: ID {
-        publicKey
-    }
-}
-
 struct SecureEnclaveSecret: Secret {
-    let id: Data
+    let id: String
     let name: String
     let algorithm = Algorithm.ellipticCurve
     let keySize = 256

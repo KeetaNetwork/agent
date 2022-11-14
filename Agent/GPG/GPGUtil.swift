@@ -13,31 +13,18 @@ protocol GPGStore: AnyObject {
     var gpgKey: GPGKey? { get set }
 }
 
-final class GPGService {
+final class GPGUtil {
     
-    private let keyCurve = "nistp256"
-    private let store: GPGStore
+    private static let keyCurve = "nistp256"
     
-    init(store: GPGStore) {
-        self.store = store
+    static func writeConfigs() throws {
+        try ConfigWriter.add(.gpg(agentPath: gpgAgentPath))
+        try ConfigWriter.add(.gpgAgent(pkcs11Path: pkcs11Path))
+        try ConfigWriter.add(.gnupgPkcs11(libsshPath: libsshPath))
+        try ConfigWriter.add(.socketAuth(socketPath: socketPath))
     }
     
-    func setup() {
-        guard !store.didWriteGPGConfigs else { return }
-        
-        do {
-            try ConfigWriter.add(.gpg(agentPath: gpgAgentPath))
-            try ConfigWriter.add(.gpgAgent(pkcs11Path: pkcs11Path))
-            try ConfigWriter.add(.gnupgPkcs11(libsshPath: libsshPath))
-            try ConfigWriter.add(.socketAuth(socketPath: socketPath))
-            
-            store.didWriteGPGConfigs = true
-        } catch let error {
-            Logger().log("Setup GPG configs failed with error: \(error.localizedDescription)")
-        }
-    }
-    
-    func createGpgKey(fullName: String, email: String) async throws -> GPGKey {
+    static func createGpgKey(fullName: String, email: String) async throws -> GPGKey {
         try await CommandExecutor.execute(.killGPGConf).expectIsEmpty()
         
         let keyGrip = try await CommandExecutor.execute(.setupGPGAgent).grap(Grabber.keyGrip)
@@ -75,7 +62,7 @@ final class GPGService {
     
     // MARK: Helper
     
-    private func createKeyInput(for realName: String, email: String, keyGrip: String) -> String {
+    private static func createKeyInput(for realName: String, email: String, keyGrip: String) -> String {
         let input = """
     Key-Type: ECDSA
     Key-Curve: \(keyCurve)
@@ -92,7 +79,7 @@ final class GPGService {
         return inputFilePath
     }
     
-    private func conifgureGit(with keyId: String) async throws {
+    private static func conifgureGit(with keyId: String) async throws {
         try await CommandExecutor.execute(.gitEnableGPGSigning)
         try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
         try await CommandExecutor.execute(.gitSetSigningKey(keyId: keyId))

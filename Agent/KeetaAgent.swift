@@ -8,7 +8,6 @@ final class KeetaAgent: ObservableObject {
     @Published private(set) var githubUser: GithubUser?
     
     let secureEnlave: SecureEnclaveStore
-    let gpgService: GPGService
     let storage: Storage
     let sshWriter = OpenSSHKeyWriter()
     let logger = Logger()
@@ -16,9 +15,8 @@ final class KeetaAgent: ObservableObject {
     private(set) lazy var agent: SSHAgent = SSHAgent(store: secureEnlave)
     private(set) lazy var socket: SocketController = SocketController(path: socketPath)
     
-    init(secureEnlave: SecureEnclaveStore, gpgService: GPGService, storage: Storage) {
+    init(secureEnlave: SecureEnclaveStore, storage: Storage) {
         self.secureEnlave = secureEnlave
-        self.gpgService = gpgService
         self.storage = storage
     }
     
@@ -28,6 +26,15 @@ final class KeetaAgent: ObservableObject {
         githubUser = storage.githubUser
         
         socket.handler = agent.handle(reader:writer:)
+        
+        guard !storage.didWriteGPGConfigs else { return }
+        
+        do {
+            try GPGUtil.writeConfigs()
+            storage.didWriteGPGConfigs = true
+        } catch let error {
+            logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")
+        }
     }
     
     func createNewKey(for name: String, email: String) async -> String? {
@@ -54,10 +61,8 @@ final class KeetaAgent: ObservableObject {
                 return nil
             }
             
-            gpgService.setup()
-            
             /// Create GPG key
-            let gpgKey = try await gpgService.createGpgKey(fullName: name, email: email)
+            let gpgKey = try await GPGUtil.createGpgKey(fullName: name, email: email)
             storage.gpgKey = gpgKey
             DispatchQueue.main.async { self.gpgKey = gpgKey }
             

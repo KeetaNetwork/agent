@@ -5,13 +5,16 @@ final class SetupTest: XCTestCase {
     func test_setup() async throws {
         await wait()
         
-        _ = try await GPGService().createGpgKey(fullName: "Keeta Test", email: "\(UUID().uuidString)@keeta.com")
+        _ = try await GPGUtil.createGpgKey(fullName: "Keeta Test", email: "\(UUID().uuidString)@keeta.com")
     }
     
     func test_listGPGKeys() async throws {
         _ = try await CommandExecutor.execute(.listGPGKeys)
     }
     
+    func test_auth() {
+        
+    }
     // MARK: Helper
     
     private func wait(_ duration: TimeInterval = 1) async {

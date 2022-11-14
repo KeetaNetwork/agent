@@ -8,7 +8,7 @@ class SecureEnclaveStore: SecretStore {
     
     private let keyTag = "com.keeta.agent.key".data(using: .utf8)! as CFData
     private let keyType = kSecAttrKeyTypeECSECPrimeRandom
-    private let unauthenticatedThreshold: TimeInterval = 1
+    private let authenticationReuseDuration: TimeInterval = 3
     private var persistedAuthenticationContexts: [Secret.ID: PersistentAuthenticationContext] = [:]
     
     func setup() {
@@ -63,7 +63,10 @@ class SecureEnclaveStore: SecretStore {
         } else {
             let newContext = LAContext()
             newContext.localizedCancelTitle = "Deny"
+            newContext.touchIDAuthenticationAllowableReuseDuration = authenticationReuseDuration
             context = newContext
+            let secret = secret as! SecureEnclaveSecret
+            persistedAuthenticationContexts[secret.id] = .init(secret: secret, context: newContext, duration: 5)
         }
         context.localizedReason = "sign a request from \"\(processName)\" using secret \"\(secret.name)\""
         let attributes = [
@@ -147,6 +150,7 @@ class SecureEnclaveStore: SecretStore {
             let id = next[kSecAttrApplicationLabel] as! Data
             partialResult[id] = next
         }
+        
         let authNotRequiredAccessControl: SecAccessControl =
             SecAccessControlCreateWithFlags(kCFAllocatorDefault,
                                             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
@@ -167,7 +171,7 @@ class SecureEnclaveStore: SecretStore {
             } else {
                 requiresAuth = false
             }
-            return SecureEnclaveSecret(id: id, name: name, requiresAuthentication: requiresAuth, publicKey: publicKey)
+            return SecureEnclaveSecret(id: id.base64EncodedString(), name: name, requiresAuthentication: requiresAuth, publicKey: publicKey)
         }
         secrets.append(contentsOf: wrapped)
     }
