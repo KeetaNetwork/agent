@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 let configFolderName = ".keeta_agent"
 let gpgAgentPath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
@@ -7,22 +8,36 @@ let gpgAgentConnectPath = Bundle.main.url(forResource: "gnupg/bin/gpg-connect-ag
 let pkcs11Path = Bundle.main.url(forResource: "gnupg/bin/gnupg-pkcs11-scd", withExtension: "")!.path
 let libsshPath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-provider", withExtension: "dylib")!.path
 
+protocol GPGStore: AnyObject {
+    var didWriteGPGConfigs: Bool { get set }
+    var gpgKey: GPGKey? { get set }
+}
+
 final class GPGService {
     
     private let keyCurve = "nistp256"
+    private let store: GPGStore
     
-    func setupConfigs() {
+    init(store: GPGStore) {
+        self.store = store
+    }
+    
+    func setup() {
+        guard !store.didWriteGPGConfigs else { return }
+        
         do {
             try ConfigWriter.add(.gpg(agentPath: gpgAgentPath))
             try ConfigWriter.add(.gpgAgent(pkcs11Path: pkcs11Path))
             try ConfigWriter.add(.gnupgPkcs11(libsshPath: libsshPath))
-            try ConfigWriter.add(.socketAuth(homeDirectory: homeDirectory))
+            try ConfigWriter.add(.socketAuth(socketPath: socketPath))
+            
+            store.didWriteGPGConfigs = true
         } catch let error {
-            print(error)
+            Logger().log("Setup GPG configs failed with error: \(error.localizedDescription)")
         }
     }
     
-    func createGpgKey(fullName: String, email: String) async throws -> String {
+    func createGpgKey(fullName: String, email: String) async throws -> GPGKey {
         try await CommandExecutor.execute(.killGPGConf).expectIsEmpty()
         
         let keyGrip = try await CommandExecutor.execute(.setupGPGAgent).grap(Grabber.keyGrip)
@@ -37,7 +52,7 @@ final class GPGService {
         
         if existingKeys.contains(email) {
             guard let key = Grabber.shortKeyId(from: existingKeys, for: email, keyCurve: keyCurve) else {
-                throw NSError(domain: "Couldn't get existing GPG key", code: 500)
+                throw NSError(domain: "Couldn't parse existing GPG key from output: \(existingKeys)", code: 500)
             }
             keyId = key
         } else {
@@ -48,7 +63,9 @@ final class GPGService {
         
         try await conifgureGit(with: keyId)
         
-        return try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
+        let publicKey = try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
+        
+        return .init(value: publicKey, fullName: fullName, email: email)
     }
 
     func sign(message: String, keyId: String) async throws -> String {

@@ -1,25 +1,23 @@
-//
-//  SSHKeyHeader.swift
-//  Agent
-//
-//  Created by Ty Schenk on 11/12/22.
-//
-
 import SwiftUI
 
 struct SSHKeyHeader: View {
+    
+    let key: SSHKey
+    
     var body: some View {
         HStack {
             SSHKeyIcon()
             Spacer()
-            SSHKeyCopy()
+            CopyButton(value: key.value)
         }
-        .padding(EdgeInsets(top: AgentSpacing.large, leading: AgentSpacing.large, bottom: AgentSpacing.large, trailing: AgentSpacing.large))
+        .padding(AgentSpacing.large)
     }
 }
 
+#if DEBUG
 struct SSHKeyHeader_Previews: PreviewProvider {
     static var previews: some View {
-        SSHKeyHeader()
+        SSHKeyHeader(key: .init(value: "SSH_Preview"))
     }
 }
+#endif

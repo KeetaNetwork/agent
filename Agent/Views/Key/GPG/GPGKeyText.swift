@@ -1,28 +1,22 @@
-//
-//  GPGKeyText.swift
-//  Agent
-//
-//  Created by Ty Schenk on 11/8/22.
-//
-
 import SwiftUI
 
 struct GPGKeyText: View {
-    @ObservedObject var storage: Storage = .shared
+    let key: GPGKey
     
     var body: some View {
-        if let key = storage.user?.gpgKey {
-            Text(key.key)
-            .fixedSize(horizontal: false, vertical: true)
-            .foregroundColor(KeetaColor.gray40)
-            .multilineTextAlignment(.leading)
-            .padding(EdgeInsets(top: AgentSpacing.zero, leading: AgentSpacing.large, bottom: AgentSpacing.large, trailing: AgentSpacing.large))
-        }
+        Text(key.value)
+        .fixedSize(horizontal: false, vertical: true)
+        .foregroundColor(KeetaColor.gray40)
+        .multilineTextAlignment(.leading)
+        .padding(.horizontal, AgentSpacing.large)
+        .padding(.bottom, AgentSpacing.large)
     }
 }
 
+#if DEBUG
 struct GPGKeyText_Previews: PreviewProvider {
     static var previews: some View {
-        GPGKeyText()
+        GPGKeyText(key: .init(value: "GPG_PREVIEW", fullName: "Ty", email: "ty@keeta.com"))
     }
 }
+#endif

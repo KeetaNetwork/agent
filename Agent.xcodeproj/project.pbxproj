@@ -24,19 +24,20 @@
 		02780056291A691B00B8BA11 /* KeyDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780055291A691B00B8BA11 /* KeyDivider.swift */; };
 		02780058291A693E00B8BA11 /* GPGKeyText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780057291A693E00B8BA11 /* GPGKeyText.swift */; };
 		0278005A291A696400B8BA11 /* GPGKeyIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780059291A696400B8BA11 /* GPGKeyIcon.swift */; };
-		0278005C291A699A00B8BA11 /* GPGKeyCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278005B291A699A00B8BA11 /* GPGKeyCopy.swift */; };
+		0278005C291A699A00B8BA11 /* CopyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278005B291A699A00B8BA11 /* CopyButton.swift */; };
 		02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */ = {isa = PBXBuildFile; productRef = 02780062291A6DBF00B8BA11 /* keeta-secure-storage */; };
-		AE75C4EA292076300087A584 /* GPGUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4E9292076300087A584 /* GPGUtils.swift */; };
-		AE8D4F14291C372C00D91FAE /* ConfigWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */; };
-		AE8D4F16291C376000D91FAE /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F15291C376000D91FAE /* Commands.swift */; };
-		AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */; };
 		028637772920C29C000D978D /* SSHKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028637762920C29C000D978D /* SSHKey.swift */; };
 		02C9FFB92920C6F8003AF470 /* SSHKeyIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFB82920C6F8003AF470 /* SSHKeyIcon.swift */; };
 		02C9FFBD2920C73A003AF470 /* SSHKeyText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFBC2920C73A003AF470 /* SSHKeyText.swift */; };
-		02C9FFBF2920C766003AF470 /* SSHKeyCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFBE2920C766003AF470 /* SSHKeyCopy.swift */; };
 		02C9FFC12920C7B6003AF470 /* SSHKeyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFC02920C7B6003AF470 /* SSHKeyHeader.swift */; };
 		02D9C586291E0D4D00586CEB /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D9C585291E0D4D00586CEB /* GPGKey.swift */; };
 		02D9C58A291E139600586CEB /* AgentSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D9C589291E139600586CEB /* AgentSpacing.swift */; };
+		AE75C4EA292076300087A584 /* GPGService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4E9292076300087A584 /* GPGService.swift */; };
+		AE75C4EC2921F0CB0087A584 /* SSHService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4EB2921F0CB0087A584 /* SSHService.swift */; };
+		AE75C4EE2922083B0087A584 /* KeetaAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4ED2922083B0087A584 /* KeetaAgent.swift */; };
+		AE8D4F14291C372C00D91FAE /* ConfigWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */; };
+		AE8D4F16291C376000D91FAE /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F15291C376000D91FAE /* Commands.swift */; };
+		AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */; };
 		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
@@ -54,7 +55,6 @@
 		AEB392362919CDE3006A0F88 /* PersistentAuthenticationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392352919CDE3006A0F88 /* PersistentAuthenticationContext.swift */; };
 		AEB392382919CFD9006A0F88 /* SecretStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392372919CFD9006A0F88 /* SecretStore.swift */; };
 		AEB3923A2919D2A7006A0F88 /* OpenSSHReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392392919D2A7006A0F88 /* OpenSSHReader.swift */; };
-		AEB3923C2919D5E0006A0F88 /* PublicKeyFileStoreController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */; };
 		AEEB99BA291B188E009557BC /* Grabber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEB99B9291B188E009557BC /* Grabber.swift */; };
 		AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF00416291A1AE600EA576C /* Dependencies.swift */; };
 		AEFA7467291C78DF00066571 /* gnupg in Resources */ = {isa = PBXBuildFile; fileRef = AEFA7466291C78DF00066571 /* gnupg */; };
@@ -88,23 +88,21 @@
 		02780051291A663700B8BA11 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		02780053291A68F500B8BA11 /* GPGKeyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyHeader.swift; sourceTree = "<group>"; };
 		02780055291A691B00B8BA11 /* KeyDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyDivider.swift; sourceTree = "<group>"; };
-		02780057291A693E00B8BA11 /* KeyText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyText.swift; sourceTree = "<group>"; };
-		02780059291A696400B8BA11 /* KeyIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyIcon.swift; sourceTree = "<group>"; };
-		0278005B291A699A00B8BA11 /* KeyCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCopy.swift; sourceTree = "<group>"; };
-		AE75C4E9292076300087A584 /* GPGUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGUtils.swift; sourceTree = "<group>"; };
-		AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigWriter.swift; sourceTree = "<group>"; };
-		AE8D4F15291C376000D91FAE /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
-		AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutor.swift; sourceTree = "<group>"; };
 		02780057291A693E00B8BA11 /* GPGKeyText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyText.swift; sourceTree = "<group>"; };
 		02780059291A696400B8BA11 /* GPGKeyIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyIcon.swift; sourceTree = "<group>"; };
-		0278005B291A699A00B8BA11 /* GPGKeyCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyCopy.swift; sourceTree = "<group>"; };
+		0278005B291A699A00B8BA11 /* CopyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CopyButton.swift; sourceTree = "<group>"; };
 		028637762920C29C000D978D /* SSHKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHKey.swift; sourceTree = "<group>"; };
 		02C9FFB82920C6F8003AF470 /* SSHKeyIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHKeyIcon.swift; sourceTree = "<group>"; };
 		02C9FFBC2920C73A003AF470 /* SSHKeyText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHKeyText.swift; sourceTree = "<group>"; };
-		02C9FFBE2920C766003AF470 /* SSHKeyCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHKeyCopy.swift; sourceTree = "<group>"; };
 		02C9FFC02920C7B6003AF470 /* SSHKeyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHKeyHeader.swift; sourceTree = "<group>"; };
 		02D9C585291E0D4D00586CEB /* GPGKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKey.swift; sourceTree = "<group>"; };
 		02D9C589291E139600586CEB /* AgentSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentSpacing.swift; sourceTree = "<group>"; };
+		AE75C4E9292076300087A584 /* GPGService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGService.swift; sourceTree = "<group>"; };
+		AE75C4EB2921F0CB0087A584 /* SSHService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHService.swift; sourceTree = "<group>"; };
+		AE75C4ED2922083B0087A584 /* KeetaAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeetaAgent.swift; sourceTree = "<group>"; };
+		AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigWriter.swift; sourceTree = "<group>"; };
+		AE8D4F15291C376000D91FAE /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
+		AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutor.swift; sourceTree = "<group>"; };
 		AEB3919F29146F40006A0F88 /* Agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
 		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -125,7 +123,6 @@
 		AEB392352919CDE3006A0F88 /* PersistentAuthenticationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentAuthenticationContext.swift; sourceTree = "<group>"; };
 		AEB392372919CFD9006A0F88 /* SecretStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStore.swift; sourceTree = "<group>"; };
 		AEB392392919D2A7006A0F88 /* OpenSSHReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSSHReader.swift; sourceTree = "<group>"; };
-		AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicKeyFileStoreController.swift; sourceTree = "<group>"; };
 		AEEB99B9291B188E009557BC /* Grabber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grabber.swift; sourceTree = "<group>"; };
 		AEF00416291A1AE600EA576C /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		AEFA7466291C78DF00066571 /* gnupg */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gnupg; sourceTree = "<group>"; };
@@ -190,6 +187,7 @@
 				0278004B291A658B00B8BA11 /* KeetaButton.swift */,
 				0278004D291A65F000B8BA11 /* GithubButton.swift */,
 				02780051291A663700B8BA11 /* HeaderView.swift */,
+				0278005B291A699A00B8BA11 /* CopyButton.swift */,
 				0278005D291A69C700B8BA11 /* Key */,
 			);
 			path = Views;
@@ -213,7 +211,6 @@
 				02780053291A68F500B8BA11 /* GPGKeyHeader.swift */,
 				02780057291A693E00B8BA11 /* GPGKeyText.swift */,
 				02780059291A696400B8BA11 /* GPGKeyIcon.swift */,
-				0278005B291A699A00B8BA11 /* GPGKeyCopy.swift */,
 			);
 			path = GPG;
 			sourceTree = "<group>";
@@ -223,7 +220,6 @@
 			children = (
 				02C9FFB82920C6F8003AF470 /* SSHKeyIcon.swift */,
 				02C9FFBC2920C73A003AF470 /* SSHKeyText.swift */,
-				02C9FFBE2920C766003AF470 /* SSHKeyCopy.swift */,
 				02C9FFC02920C7B6003AF470 /* SSHKeyHeader.swift */,
 			);
 			path = SSH;
@@ -253,7 +249,8 @@
 				AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */,
 				AEB391A429146F40006A0F88 /* ContentView.swift */,
 				AEF00416291A1AE600EA576C /* Dependencies.swift */,
-				AEB3922E2919B397006A0F88 /* Setup */,
+				AE75C4ED2922083B0087A584 /* KeetaAgent.swift */,
+				AEB3922E2919B397006A0F88 /* GPG */,
 				02780042291A4D6900B8BA11 /* Github */,
 				AEB391DA2914747A006A0F88 /* Secrets */,
 				AEB391CD29147097006A0F88 /* SSH Agent */,
@@ -299,21 +296,21 @@
 				AEB391DD291474A2006A0F88 /* Algorithm.swift */,
 				AEB391DF291475FC006A0F88 /* SecureEnclaveStore.swift */,
 				AEB392352919CDE3006A0F88 /* PersistentAuthenticationContext.swift */,
-				AEB3923B2919D5E0006A0F88 /* PublicKeyFileStoreController.swift */,
 			);
 			path = Secrets;
 			sourceTree = "<group>";
 		};
-		AEB3922E2919B397006A0F88 /* Setup */ = {
+		AEB3922E2919B397006A0F88 /* GPG */ = {
 			isa = PBXGroup;
 			children = (
-				AE75C4E9292076300087A584 /* GPGUtils.swift */,
+				AE75C4E9292076300087A584 /* GPGService.swift */,
+				AE75C4EB2921F0CB0087A584 /* SSHService.swift */,
 				AE8D4F15291C376000D91FAE /* Commands.swift */,
 				AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */,
 				AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */,
 				AEEB99B9291B188E009557BC /* Grabber.swift */,
 			);
-			path = Setup;
+			path = GPG;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -428,15 +425,15 @@
 				AEEB99BA291B188E009557BC /* Grabber.swift in Sources */,
 				AEB391CF291470A9006A0F88 /* SocketController.swift in Sources */,
 				AEB391D329147145006A0F88 /* SSHAgent.swift in Sources */,
-				0278005C291A699A00B8BA11 /* KeyCopy.swift in Sources */,
-				AE75C4EA292076300087A584 /* GPGUtils.swift in Sources */,
+				0278005C291A699A00B8BA11 /* CopyButton.swift in Sources */,
+				AE75C4EA292076300087A584 /* GPGService.swift in Sources */,
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
 				AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */,
 				AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */,
 				AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */,
 				02C9FFB92920C6F8003AF470 /* SSHKeyIcon.swift in Sources */,
 				02C9FFC12920C7B6003AF470 /* SSHKeyHeader.swift in Sources */,
-				0278005C291A699A00B8BA11 /* GPGKeyCopy.swift in Sources */,
+				0278005C291A699A00B8BA11 /* CopyButton.swift in Sources */,
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
 				AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */,
 				AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */,
@@ -444,22 +441,22 @@
 				AEB391D5291471EE006A0F88 /* RequestType.swift in Sources */,
 				AEB392342919CB9C006A0F88 /* Data+Extract.swift in Sources */,
 				0278005A291A696400B8BA11 /* GPGKeyIcon.swift in Sources */,
-				AEB3923C2919D5E0006A0F88 /* PublicKeyFileStoreController.swift in Sources */,
+				0278005A291A696400B8BA11 /* GPGKeyIcon.swift in Sources */,
+				AE75C4EC2921F0CB0087A584 /* SSHService.swift in Sources */,
 				AEB391D729147208006A0F88 /* ResponseType.swift in Sources */,
 				AE8D4F14291C372C00D91FAE /* ConfigWriter.swift in Sources */,
 				02577377291B56B5003E0889 /* GithubGPG.swift in Sources */,
 				AEB391DC29147485006A0F88 /* Secret.swift in Sources */,
 				0278004E291A65F000B8BA11 /* GithubButton.swift in Sources */,
 				02C9FFBD2920C73A003AF470 /* SSHKeyText.swift in Sources */,
+				AE75C4EE2922083B0087A584 /* KeetaAgent.swift in Sources */,
 				02780041291A28F000B8BA11 /* Color.swift in Sources */,
-				02C9FFBF2920C766003AF470 /* SSHKeyCopy.swift in Sources */,
 				AEB391D9291472AF006A0F88 /* OpenSSHKeyWriter.swift in Sources */,
 				02780052291A663700B8BA11 /* HeaderView.swift in Sources */,
 				AEB392362919CDE3006A0F88 /* PersistentAuthenticationContext.swift in Sources */,
 				AE8D4F16291C376000D91FAE /* Commands.swift in Sources */,
 				02577371291B565E003E0889 /* Storage.swift in Sources */,
-				02780054291A68F500B8BA11 /* KeyHeader.swift in Sources */,
-				AEB392322919B3EA006A0F88 /* Setup.swift in Sources */,
+				02780054291A68F500B8BA11 /* GPGKeyHeader.swift in Sources */,
 				02780054291A68F500B8BA11 /* GPGKeyHeader.swift in Sources */,
 				02780047291A539000B8BA11 /* Link.swift in Sources */,
 				AEB3923A2919D2A7006A0F88 /* OpenSSHReader.swift in Sources */,

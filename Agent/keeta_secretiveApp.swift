@@ -11,13 +11,7 @@ struct keeta_secretiveApp: App {
         WindowGroup {
             ContentView()
                 .handlesExternalEvents(preferring: ["keeta-agent"], allowing: ["keeta-agent"])
-                .onOpenURL { url in
-                    Task {
-                        guard let githubToken = url.description.GithubToken()?.value,
-                              let user = await GithubAPI.pullUser(token: githubToken) else { return }
-                        Storage.shared.storeGithubUser(user: user, token: githubToken)
-                    }
-                }
+                .onOpenURL(perform: Dependencies.all.keetaAgent.didReceive(url:))
         }
         .handlesExternalEvents(matching: Set(arrayLiteral: "*"))
     }

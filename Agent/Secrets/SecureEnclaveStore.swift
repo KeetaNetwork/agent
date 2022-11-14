@@ -15,6 +15,12 @@ class SecureEnclaveStore: SecretStore {
         loadSecrets()
     }
     
+    func createKeyPairIfNeeded(with name: String) throws {
+        if !secrets.contains(where: { $0.name == name }) {
+            try create(name: name)
+        }
+    }
+    
     func create(name: String) throws {
         var accessError: SecurityError?
         let flags: SecAccessControlCreateFlags = [.privateKeyUsage, .userPresence]

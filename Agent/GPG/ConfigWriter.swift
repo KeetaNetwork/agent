@@ -1,7 +1,7 @@
 import Foundation
 
 enum Config {
-    case socketAuth(homeDirectory: String)
+    case socketAuth(socketPath: String)
     case gpg(agentPath: String)
     case gpgAgent(pkcs11Path: String)
     case gnupgPkcs11(libsshPath: String)
@@ -23,13 +23,8 @@ enum Config {
         switch self {
         case .socketAuth(let socketPath):
             return "export SSH_AUTH_SOCK=\(socketPath)"
-            
-        // IdentityAgent
-        // "Host *\n\tIdentityAgent \(socketPath)"
-        
         case .gpg(let agentPath):
             return "agent-program \(agentPath)"
-        
         case .gpgAgent(let pkcs11Path):
             return "scdaemon-program \(pkcs11Path)"
         case .gnupgPkcs11(let libsshPath):
@@ -41,8 +36,6 @@ enum Config {
         switch self {
         case .socketAuth:
             return nil
-        // IdentityAgent
-        // .ssh/config
         case .gpg, .gpgAgent, .gnupgPkcs11:
             return configFolderName
         }
@@ -52,8 +45,6 @@ enum Config {
         switch self {
         case .socketAuth:
             return ".zshrc"
-        // IdentityAgent
-        // .ssh/config
         case .gpg:
             return "gpg.conf"
         case .gpgAgent:

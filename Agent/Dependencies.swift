@@ -6,20 +6,19 @@ let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh"
 class Dependencies {
     static let all = Dependencies()
     
-    private(set) lazy var gpgService = GPGService()
-    private(set) lazy var store = SecureEnclaveStore()
-    private(set) lazy var publicKeyFileStoreController = PublicKeyFileStoreController(homeDirectory: homeDirectory)
-    private(set) lazy var agent: SSHAgent = SSHAgent(store: store)
-    private(set) lazy var socket: SocketController = SocketController(path: socketPath)
+    private(set) lazy var keetaAgent = KeetaAgent(secureEnlave: secureEnlave, gpgService: gpgService, storage: storage)
+    private(set) lazy var gpgService = GPGService(store: storage)
+    private(set) lazy var secureEnlave = SecureEnclaveStore()
+    private(set) lazy var storage = Storage()
     
     func setup() {
         createHomeDirectory()
         
-//        gpgService.setupConfigs()
+        secureEnlave.setup()
         
-        store.setup()
+        gpgService.setup()
         
-        socket.handler = agent.handle(reader:writer:)
+        keetaAgent.setup()
     }
     
     // MARK: Helper
