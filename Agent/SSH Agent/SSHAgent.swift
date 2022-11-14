@@ -75,9 +75,8 @@ class SSHAgent {
                 response.append(identities())
                 Logger().debug("Agent returned \(SSHAgent.ResponseType.agentIdentitiesAnswer.debugDescription)")
             case .signRequest:
-//                let provenance = requestTracer.provenance(from: reader)
                 response.append(SSHAgent.ResponseType.agentSignResponse.data)
-                response.append(try sign(data: data))//, provenance: provenance))
+                response.append(try sign(data: data, processName: SigningRequestTracer.processName(from: reader)))
                 Logger().debug("Agent returned \(SSHAgent.ResponseType.agentSignResponse.debugDescription)")
             }
         } catch {
@@ -111,7 +110,7 @@ class SSHAgent {
     /// - Parameters:
     ///   - data: The data to sign.
     /// - Returns: An OpenSSH formatted Data payload containing the signed data response.
-    private func sign(data: Data) throws -> Data {
+    private func sign(data: Data, processName: String) throws -> Data {
         let reader = OpenSSHReader(data: data)
         let hash = reader.readNextChunk()
         guard let secret = secret(matching: hash) else {
@@ -125,7 +124,7 @@ class SSHAgent {
 
         let dataToSign = reader.readNextChunk()
         let flags = reader.readNextInt()
-        let signed = try store.sign(data: dataToSign, with: secret, for: "provenance", isRaw: flags == 0x40000000)
+        let signed = try store.sign(data: dataToSign, with: secret, for: processName, isRaw: flags == 0x40000000)
         let derSignature = signed
 
         let curveData = writer.curveType(for: secret.algorithm, length: secret.keySize).data(using: .utf8)!
