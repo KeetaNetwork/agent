@@ -10,20 +10,15 @@ struct keeta_secretiveApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .handlesExternalEvents(preferring: ["keeta-agent://"], allowing: ["*"])
+                .handlesExternalEvents(preferring: ["keeta-agent"], allowing: ["keeta-agent"])
                 .onOpenURL { url in
                     Task {
                         guard let githubToken = url.description.GithubToken()?.value,
                               let user = await GithubAPI.pullUser(token: githubToken) else { return }
-                        let agentUser = AgentUser(token: githubToken, github: user)
-                        Storage.shared.storeUser(user: agentUser)
+                        Storage.shared.storeGithubUser(user: user, token: githubToken)
                     }
                 }
         }
-        .commands {
-            CommandGroup(replacing: CommandGroupPlacement.newItem) {
-                EmptyView()
-            }
-        }
+        .handlesExternalEvents(matching: Set(arrayLiteral: "*"))
     }
 }

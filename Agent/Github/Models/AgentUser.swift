@@ -8,10 +8,12 @@
 import Foundation
 
 struct AgentUser: Codable {
-    let token: String
-    let github: GithubUser
+    var token: String?
+    var github: GithubUser?
+    let gpgKey: GPGKey
+    let sshKey: SSHKey
     
     enum CodingKeys: String, CodingKey {
-        case token, github
+        case token, github, gpgKey, sshKey
     }
 }
