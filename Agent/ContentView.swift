@@ -21,7 +21,7 @@ struct ContentView: View {
         }
         .padding(AgentSpacing.large)
         .background(KeetaColor.gray)
-        .frame(width: 700, height: 600)
+        .frame(width: 700, height: 620)
     }
 }
 
