@@ -47,10 +47,26 @@ final class GPGUtil {
         
         let publicKey = try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
         
-        return .init(value: publicKey, fullName: fullName, email: email)
+        return .init(id: keyId, value: publicKey, fullName: fullName, email: email)
     }
 
-    func sign(message: String, keyId: String) async throws -> String {
+    static func keyExists(for keyId: String) async -> Bool {
+        do {
+            try await CommandExecutor.execute(.killGPGConf)
+            
+            try await CommandExecutor.execute(.restartGPGAgent)
+            
+            try await CommandExecutor.execute(.checkCardStatus).expectFalse(Grabber.hasBadSignatures)
+            
+            let existingKeys = try await CommandExecutor.execute(.listGPGKeys).value
+            
+            return existingKeys.contains(keyId)
+        } catch {
+            return false
+        }
+    }
+    
+    static func sign(message: String, keyId: String) async throws -> String {
         let signedMessageOutput = try await CommandExecutor.execute(.signGPG(message: message, keyId: keyId))
         return signedMessageOutput.value
     }

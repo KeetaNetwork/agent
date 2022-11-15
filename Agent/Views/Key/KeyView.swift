@@ -43,7 +43,7 @@ extension KeyView {
 struct KeyView_Previews: PreviewProvider {
     static var previews: some View {
         KeyView(
-            gpgKey: .init(value: "GPG_PREVIEW", fullName: "Ty", email: "ty@keeta.com"),
+            gpgKey: .init(id: "GPG_ID", value: "GPG_PREVIEW", fullName: "Ty", email: "ty@keeta.com"),
             sshKey: .init(value: "SSH_PREVIEW")
         )
     }

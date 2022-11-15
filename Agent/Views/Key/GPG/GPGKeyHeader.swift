@@ -17,7 +17,7 @@ struct GPGKeyHeader: View {
 #if DEBUG
 struct GPGKeyHeader_Previews: PreviewProvider {
     static var previews: some View {
-        GPGKeyHeader(key: .init(value: "GPG_PREVIEW", fullName: "Ty", email: "ty@keeta.com"))
+        GPGKeyHeader(key: .init(id: "GPG_ID", value: "GPG_PREVIEW", fullName: "Ty", email: "ty@keeta.com"))
     }
 }
 #endif

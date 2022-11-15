@@ -24,6 +24,11 @@ final class KeetaAgent: ObservableObject {
         print(gpgPath)
         
         gpgKey = storage.gpgKey
+        // temporary migration
+        if gpgKey == nil {
+            storage.githubUser = nil
+        }
+        
         sshKey = storage.sshKey
         githubUser = storage.githubUser
         
@@ -36,6 +41,8 @@ final class KeetaAgent: ObservableObject {
         } catch let error {
             logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")
         }
+        
+        checkIfKeyStillExists()
     }
     
     func createNewKey(for name: String, email: String) async -> String? {
@@ -111,6 +118,22 @@ final class KeetaAgent: ObservableObject {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: email)
+    }
+    
+    private func checkIfKeyStillExists() {
+        guard let keyId = gpgKey?.id else { return }
+        
+        Task {
+            if await GPGUtil.keyExists(for: keyId) == false {
+                // reset
+                DispatchQueue.main.async {
+                    self.storage.gpgKey = nil
+                    self.gpgKey = nil
+                    self.storage.githubUser = nil
+                    self.githubUser = nil
+                }
+            }
+        }
     }
     
     private func createSSHKeyIfNeeded(for secret: Secret) {
