@@ -8,21 +8,9 @@ final class Storage {
     private let kvStorage = UserDefaults(suiteName: "KeetaAgent")!
     
     enum Key: String {
-        case gpgKeyUploaded
         case gpgKey
         case sshKey
-        case sshKeyUploaded
         case githubUser
-    }
-    
-    var didUploadSSHKey: Bool {
-        get { kvStorage.bool(forKey: Key.sshKeyUploaded.rawValue) }
-        set { kvStorage.set(newValue, forKey: Key.sshKeyUploaded.rawValue) }
-    }
-    
-    var didUploadGPGKey: Bool {
-        get { kvStorage.bool(forKey: Key.gpgKeyUploaded.rawValue) }
-        set { kvStorage.set(newValue, forKey: Key.gpgKeyUploaded.rawValue) }
     }
     
     var gpgKey: GPGKey? {

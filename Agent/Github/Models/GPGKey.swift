@@ -5,6 +5,7 @@ struct GPGKey: Codable {
     let value: String
     let fullName: String
     let email: String
+    var isUploaded: Bool
     
     static let header = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
     static let footer = "-----END PGP PUBLIC KEY BLOCK-----"

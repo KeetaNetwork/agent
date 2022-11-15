@@ -47,7 +47,7 @@ final class GPGUtil {
         
         let publicKey = try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
         
-        return .init(id: keyId, value: publicKey, fullName: fullName, email: email)
+        return .init(id: keyId, value: publicKey, fullName: fullName, email: email, isUploaded: false)
     }
 
     static func keyExists(for keyId: String) async -> Bool {

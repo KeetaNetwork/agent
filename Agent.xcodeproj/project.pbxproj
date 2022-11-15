@@ -27,6 +27,7 @@
 		0278005C291A699A00B8BA11 /* CopyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278005B291A699A00B8BA11 /* CopyButton.swift */; };
 		02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */ = {isa = PBXBuildFile; productRef = 02780062291A6DBF00B8BA11 /* keeta-secure-storage */; };
 		028637772920C29C000D978D /* SSHKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028637762920C29C000D978D /* SSHKey.swift */; };
+		02AD8F2629243FA50051FE10 /* AxisTooltip in Frameworks */ = {isa = PBXBuildFile; productRef = 02AD8F2529243FA50051FE10 /* AxisTooltip */; };
 		02C9FFB92920C6F8003AF470 /* SSHKeyIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFB82920C6F8003AF470 /* SSHKeyIcon.swift */; };
 		02C9FFBD2920C73A003AF470 /* SSHKeyText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFBC2920C73A003AF470 /* SSHKeyText.swift */; };
 		02C9FFC12920C7B6003AF470 /* SSHKeyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFC02920C7B6003AF470 /* SSHKeyHeader.swift */; };
@@ -137,6 +138,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */,
+				02AD8F2629243FA50051FE10 /* AxisTooltip in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,6 +336,7 @@
 			name = Agent;
 			packageProductDependencies = (
 				02780062291A6DBF00B8BA11 /* keeta-secure-storage */,
+				02AD8F2529243FA50051FE10 /* AxisTooltip */,
 			);
 			productName = "keeta-secretive";
 			productReference = AEB3919F29146F40006A0F88 /* Agent.app */;
@@ -387,6 +390,7 @@
 			mainGroup = AEB3919629146F40006A0F88;
 			packageReferences = (
 				02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */,
+				02AD8F2429243FA50051FE10 /* XCRemoteSwiftPackageReference "AxisTooltip" */,
 			);
 			productRefGroup = AEB391A029146F40006A0F88 /* Products */;
 			projectDirPath = "";
@@ -759,6 +763,14 @@
 				kind = branch;
 			};
 		};
+		02AD8F2429243FA50051FE10 /* XCRemoteSwiftPackageReference "AxisTooltip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jasudev/AxisTooltip.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -766,6 +778,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */;
 			productName = "keeta-secure-storage";
+		};
+		02AD8F2529243FA50051FE10 /* AxisTooltip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02AD8F2429243FA50051FE10 /* XCRemoteSwiftPackageReference "AxisTooltip" */;
+			productName = AxisTooltip;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -65,7 +65,7 @@ private final class API {
     func load<T: Decodable>(from request: URLRequest) async throws -> T {
         let (data, response) = try await session.data(for: request)
         guard let statusCode = (response as? HTTPURLResponse)?.statusCode else { throw NSError(domain: "Invalid response", code: 500) }
-        guard statusCode == 200 else { throw NSError(domain: "Invalid HTTP status code", code: statusCode) }
+        guard (200...300).contains(statusCode) else { throw NSError(domain: "Invalid HTTP status code", code: statusCode) }
         return try decoder.decode(T.self, from: data)
     }
 }

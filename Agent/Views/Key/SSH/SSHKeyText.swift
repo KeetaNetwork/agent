@@ -16,7 +16,7 @@ struct SSHKeyText: View {
 #if DEBUG
 struct SSHKeyText_Previews: PreviewProvider {
     static var previews: some View {
-        SSHKeyText(key: .init(value: "SSH_Preview"))
+        SSHKeyText(key: .init(value: "SSH_Preview", isUploaded: false))
     }
 }
 #endif

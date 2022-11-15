@@ -105,16 +105,27 @@ final class KeetaAgent: ObservableObject {
             }
         }
         
-        if !storage.didUploadGPGKey, let gpg = gpgKey {
-            Task {
+        Task {
+            if var gpg = gpgKey, !gpg.isUploaded {
                 try await githubApi.uploadGPG(key: gpg.value)
-                storage.didUploadGPGKey = true
+                gpg.isUploaded = true
+                storage.gpgKey = gpg
+                
+                DispatchQueue.main.async {
+                    self.gpgKey = self.storage.gpgKey
+                }
             }
         }
         
-        if !storage.didUploadSSHKey, let ssh = sshKey {
-            Task {
+        Task {
+            if var ssh = sshKey, !ssh.isUploaded {
                 try await githubApi.uploadSSH(key: ssh.value)
+                ssh.isUploaded = true
+                storage.sshKey = ssh
+                
+                DispatchQueue.main.async {
+                    self.sshKey = self.storage.sshKey
+                }
             }
         }
     }
@@ -122,6 +133,10 @@ final class KeetaAgent: ObservableObject {
     func logout() {
         githubUser = nil
         storage.githubUser = nil
+        sshKey?.isUploaded = false
+        gpgKey?.isUploaded = false
+        storage.gpgKey = gpgKey
+        storage.sshKey = sshKey
     }
     
     // MARK: Helper
@@ -175,14 +190,12 @@ final class KeetaAgent: ObservableObject {
         
         githubUser = nil
         storage.githubUser = nil
-        storage.didUploadGPGKey = false
-        storage.didUploadSSHKey = false
     }
     
     private func createSSHKeyIfNeeded(for secret: Secret) {
         if sshKey == nil {
             let sshKeyValue = OpenSSHKeyWriter().openSSHString(secret: secret)
-            let sshKey = SSHKey(value: sshKeyValue)
+            let sshKey = SSHKey(value: sshKeyValue, isUploaded: false)
             storage.sshKey = sshKey
             DispatchQueue.main.async { self.sshKey = sshKey }
         }

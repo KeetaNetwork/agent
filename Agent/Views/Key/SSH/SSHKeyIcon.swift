@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SSHKeyIcon: View {
+    let uploaded: Bool
+    
     var body: some View {
         HStack {
             Image("Key")
@@ -17,12 +19,17 @@ struct SSHKeyIcon: View {
             Text("SSH Key")
                 .foregroundColor(KeetaColor.yellow)
                 .font(.title3)
+            if uploaded {
+                Image(systemName: "checkmark.circle")
+                    .help("Uploaded to Github")
+                    .foregroundColor(KeetaColor.green)
+            }
         }
     }
 }
 
 struct SSHKeyIcon_Previews: PreviewProvider {
     static var previews: some View {
-        SSHKeyIcon()
+        SSHKeyIcon(uploaded: false)
     }
 }
