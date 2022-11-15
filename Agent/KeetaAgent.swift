@@ -119,6 +119,11 @@ final class KeetaAgent: ObservableObject {
         }
     }
     
+    func logout() {
+        githubUser = nil
+        storage.githubUser = nil
+    }
+    
     // MARK: Helper
     
     private var isInApplicationsDirectory: Bool {

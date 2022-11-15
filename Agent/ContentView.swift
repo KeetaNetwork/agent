@@ -9,7 +9,7 @@ struct ContentView: View {
         VStack(alignment: .leading) {
             let isReady = keetaAgent.gpgKey != nil && keetaAgent.sshKey != nil
             
-            HeaderView(user: keetaAgent.githubUser, isReady: isReady)
+            HeaderView(user: keetaAgent.githubUser, isReady: isReady, logout: keetaAgent.logout)
                 .padding(.bottom, AgentSpacing.large)
             
             if let gpgKey = keetaAgent.gpgKey, let sshKey = keetaAgent.sshKey {

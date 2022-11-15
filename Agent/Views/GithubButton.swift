@@ -2,13 +2,17 @@ import SwiftUI
 
 struct GithubButton: View {
     @Environment(\.openURL) var openURL
+    @State private var showLogoutConfirmation = false
     
     let user: GithubUser?
+    let logout: () -> Void
     
     var body: some View {
         Button(action: {
             if user == nil {
                 openURL(GithubAPI.githubButtonUrl)
+            } else {
+                showLogoutConfirmation = true
             }
         }) {
             HStack {
@@ -38,6 +42,10 @@ struct GithubButton: View {
             .cornerRadius(25)
         }
         .buttonStyle(.plain)
+        .alert("Do you want to disconnect your GitHub Account?", isPresented: $showLogoutConfirmation) {
+            Button("Logout", action: logout)
+            Button("Cancel", role: .cancel, action: {})
+        }
     }
 }
 
@@ -45,8 +53,8 @@ struct GithubButton: View {
 struct GithubButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            GithubButton(user: nil)
-            GithubButton(user: .init(username: "ty_schenk", avatarUrl: ""))
+            GithubButton(user: nil) {}
+            GithubButton(user: .init(username: "ty_schenk", avatarUrl: "")) {}
         }
     }
 }
