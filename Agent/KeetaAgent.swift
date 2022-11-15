@@ -41,11 +41,7 @@ final class KeetaAgent: ObservableObject {
         
         socket.handler = agent.handle(reader:writer:)
         
-        do {
-            try GPGUtil.writeConfigs()
-        } catch let error {
-            logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")
-        }
+        writeConfigs()
         
         checkIfKeyStillExists()
     }
@@ -58,6 +54,13 @@ final class KeetaAgent: ObservableObject {
         if !isValidEmail(email) {
             return "Please enter a valid email."
         }
+        
+        #if !DEBUG
+        guard isInApplicationsDirectory else {
+            return "Make sure 'Keeta Agent' is located in your Applications directory."
+        }
+        writeConfigs()
+        #endif
         
         do {
             /// Create ECDSA key pair
@@ -118,9 +121,27 @@ final class KeetaAgent: ObservableObject {
     
     // MARK: Helper
     
+    private var isInApplicationsDirectory: Bool {
+        let locations = FileManager.default.urls(for: .applicationDirectory, in: .userDomainMask)
+        let applicationsPath = locations.first!.path
+        return gpgPath.hasPrefix(applicationsPath)
+    }
+    
     private func createHomeDirectory() {
         if !FileManager.default.fileExists(atPath: homeDirectory) {
             try! FileManager.default.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
+        }
+    }
+    
+    private func writeConfigs() {
+        #if !DEBUG
+        guard isInApplicationsDirectory else { return }
+        #endif
+        
+         do {
+            try GPGUtil.writeConfigs()
+        } catch let error {
+            logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")
         }
     }
     

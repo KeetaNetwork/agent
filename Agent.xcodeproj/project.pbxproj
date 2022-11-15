@@ -39,7 +39,7 @@
 		AE8D4F14291C372C00D91FAE /* ConfigWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */; };
 		AE8D4F16291C376000D91FAE /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F15291C376000D91FAE /* Commands.swift */; };
 		AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */; };
-		AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */; };
+		AEB391A329146F40006A0F88 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* App.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
 		AEB391B529146F41006A0F88 /* GrabberTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391B429146F41006A0F88 /* GrabberTests.swift */; };
@@ -106,7 +106,7 @@
 		AE8D4F15291C376000D91FAE /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
 		AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutor.swift; sourceTree = "<group>"; };
 		AEB3919F29146F40006A0F88 /* Agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agent.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keeta_secretiveApp.swift; sourceTree = "<group>"; };
+		AEB391A229146F40006A0F88 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		AEB391A429146F40006A0F88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AEB391A629146F41006A0F88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = keeta_secretive.entitlements; sourceTree = "<group>"; };
@@ -248,7 +248,7 @@
 		AEB391A129146F40006A0F88 /* Agent */ = {
 			isa = PBXGroup;
 			children = (
-				AEB391A229146F40006A0F88 /* keeta_secretiveApp.swift */,
+				AEB391A229146F40006A0F88 /* App.swift */,
 				AEB391A429146F40006A0F88 /* ContentView.swift */,
 				AEF00416291A1AE600EA576C /* Dependencies.swift */,
 				AE75C4ED2922083B0087A584 /* KeetaAgent.swift */,
@@ -432,14 +432,14 @@
 				0278005C291A699A00B8BA11 /* CopyButton.swift in Sources */,
 				AE75C4EA292076300087A584 /* GPGUtil.swift in Sources */,
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
-				AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */,
+				AEB391A329146F40006A0F88 /* App.swift in Sources */,
 				AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */,
 				AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */,
 				02C9FFB92920C6F8003AF470 /* SSHKeyIcon.swift in Sources */,
 				02C9FFC12920C7B6003AF470 /* SSHKeyHeader.swift in Sources */,
 				0278005C291A699A00B8BA11 /* CopyButton.swift in Sources */,
 				AEB391A529146F40006A0F88 /* ContentView.swift in Sources */,
-				AEB391A329146F40006A0F88 /* keeta_secretiveApp.swift in Sources */,
+				AEB391A329146F40006A0F88 /* App.swift in Sources */,
 				AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */,
 				02D9C58A291E139600586CEB /* AgentSpacing.swift in Sources */,
 				AEB391D5291471EE006A0F88 /* RequestType.swift in Sources */,

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct keeta_secretiveApp: App {
+struct KeetaAgentApp: App {
     
     init() {
         Dependencies.all.setup()
