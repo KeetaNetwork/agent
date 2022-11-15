@@ -51,16 +51,12 @@ final class CommandExecutor {
                 env["SSH_AUTH_SOCK"] = socketPath
                 task.environment = env
                 
-                #if DEBUG
                 print("** Run command \(command)")
-                #endif
                 try task.run()
                 
                 let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 let output = String(data: data, encoding: .utf8) ?? ""
-                #if DEBUG
                 print("** Output\n\(output)")
-                #endif
                 continuation.resume(returning: Output(command: command, value: output))
             } catch let error {
                 print(error)
