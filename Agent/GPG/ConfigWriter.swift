@@ -85,30 +85,31 @@ final class ConfigWriter {
         
         let text = config.payload + "\n"
         
-        if config.isCustom {
-            if !fileExists {
-                let data = text.data(using: .utf8)!
-                fileManager.createFile(atPath: fileURL.path, contents: data)
-            }
-        } else {
-            let handle: FileHandle
-            handle = try FileHandle(forUpdating: fileURL)
-            
-            let existing = try handle.readToEnd() ?? .init()
-            let existingString = String(data: existing, encoding: .utf8) ?? ""
-            var existingLines = existingString.split(whereSeparator: \.isNewline)
-            
-            guard !existingLines.contains(where: { $0 == config.payload }) else { return }
-            
-            if let prefix = config.linePrefixToReplace,
-               let indexToReplace = existingLines.firstIndex(where: { $0.hasPrefix(prefix) }) {
-                existingLines.remove(at: indexToReplace)
-            }
-            
-            try handle.seekToEnd()
-            
-            let data = "\n\(text)".data(using: .utf8)!
-            handle.write(data)
+        guard fileExists else {
+            let data = text.data(using: .utf8)!
+            fileManager.createFile(atPath: fileURL.path, contents: data)
+            return
         }
+        
+        guard !config.isCustom else { return }
+        
+        let handle: FileHandle
+        handle = try FileHandle(forUpdating: fileURL)
+        
+        let existing = try handle.readToEnd() ?? .init()
+        let existingString = String(data: existing, encoding: .utf8) ?? ""
+        var existingLines = existingString.split(whereSeparator: \.isNewline)
+        
+        guard !existingLines.contains(where: { $0 == config.payload }) else { return }
+        
+        if let prefix = config.linePrefixToReplace,
+           let indexToReplace = existingLines.firstIndex(where: { $0.hasPrefix(prefix) }) {
+            existingLines.remove(at: indexToReplace)
+        }
+        
+        try handle.seekToEnd()
+        
+        let data = "\n\(text)".data(using: .utf8)!
+        handle.write(data)
     }
 }
