@@ -13,12 +13,6 @@ final class CommandExecutor {
         
         private var name: String { String(describing: command) }
         
-        func expectIsEmpty() throws {
-            if !value.isEmpty {
-                throw NSError(domain: "Output for command: '\(name)' isn't empty!", code: 500)
-            }
-        }
-        
         func grap(_ grabber: (String) -> String?) throws -> String {
             guard let result = grabber(value) else {
                 throw NSError(domain: "Empty result for command: '\(name)'", code: 500)

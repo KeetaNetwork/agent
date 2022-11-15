@@ -1,6 +1,9 @@
 import Foundation
 import OSLog
 
+let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
+let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
+
 final class KeetaAgent: ObservableObject {
     
     @Published private(set) var gpgKey: GPGKey?
@@ -23,10 +26,12 @@ final class KeetaAgent: ObservableObject {
     func setup() {
         print(gpgPath)
         
+        createHomeDirectory()
+        
         gpgKey = storage.gpgKey
         // temporary migration
         if gpgKey == nil {
-            storage.githubUser = nil
+            reset()
         }
         
         sshKey = storage.sshKey
@@ -113,6 +118,12 @@ final class KeetaAgent: ObservableObject {
     
     // MARK: Helper
     
+    private func createHomeDirectory() {
+        if !FileManager.default.fileExists(atPath: homeDirectory) {
+            try! FileManager.default.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
+        }
+    }
+    
     private func isValidEmail(_ email: String) -> Bool {
         guard !email.isEmpty else { return false }
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
@@ -125,15 +136,21 @@ final class KeetaAgent: ObservableObject {
         
         Task {
             if await GPGUtil.keyExists(for: keyId) == false {
-                // reset
                 DispatchQueue.main.async {
-                    self.storage.gpgKey = nil
-                    self.gpgKey = nil
-                    self.storage.githubUser = nil
-                    self.githubUser = nil
+                    self.reset()
                 }
             }
         }
+    }
+    
+    private func reset() {
+        storage.gpgKey = nil
+        gpgKey = nil
+        
+        githubUser = nil
+        storage.githubUser = nil
+        storage.didUploadGPGKey = false
+        storage.didUploadSSHKey = false
     }
     
     private func createSSHKeyIfNeeded(for secret: Secret) {

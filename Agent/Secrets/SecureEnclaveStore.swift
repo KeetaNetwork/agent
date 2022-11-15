@@ -151,27 +151,13 @@ class SecureEnclaveStore: SecretStore {
             partialResult[id] = next
         }
         
-        let authNotRequiredAccessControl: SecAccessControl =
-            SecAccessControlCreateWithFlags(kCFAllocatorDefault,
-                                            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                                            [.privateKeyUsage],
-                                            nil)!
-
         let wrapped: [Secret] = publicTyped.map {
             let name = $0[kSecAttrLabel] as? String ?? "Unnamed"
             let id = $0[kSecAttrApplicationLabel] as! Data
             let publicKeyRef = $0[kSecValueRef] as! SecKey
             let publicKeyAttributes = SecKeyCopyAttributes(publicKeyRef) as! [CFString: Any]
             let publicKey = publicKeyAttributes[kSecValueData] as! Data
-            let privateKey = privateMapped[id]
-            let requiresAuth: Bool
-            if let authRequirements = privateKey?[kSecAttrAccessControl] {
-                // Unfortunately we can't inspect the access control object directly, but it does behave predicatable with equality.
-                requiresAuth = authRequirements as! SecAccessControl != authNotRequiredAccessControl
-            } else {
-                requiresAuth = false
-            }
-            return SecureEnclaveSecret(id: id.base64EncodedString(), name: name, requiresAuthentication: requiresAuth, publicKey: publicKey)
+            return SecureEnclaveSecret(id: id.base64EncodedString(), name: name, publicKey: publicKey)
         }
         secrets.append(contentsOf: wrapped)
     }
@@ -179,14 +165,10 @@ class SecureEnclaveStore: SecretStore {
 
 typealias SecurityError = Unmanaged<CFError>
 
-/// A wrapper around an error code reported by a Keychain API.
 struct KeychainError: Error {
-    /// The status code involved, if one was reported.
     let statusCode: OSStatus?
 }
 
-/// A signing-related error.
 struct SigningError: Error {
-    /// The underlying error reported by the API, if one was returned.
     let error: SecurityError?
 }

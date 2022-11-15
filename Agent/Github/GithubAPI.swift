@@ -1,17 +1,5 @@
 import Foundation
 
-private final class API {
-    var session = URLSession.shared
-    let decoder = JSONDecoder()
-
-    func load<T: Decodable>(from request: URLRequest) async throws -> T {
-        let (data, response) = try await session.data(for: request)
-        guard let statusCode = (response as? HTTPURLResponse)?.statusCode else { throw NSError(domain: "Invalid response", code: 500) }
-        guard statusCode == 200 else { throw NSError(domain: "Invalid HTTP status code", code: statusCode) }
-        return try decoder.decode(T.self, from: data)
-    }
-}
-
 final class GithubAPI {
         
     private let token: String
@@ -22,7 +10,8 @@ final class GithubAPI {
         self.token = token
     }
     
-    static let githubButtonUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:public_key,write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback")!
+    static let githubButtonUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:public_key,write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback"
+    )!
     
     func pullUser() async -> GithubUser? {
         guard let url = URL(string: baseUrl + "/user") else { return nil }
@@ -66,5 +55,17 @@ final class GithubAPI {
         
         let resultData: GithubSSH = try await api.load(from: request)
         debugPrint(resultData)
+    }
+}
+
+private final class API {
+    var session = URLSession.shared
+    let decoder = JSONDecoder()
+
+    func load<T: Decodable>(from request: URLRequest) async throws -> T {
+        let (data, response) = try await session.data(for: request)
+        guard let statusCode = (response as? HTTPURLResponse)?.statusCode else { throw NSError(domain: "Invalid response", code: 500) }
+        guard statusCode == 200 else { throw NSError(domain: "Invalid HTTP status code", code: statusCode) }
+        return try decoder.decode(T.self, from: data)
     }
 }

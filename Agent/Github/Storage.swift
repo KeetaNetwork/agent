@@ -4,8 +4,6 @@ import KeychainSwift
 
 final class Storage {
     
-//    @Published private(set) var user: AgentUser?
-    
     private let secureStorage = SecureStorage(keychain: KeychainSwift())
     private let kvStorage = UserDefaults(suiteName: "KeetaAgent")!
     
@@ -51,42 +49,4 @@ final class Storage {
     private func store<T: Encodable>(_ object: T, for key: Key) {
         try? secureStorage.store(object, for: key.rawValue)
     }
-    
-//    init() {
-//        // attempt to load user details from storage
-//        user = try? storage.object(for: agentUserKey)
-//    }
-//
-////    func storeGithubUser(user: GithubUser, token: String) {
-////        guard let currentUser = self.user else { return }
-////        AgentUser(githubUser: <#T##GithubUser#>, gpgKey: <#T##GPGKey#>, sshKey: <#T##SSHKey#>)
-////
-////        let updatedUser = AgentUser(token: token, github: user, gpgKey: currentUser.gpgKey, sshKey: currentUser.sshKey)
-////        storeUser(user: updatedUser)
-////    }
-//
-//    func generateKeys(name: String, email: String, for user: GithubUser) {
-//        let TEMP_KEY = "TEST KEY ONLY"
-//        let gpgKey = GPGKey(key: TEMP_KEY, fullName: name, email: email)
-//        let sshKey = SSHKey(key: TEMP_KEY)
-//        let agentUser = AgentUser(githubUser: user, gpgKey: gpgKey, sshKey: sshKey)
-//
-////        Task {
-////            try await GithubAPI.uploadGPG(key: gpgKey)
-////            try await GithubAPI.uploadSSH(key: sshKey)
-////        }
-//
-//        storeUser(user: agentUser)
-//    }
-//
-//    // MARK: Helper
-//
-//    private func storeUser(user: AgentUser) {
-//        try? self.storage.store(user, for: agentUserKey)
-//        guard let user: AgentUser = try? storage.object(for: agentUserKey) else { return }
-//
-//        DispatchQueue.main.async {
-//            self.user = user
-//        }
-//    }
 }

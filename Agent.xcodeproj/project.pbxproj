@@ -33,7 +33,6 @@
 		02D9C586291E0D4D00586CEB /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D9C585291E0D4D00586CEB /* GPGKey.swift */; };
 		02D9C58A291E139600586CEB /* AgentSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D9C589291E139600586CEB /* AgentSpacing.swift */; };
 		AE75C4EA292076300087A584 /* GPGUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4E9292076300087A584 /* GPGUtil.swift */; };
-		AE75C4EC2921F0CB0087A584 /* SSHService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4EB2921F0CB0087A584 /* SSHService.swift */; };
 		AE75C4EE2922083B0087A584 /* KeetaAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4ED2922083B0087A584 /* KeetaAgent.swift */; };
 		AE75C4F02922CDC80087A584 /* SigningRequestTracer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4EF2922CDC80087A584 /* SigningRequestTracer.swift */; };
 		AE75C4F22922D00C0087A584 /* SigningRequestProvenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4F12922D00C0087A584 /* SigningRequestProvenance.swift */; };
@@ -100,7 +99,6 @@
 		02D9C585291E0D4D00586CEB /* GPGKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKey.swift; sourceTree = "<group>"; };
 		02D9C589291E139600586CEB /* AgentSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentSpacing.swift; sourceTree = "<group>"; };
 		AE75C4E9292076300087A584 /* GPGUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGUtil.swift; sourceTree = "<group>"; };
-		AE75C4EB2921F0CB0087A584 /* SSHService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHService.swift; sourceTree = "<group>"; };
 		AE75C4ED2922083B0087A584 /* KeetaAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeetaAgent.swift; sourceTree = "<group>"; };
 		AE75C4EF2922CDC80087A584 /* SigningRequestTracer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningRequestTracer.swift; sourceTree = "<group>"; };
 		AE75C4F12922D00C0087A584 /* SigningRequestProvenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningRequestProvenance.swift; sourceTree = "<group>"; };
@@ -310,7 +308,6 @@
 			isa = PBXGroup;
 			children = (
 				AE75C4E9292076300087A584 /* GPGUtil.swift */,
-				AE75C4EB2921F0CB0087A584 /* SSHService.swift */,
 				AE8D4F15291C376000D91FAE /* Commands.swift */,
 				AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */,
 				AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */,
@@ -449,7 +446,6 @@
 				AEB392342919CB9C006A0F88 /* Data+Extract.swift in Sources */,
 				0278005A291A696400B8BA11 /* GPGKeyIcon.swift in Sources */,
 				0278005A291A696400B8BA11 /* GPGKeyIcon.swift in Sources */,
-				AE75C4EC2921F0CB0087A584 /* SSHService.swift in Sources */,
 				AEB391D729147208006A0F88 /* ResponseType.swift in Sources */,
 				AE8D4F14291C372C00D91FAE /* ConfigWriter.swift in Sources */,
 				02577377291B56B5003E0889 /* GithubGPG.swift in Sources */,

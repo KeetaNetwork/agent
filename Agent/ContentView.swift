@@ -2,11 +2,13 @@ import Foundation
 import SwiftUI
 
 struct ContentView: View {
+    
     @ObservedObject var keetaAgent: KeetaAgent = Dependencies.all.keetaAgent
     
     var body: some View {
         VStack(alignment: .leading) {
             let isReady = keetaAgent.gpgKey != nil && keetaAgent.sshKey != nil
+            
             HeaderView(user: keetaAgent.githubUser, isReady: isReady)
                 .padding(.bottom, AgentSpacing.large)
             
@@ -17,6 +19,7 @@ struct ContentView: View {
             }
             
             Spacer()
+            
             KeetaButton()
         }
         .padding(AgentSpacing.large)
@@ -25,8 +28,10 @@ struct ContentView: View {
     }
 }
 
+#if DEBUG
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
 }
+#endif

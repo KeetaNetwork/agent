@@ -45,8 +45,8 @@ final class Grabber {
     }
     
     static func gpgKey(from output: String) -> String? {
-        let start = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
-        let end = "-----END PGP PUBLIC KEY BLOCK-----"
+        let start = GPGKey.header
+        let end = GPGKey.footer
         
         let hasPrefix = output.hasPrefix(start)
         let hasSuffix = output.hasSuffix(end)

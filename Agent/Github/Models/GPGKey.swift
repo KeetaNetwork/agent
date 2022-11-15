@@ -6,9 +6,12 @@ struct GPGKey: Codable {
     let fullName: String
     let email: String
     
+    static let header = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
+    static let footer = "-----END PGP PUBLIC KEY BLOCK-----"
+    
     var displayValue: String {
-        let start = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
-        let end = "-----END PGP PUBLIC KEY BLOCK-----"
+        let start = Self.header
+        let end = Self.footer
         let newLine = "\n"
         
         var displayValue = value
