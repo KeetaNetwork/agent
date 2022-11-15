@@ -6,16 +6,12 @@ enum Config {
     case gpgAgent(pkcs11Path: String)
     case gnupgPkcs11(libsshPath: String)
     
-    var linesToRemoveWithPrefix: [String] {
+    var linePrefixToReplace: String? {
         switch self {
         case .socketAuth:
-            return ["export SSH_AUTH_SOCK"]
-        case .gpg:
-            return ["agent-program"]
-        case .gpgAgent:
-            return ["scdaemon-program"]
-        case .gnupgPkcs11:
-            return ["providers", "provider-keeta-library"]
+            return "export SSH_AUTH_SOCK"
+        case .gpg, .gpgAgent, .gnupgPkcs11:
+            return nil
         }
     }
     
@@ -38,6 +34,15 @@ enum Config {
             return nil
         case .gpg, .gpgAgent, .gnupgPkcs11:
             return configFolderName
+        }
+    }
+    
+    var isCustom: Bool {
+        switch self {
+        case .socketAuth:
+            return false
+        case .gpg, .gpgAgent, .gnupgPkcs11:
+            return true
         }
     }
     
@@ -76,34 +81,34 @@ final class ConfigWriter {
         }
         
         let fileURL = URL(fileURLWithPath: filePath.appending("/\(config.filename)"))
-        let text = config.payload
+        let fileExists = fileManager.fileExists(atPath: fileURL.absoluteString)
         
-        guard fileManager.fileExists(atPath: fileURL.path) else {
-            let data = text.data(using: .utf8)!
-            fileManager.createFile(atPath: fileURL.path, contents: data)
-            return
-        }
+        let text = config.payload + "\n"
         
-        let handle: FileHandle
-        handle = try FileHandle(forUpdating: fileURL)
-        
-        let existing = try handle.readToEnd() ?? .init()
-        let existingString = String(data: existing, encoding: .utf8) ?? ""
-        var existingLines = existingString.split(whereSeparator: \.isNewline)
-        
-        config.linesToRemoveWithPrefix.forEach { prefixToRemove in
-            let indexesToRemove: [Int] = existingLines.enumerated()
-                .compactMap { $0.element.hasPrefix(prefixToRemove) ? $0.offset : nil }
+        if config.isCustom {
+            if !fileExists {
+                let data = text.data(using: .utf8)!
+                fileManager.createFile(atPath: fileURL.path, contents: data)
+            }
+        } else {
+            let handle: FileHandle
+            handle = try FileHandle(forUpdating: fileURL)
             
-            indexesToRemove.forEach { existingLines.remove(at: $0) }
+            let existing = try handle.readToEnd() ?? .init()
+            let existingString = String(data: existing, encoding: .utf8) ?? ""
+            var existingLines = existingString.split(whereSeparator: \.isNewline)
+            
+            guard !existingLines.contains(where: { $0 == config.payload }) else { return }
+            
+            if let prefix = config.linePrefixToReplace,
+               let indexToReplace = existingLines.firstIndex(where: { $0.hasPrefix(prefix) }) {
+                existingLines.remove(at: indexToReplace)
+            }
+            
+            try handle.seekToEnd()
+            
+            let data = "\n\(text)".data(using: .utf8)!
+            handle.write(data)
         }
-        
-        // TODO: check if line isn't a comment
-        guard !existingString.contains(text) else { return }
-        
-        try handle.seekToEnd()
-        
-        let data = "\n\(text)\n".data(using: .utf8)!
-        handle.write(data)
     }
 }

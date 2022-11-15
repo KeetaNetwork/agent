@@ -2,7 +2,7 @@ import Foundation
 import keeta_secure_storage
 import KeychainSwift
 
-final class Storage: GPGStore {
+final class Storage {
     
 //    @Published private(set) var user: AgentUser?
     
@@ -10,7 +10,6 @@ final class Storage: GPGStore {
     private let kvStorage = UserDefaults(suiteName: "KeetaAgent")!
     
     enum Key: String {
-        case gpgConfigSetup
         case gpgKeyUploaded
         case gpgKey
         case sshKey
@@ -26,11 +25,6 @@ final class Storage: GPGStore {
     var didUploadGPGKey: Bool {
         get { kvStorage.bool(forKey: Key.gpgKeyUploaded.rawValue) }
         set { kvStorage.set(newValue, forKey: Key.gpgKeyUploaded.rawValue) }
-    }
-    
-    var didWriteGPGConfigs: Bool {
-        get { kvStorage.bool(forKey: Key.gpgConfigSetup.rawValue) }
-        set { kvStorage.set(newValue, forKey: Key.gpgConfigSetup.rawValue) }
     }
     
     var gpgKey: GPGKey? {

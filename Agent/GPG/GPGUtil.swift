@@ -8,11 +8,6 @@ let gpgAgentConnectPath = Bundle.main.url(forResource: "gnupg/bin/gpg-connect-ag
 let pkcs11Path = Bundle.main.url(forResource: "gnupg/bin/gnupg-pkcs11-scd", withExtension: "")!.path
 let libsshPath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-provider", withExtension: "dylib")!.path
 
-protocol GPGStore: AnyObject {
-    var didWriteGPGConfigs: Bool { get set }
-    var gpgKey: GPGKey? { get set }
-}
-
 final class GPGUtil {
     
     private static let keyCurve = "nistp256"
@@ -25,7 +20,7 @@ final class GPGUtil {
     }
     
     static func createGpgKey(fullName: String, email: String) async throws -> GPGKey {
-        try await CommandExecutor.execute(.killGPGConf).expectIsEmpty()
+        try await CommandExecutor.execute(.killGPGConf)
         
         let keyGrip = try await CommandExecutor.execute(.setupGPGAgent).grap(Grabber.keyGrip)
         

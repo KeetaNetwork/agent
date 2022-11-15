@@ -31,11 +31,8 @@ final class KeetaAgent: ObservableObject {
         
         socket.handler = agent.handle(reader:writer:)
         
-        guard !storage.didWriteGPGConfigs else { return }
-        
         do {
             try GPGUtil.writeConfigs()
-            storage.didWriteGPGConfigs = true
         } catch let error {
             logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")
         }
