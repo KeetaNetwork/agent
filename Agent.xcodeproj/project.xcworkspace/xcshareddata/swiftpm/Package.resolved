@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "axistooltip",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/jasudev/AxisTooltip.git",
-      "state" : {
-        "revision" : "ed9f7acbbd54dc3ab70585c0cd006974b532e998",
-        "version" : "0.5.0"
-      }
-    },
-    {
       "identity" : "keeta-storage",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/KeetaPay/keeta-storage.git",

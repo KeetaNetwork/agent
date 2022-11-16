@@ -26,7 +26,6 @@
 		0278005C291A699A00B8BA11 /* CopyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278005B291A699A00B8BA11 /* CopyButton.swift */; };
 		02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */ = {isa = PBXBuildFile; productRef = 02780062291A6DBF00B8BA11 /* keeta-secure-storage */; };
 		028637772920C29C000D978D /* SSHKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028637762920C29C000D978D /* SSHKey.swift */; };
-		02AD8F2629243FA50051FE10 /* AxisTooltip in Frameworks */ = {isa = PBXBuildFile; productRef = 02AD8F2529243FA50051FE10 /* AxisTooltip */; };
 		02C9FFB92920C6F8003AF470 /* KeyIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFB82920C6F8003AF470 /* KeyIcon.swift */; };
 		02C9FFBD2920C73A003AF470 /* SSHKeyText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFBC2920C73A003AF470 /* SSHKeyText.swift */; };
 		02C9FFC12920C7B6003AF470 /* SSHKeyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFC02920C7B6003AF470 /* SSHKeyHeader.swift */; };
@@ -39,11 +38,12 @@
 		AE8D4F14291C372C00D91FAE /* ConfigWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */; };
 		AE8D4F16291C376000D91FAE /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D4F15291C376000D91FAE /* Commands.swift */; };
 		AE9F8B5D292462F600918314 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8B5C292462F600918314 /* PreviewData.swift */; };
+		AE9F8B652925543500918314 /* SetupTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8B622925541300918314 /* SetupTest.swift */; };
+		AE9F8B662925543900918314 /* GrabberTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8B612925541300918314 /* GrabberTests.swift */; };
 		AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */; };
 		AEB391A329146F40006A0F88 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* App.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
 		AEB391A729146F41006A0F88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEB391A629146F41006A0F88 /* Assets.xcassets */; };
-		AEB391B529146F41006A0F88 /* GrabberTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391B429146F41006A0F88 /* GrabberTests.swift */; };
 		AEB391CF291470A9006A0F88 /* SocketController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391CE291470A9006A0F88 /* SocketController.swift */; };
 		AEB391D1291470E1006A0F88 /* FileHandle+ReadWrite.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391D0291470E1006A0F88 /* FileHandle+ReadWrite.swift */; };
 		AEB391D329147145006A0F88 /* SSHAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391D229147145006A0F88 /* SSHAgent.swift */; };
@@ -60,7 +60,6 @@
 		AEEB99BA291B188E009557BC /* Grabber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEB99B9291B188E009557BC /* Grabber.swift */; };
 		AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF00416291A1AE600EA576C /* Dependencies.swift */; };
 		AEFA7467291C78DF00066571 /* gnupg in Resources */ = {isa = PBXBuildFile; fileRef = AEFA7466291C78DF00066571 /* gnupg */; };
-		AEFA746D291D9AF400066571 /* SetupTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEFA746C291D9AF400066571 /* SetupTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +104,8 @@
 		AE8D4F13291C372C00D91FAE /* ConfigWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigWriter.swift; sourceTree = "<group>"; };
 		AE8D4F15291C376000D91FAE /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
 		AE9F8B5C292462F600918314 /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		AE9F8B612925541300918314 /* GrabberTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GrabberTests.swift; sourceTree = "<group>"; };
+		AE9F8B622925541300918314 /* SetupTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetupTest.swift; sourceTree = "<group>"; };
 		AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutor.swift; sourceTree = "<group>"; };
 		AEB3919F29146F40006A0F88 /* Agent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEB391A229146F40006A0F88 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
@@ -112,7 +113,6 @@
 		AEB391A629146F41006A0F88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AEB391AB29146F41006A0F88 /* keeta_secretive.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = keeta_secretive.entitlements; sourceTree = "<group>"; };
 		AEB391B029146F41006A0F88 /* AgentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AgentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AEB391B429146F41006A0F88 /* GrabberTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrabberTests.swift; sourceTree = "<group>"; };
 		AEB391CE291470A9006A0F88 /* SocketController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketController.swift; sourceTree = "<group>"; };
 		AEB391D0291470E1006A0F88 /* FileHandle+ReadWrite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileHandle+ReadWrite.swift"; sourceTree = "<group>"; };
 		AEB391D229147145006A0F88 /* SSHAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHAgent.swift; sourceTree = "<group>"; };
@@ -129,7 +129,6 @@
 		AEEB99B9291B188E009557BC /* Grabber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grabber.swift; sourceTree = "<group>"; };
 		AEF00416291A1AE600EA576C /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		AEFA7466291C78DF00066571 /* gnupg */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gnupg; sourceTree = "<group>"; };
-		AEFA746C291D9AF400066571 /* SetupTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,7 +137,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */,
-				02AD8F2629243FA50051FE10 /* AxisTooltip in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,11 +234,20 @@
 			path = PreviewData;
 			sourceTree = "<group>";
 		};
+		AE9F8B602925541300918314 /* keeta-secretiveTests */ = {
+			isa = PBXGroup;
+			children = (
+				AE9F8B612925541300918314 /* GrabberTests.swift */,
+				AE9F8B622925541300918314 /* SetupTest.swift */,
+			);
+			path = "keeta-secretiveTests";
+			sourceTree = "<group>";
+		};
 		AEB3919629146F40006A0F88 = {
 			isa = PBXGroup;
 			children = (
 				AEB391A129146F40006A0F88 /* Agent */,
-				AEB391B329146F41006A0F88 /* keeta-secretiveTests */,
+				AE9F8B602925541300918314 /* keeta-secretiveTests */,
 				AEB391A029146F40006A0F88 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -274,15 +281,6 @@
 				02780045291A4FB200B8BA11 /* Info.plist */,
 			);
 			path = Agent;
-			sourceTree = "<group>";
-		};
-		AEB391B329146F41006A0F88 /* keeta-secretiveTests */ = {
-			isa = PBXGroup;
-			children = (
-				AEB391B429146F41006A0F88 /* GrabberTests.swift */,
-				AEFA746C291D9AF400066571 /* SetupTest.swift */,
-			);
-			path = "keeta-secretiveTests";
 			sourceTree = "<group>";
 		};
 		AEB391CD29147097006A0F88 /* SSH Agent */ = {
@@ -344,7 +342,6 @@
 			name = Agent;
 			packageProductDependencies = (
 				02780062291A6DBF00B8BA11 /* keeta-secure-storage */,
-				02AD8F2529243FA50051FE10 /* AxisTooltip */,
 			);
 			productName = "keeta-secretive";
 			productReference = AEB3919F29146F40006A0F88 /* Agent.app */;
@@ -398,7 +395,6 @@
 			mainGroup = AEB3919629146F40006A0F88;
 			packageReferences = (
 				02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */,
-				02AD8F2429243FA50051FE10 /* XCRemoteSwiftPackageReference "AxisTooltip" */,
 			);
 			productRefGroup = AEB391A029146F40006A0F88 /* Products */;
 			projectDirPath = "";
@@ -494,8 +490,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEB391B529146F41006A0F88 /* GrabberTests.swift in Sources */,
-				AEFA746D291D9AF400066571 /* SetupTest.swift in Sources */,
+				AE9F8B652925543500918314 /* SetupTest.swift in Sources */,
+				AE9F8B662925543900918314 /* GrabberTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -770,14 +766,6 @@
 				kind = branch;
 			};
 		};
-		02AD8F2429243FA50051FE10 /* XCRemoteSwiftPackageReference "AxisTooltip" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/jasudev/AxisTooltip.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.5.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -785,11 +773,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */;
 			productName = "keeta-secure-storage";
-		};
-		02AD8F2529243FA50051FE10 /* AxisTooltip */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 02AD8F2429243FA50051FE10 /* XCRemoteSwiftPackageReference "AxisTooltip" */;
-			productName = AxisTooltip;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
