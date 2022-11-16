@@ -6,7 +6,7 @@ struct SSHKeyHeader: View {
     
     var body: some View {
         HStack {
-            SSHKeyIcon(uploaded: key.isUploaded)
+            KeyIcon(keyType: .ssh, uploaded: key.isUploaded)
             Spacer()
             CopyButton(value: key.value)
         }
@@ -17,7 +17,7 @@ struct SSHKeyHeader: View {
 #if DEBUG
 struct SSHKeyHeader_Previews: PreviewProvider {
     static var previews: some View {
-        SSHKeyHeader(key: .init(value: "SSH_Preview", isUploaded: true))
+        SSHKeyHeader(key: .preview())
     }
 }
 #endif

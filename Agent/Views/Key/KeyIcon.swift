@@ -1,13 +1,19 @@
-//
-//  SSHKeyIcon.swift
-//  Agent
-//
-//  Created by Ty Schenk on 11/12/22.
-//
-
 import SwiftUI
 
-struct SSHKeyIcon: View {
+struct KeyIcon: View {
+    
+    enum KeyType {
+        case gpg, ssh
+        
+        var title: String {
+            switch self {
+            case .gpg: return "GPG Key"
+            case .ssh: return "SSH Key"
+            }
+        }
+    }
+    
+    let keyType: KeyType
     let uploaded: Bool
     
     var body: some View {
@@ -16,7 +22,7 @@ struct SSHKeyIcon: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 24, height: 24)
-            Text("SSH Key")
+            Text(keyType.title)
                 .foregroundColor(KeetaColor.yellow)
                 .font(.title3)
             if uploaded {
@@ -28,8 +34,15 @@ struct SSHKeyIcon: View {
     }
 }
 
+#if DEBUG
 struct SSHKeyIcon_Previews: PreviewProvider {
     static var previews: some View {
-        SSHKeyIcon(uploaded: false)
+        VStack {
+            KeyIcon(keyType: .gpg, uploaded: false)
+            KeyIcon(keyType: .gpg, uploaded: true)
+            KeyIcon(keyType: .ssh, uploaded: false)
+            KeyIcon(keyType: .ssh, uploaded: true)
+        }
     }
 }
+#endif

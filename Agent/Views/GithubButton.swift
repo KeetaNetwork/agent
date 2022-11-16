@@ -54,7 +54,7 @@ struct GithubButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             GithubButton(user: nil) {}
-            GithubButton(user: .init(username: "ty_schenk", avatarUrl: "")) {}
+            GithubButton(user: .preview) {}
         }
     }
 }

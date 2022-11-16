@@ -25,8 +25,8 @@ struct HeaderView: View {
 struct HeaderView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            HeaderView(user: .init(username: "ty_schenk", avatarUrl: ""), isReady: false) {}
-            HeaderView(user: .init(username: "ty_schenk", avatarUrl: ""), isReady: true) {}
+            HeaderView(user: .preview, isReady: false) {}
+            HeaderView(user: .preview, isReady: true) {}
         }
     }
 }

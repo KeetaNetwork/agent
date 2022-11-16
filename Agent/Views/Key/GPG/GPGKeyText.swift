@@ -16,7 +16,7 @@ struct GPGKeyText: View {
 #if DEBUG
 struct GPGKeyText_Previews: PreviewProvider {
     static var previews: some View {
-        GPGKeyText(key: .init(id: "GPG_ID", value: "GPG_PREVIEW", fullName: "Ty", email: "ty@keeta.com", isUploaded: true))
+        GPGKeyText(key: .preview())
     }
 }
 #endif
