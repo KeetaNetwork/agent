@@ -81,7 +81,7 @@ final class ConfigWriter {
         }
         
         let fileURL = URL(fileURLWithPath: filePath.appending("/\(config.filename)"))
-        let fileExists = fileManager.fileExists(atPath: fileURL.absoluteString)
+        let fileExists = fileManager.fileExists(atPath: fileURL.path)
         
         let text = config.payload + "\n"
         
