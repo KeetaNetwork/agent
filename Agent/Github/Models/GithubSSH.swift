@@ -8,7 +8,7 @@
 import Foundation
 
 struct GithubSSH: Codable {
-    let id: String
+    let id: Int
     let title: String
     let key: String
     let verified: Bool

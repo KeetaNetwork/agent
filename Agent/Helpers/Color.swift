@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct KeetaColor {
+    static let green = Color("KeetaGreen")
     static let yellow = Color("KeetaYellow")
     static let red = Color("KeetaRed")
     static let black = Color("KeetaBlack")

@@ -19,25 +19,6 @@ struct OpenSSHKeyWriter {
             .compactMap { $0 }
             .joined(separator: " ")
     }
-
-    /// Generates an OpenSSH SHA256 fingerprint string.
-    /// - Returns: OpenSSH SHA256 fingerprint string.
-    func openSSHSHA256Fingerprint<SecretType: Secret>(secret: SecretType) -> String {
-        // OpenSSL format seems to strip the padding at the end.
-        let base64 = Data(SHA256.hash(data: data(secret: secret))).base64EncodedString()
-        let paddingRange = base64.index(base64.endIndex, offsetBy: -2)..<base64.endIndex
-        let cleaned = base64.replacingOccurrences(of: "=", with: "", range: paddingRange)
-        return "SHA256:\(cleaned)"
-    }
-
-    /// Generates an OpenSSH MD5 fingerprint string.
-    /// - Returns: OpenSSH MD5 fingerprint string.
-    func openSSHMD5Fingerprint<SecretType: Secret>(secret: SecretType) -> String {
-        Insecure.MD5.hash(data: data(secret: secret))
-            .compactMap { ("0" + String($0, radix: 16, uppercase: false)).suffix(2) }
-            .joined(separator: ":")
-    }
-
 }
 
 extension OpenSSHKeyWriter {

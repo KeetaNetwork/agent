@@ -1,0 +1,36 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GNUPG 7 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B GnuPG
+\- The GNU Privacy Guard suite of programs
+.SH DESCRIPTION
+GnuPG is a set of programs for public key encryption and digital
+signatures.  The program most users will want to use is the OpenPGP
+command line tool, named \fBgpg2\fR.  \fBgpgv\fRis a stripped
+down version of \fBgpg2\fR with no encryption functionality, used
+only to verify signatures against a trusted keyring.  \fBgpgsm\fR is
+the X.509/CMS (for S/MIME) counterpart of
+\fBgpg2\fR. \fBgpg-agent\fR is a passphrase and private key
+daemon which may also emulate the \fBssh-agent\fR.
+.SH SEE ALSO
+\fBgpg\fR(1), 
+\fBgpg2\fR(1), 
+\fBgpgv\fR(1), 
+\fBgpgsm\fR(1), 
+\fBgpg-agent\fR(1), 
+\fBdirmngr\fR(8), 
+\fBscdaemon\fR(1)
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.
+

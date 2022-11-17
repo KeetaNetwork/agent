@@ -1,0 +1,4536 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPG 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpg
+\- OpenPGP encryption and signing tool
+.SH SYNOPSIS
+.B  gpg
+.RB [ \-\-homedir
+.IR dir ]
+.RB [ \-\-options
+.IR file ]
+.RI [ options ]
+.I command
+.RI [ args ]
+
+
+
+.SH DESCRIPTION
+\fBgpg\fR is the OpenPGP part of the GNU Privacy Guard (GnuPG). It
+is a tool to provide digital encryption and signing services using the
+OpenPGP standard. \fBgpg\fR features complete key management and
+all the bells and whistles you would expect from a full OpenPGP
+implementation.
+
+There are two main versions of GnuPG: GnuPG 1.x and GnuPG 2.x.  GnuPG
+2.x supports modern encryption algorithms and thus should be preferred
+over GnuPG 1.x.  You only need to use GnuPG 1.x if your platform
+doesn't support GnuPG 2.x, or you need support for some features that
+GnuPG 2.x has deprecated, e.g., decrypting data created with PGP-2
+keys.
+
+If you are looking for version 1 of GnuPG, you may find that version
+installed under the name \fBgpg1\fR.
+
+
+
+
+
+
+.SH RETURN VALUE
+
+The program returns 0 if there are no severe errors, 1 if at least a
+signature was bad, and other error codes for fatal errors.
+
+Note that signature verification requires exact knowledge of what has
+been signed and by whom it has been signed.  Using only the return code
+is thus not an appropriate way to verify a signature by a script.
+Either make proper use or the status codes or use the \fBgpgv\fR
+tool which has been designed to make signature verification easy for
+scripts.
+
+.SH WARNINGS
+
+Use a good password for your user account and make sure that all
+security issues are always fixed on your machine.  Also employ
+diligent physical protection to your machine.  Consider to use a good
+passphrase as a last resort protection to your secret key in the case
+your machine gets stolen.  It is important that your secret key is
+never leaked.  Using an easy to carry around token or smartcard with
+the secret key is often a advisable.
+
+If you are going to verify detached signatures, make sure that the
+program knows about it; either give both filenames on the command line
+or use \(oq-\(cq to specify STDIN.
+
+For scripted or other unattended use of \fBgpg\fR make sure to use
+the machine-parseable interface and not the default interface which is
+intended for direct use by humans.  The machine-parseable interface
+provides a stable and well documented API independent of the locale or
+future changes of \fBgpg\fR.  To enable this interface use the
+options \fB--with-colons\fR and \fB--status-fd\fR.  For certain
+operations the option \fB--command-fd\fR may come handy too.  See
+this man page and the file \(oq\fIDETAILS\fR\(cq for the specification of the
+interface.  Note that the GnuPG ``info'' pages as well as the PDF
+version of the GnuPG manual features a chapter on unattended use of
+GnuPG.  As an alternative the library \fBGPGME\fR can be used as a
+high-level abstraction on top of that interface.
+
+.SH INTEROPERABILITY
+
+GnuPG tries to be a very flexible implementation of the OpenPGP
+standard. In particular, GnuPG implements many of the optional parts
+of the standard, such as the SHA-512 hash, and the ZLIB and BZIP2
+compression algorithms. It is important to be aware that not all
+OpenPGP programs implement these optional algorithms and that by
+forcing their use via the \fB--cipher-algo\fR,
+\fB--digest-algo\fR, \fB--cert-digest-algo\fR, or
+\fB--compress-algo\fR options in GnuPG, it is possible to create a
+perfectly valid OpenPGP message, but one that cannot be read by the
+intended recipient.
+
+There are dozens of variations of OpenPGP programs available, and each
+supports a slightly different subset of these optional algorithms.
+For example, until recently, no (unhacked) version of PGP supported
+the BLOWFISH cipher algorithm. A message using BLOWFISH simply could
+not be read by a PGP user. By default, GnuPG uses the standard
+OpenPGP preferences system that will always do the right thing and
+create messages that are usable by all recipients, regardless of which
+OpenPGP program they use. Only override this safe default if you
+really know what you are doing.
+
+If you absolutely must override the safe default, or if the preferences
+on a given key are invalid for some reason, you are far better off using
+the \fB--pgp6\fR, \fB--pgp7\fR, or \fB--pgp8\fR options. These
+options are safe as they do not force any particular algorithms in
+violation of OpenPGP, but rather reduce the available algorithms to a
+"PGP-safe" list.
+
+.SH COMMANDS
+
+Commands are not distinguished from options except for the fact that
+only one command is allowed.  Generally speaking, irrelevant options
+are silently ignored, and may not be checked for correctness.
+
+\fBgpg\fR may be run with no commands. In this case it will
+print a warning perform a reasonable action depending on the type of
+file it is given as input (an encrypted message is decrypted, a
+signature is verified, a file containing keys is listed, etc.).
+
+If you run into any problems, please add the option \fB--verbose\fR
+to the invocation to see more diagnostics.
+
+
+
+
+
+.SS  Commands not specific to the function
+\ 
+
+.TP
+.B  --version
+Print the program version and licensing information.  Note that you
+cannot abbreviate this command.
+
+.TP
+.B  --help
+.TQ
+.B  -h
+Print a usage message summarizing the most useful command-line options.
+Note that you cannot arbitrarily abbreviate this command
+(though you can use its short form \fB-h\fR).
+
+.TP
+.B  --warranty
+Print warranty information.
+
+.TP
+.B  --dump-options
+Print a list of all available options and commands.  Note that you cannot
+abbreviate this command.
+.P
+
+
+
+.SS  Commands to select the type of operation
+\ 
+
+
+
+.TP
+.B  --sign
+.TQ
+.B  -s
+Sign a message. This command may be combined with \fB--encrypt\fR
+(to sign and encrypt a message), \fB--symmetric\fR (to sign and
+symmetrically encrypt a message), or both \fB--encrypt\fR and
+\fB--symmetric\fR (to sign and encrypt a message that can be
+decrypted using a secret key or a passphrase).  The signing key is
+chosen by default or can be set explicitly using the
+\fB--local-user\fR and \fB--default-key\fR options.
+
+.TP
+.B  --clear-sign
+.TQ
+.B  --clearsign
+Make a cleartext signature.  The content in a cleartext signature is
+readable without any special software. OpenPGP software is only needed
+to verify the signature.  cleartext signatures may modify end-of-line
+whitespace for platform independence and are not intended to be
+reversible.  The signing key is chosen by default or can be set
+explicitly using the \fB--local-user\fR and \fB--default-key\fR
+options.
+
+
+.TP
+.B  --detach-sign
+.TQ
+.B  -b
+Make a detached signature.
+
+.TP
+.B  --encrypt
+.TQ
+.B  -e
+Encrypt data to one or more public keys. This command may be combined
+with \fB--sign\fR (to sign and encrypt a message),
+\fB--symmetric\fR (to encrypt a message that can be decrypted using a
+secret key or a passphrase), or \fB--sign\fR and
+\fB--symmetric\fR together (for a signed message that can be
+decrypted using a secret key or a passphrase).  \fB--recipient\fR
+and related options specify which public keys to use for encryption.
+
+.TP
+.B  --symmetric
+.TQ
+.B  -c
+Encrypt with a symmetric cipher using a passphrase. The default
+symmetric cipher used is AES-128, but may be chosen with the
+\fB--cipher-algo\fR option. This command may be combined with
+\fB--sign\fR (for a signed and symmetrically encrypted message),
+\fB--encrypt\fR (for a message that may be decrypted via a secret key
+or a passphrase), or \fB--sign\fR and \fB--encrypt\fR together
+(for a signed message that may be decrypted via a secret key or a
+passphrase).  \fBgpg\fR caches the passphrase used for
+symmetric encryption so that a decrypt operation may not require that
+the user needs to enter the passphrase.  The option
+\fB--no-symkey-cache\fR can be used to disable this feature.
+
+.TP
+.B  --store
+Store only (make a simple literal data packet).
+
+.TP
+.B  --decrypt
+.TQ
+.B  -d
+Decrypt the file given on the command line (or STDIN if no file
+is specified) and write it to STDOUT (or the file specified with
+\fB--output\fR). If the decrypted file is signed, the signature is also
+verified. This command differs from the default operation, as it never
+writes to the filename which is included in the file and it rejects
+files that don't begin with an encrypted message.
+
+.TP
+.B  --verify
+Assume that the first argument is a signed file and verify it without
+generating any output.  With no arguments, the signature packet is
+read from STDIN.  If only one argument is given, the specified file is
+expected to include a complete signature.
+
+With more than one argument, the first argument should specify a file
+with a detached signature and the remaining files should contain the
+signed data. To read the signed data from STDIN, use \(oq-\(cq as the
+second filename.  For security reasons, a detached signature will not
+read the signed material from STDIN if not explicitly specified.
+
+Note: If the option \fB--batch\fR is not used, \fBgpg\fR
+may assume that a single argument is a file with a detached signature,
+and it will try to find a matching data file by stripping certain
+suffixes.  Using this historical feature to verify a detached
+signature is strongly discouraged; you should always specify the data file
+explicitly.
+
+Note: When verifying a cleartext signature, \fBgpg\fR verifies
+only what makes up the cleartext signed data and not any extra data
+outside of the cleartext signature or the header lines directly following
+the dash marker line.  The option \fB--output\fR may be used to write
+out the actual signed data, but there are other pitfalls with this
+format as well.  It is suggested to avoid cleartext signatures in
+favor of detached signatures.
+
+Note: Sometimes the use of the \fBgpgv\fR tool is easier than
+using the full-fledged \fBgpg\fR with this option.  \fBgpgv\fR
+is designed to compare signed data against a list of trusted keys and
+returns with success only for a good signature.  It has its own manual
+page.
+
+
+.TP
+.B  --multifile
+This modifies certain other commands to accept multiple files for
+processing on the command line or read from STDIN with each filename on
+a separate line. This allows for many files to be processed at
+once. \fB--multifile\fR may currently be used along with
+\fB--verify\fR, \fB--encrypt\fR, and \fB--decrypt\fR. Note that
+\fB--multifile --verify\fR may not be used with detached signatures.
+
+.TP
+.B  --verify-files
+Identical to \fB--multifile --verify\fR.
+
+.TP
+.B  --encrypt-files
+Identical to \fB--multifile --encrypt\fR.
+
+.TP
+.B  --decrypt-files
+Identical to \fB--multifile --decrypt\fR.
+
+.TP
+.B  --list-keys
+.TQ
+.B  -k
+.TQ
+.B  --list-public-keys
+List the specified keys.  If no keys are specified, then all keys from
+the configured public keyrings are listed.
+
+Never use the output of this command in scripts or other programs.
+The output is intended only for humans and its format is likely to
+change.  The \fB--with-colons\fR option emits the output in a
+stable, machine-parseable format, which is intended for use by scripts
+and other programs.
+
+.TP
+.B  --list-secret-keys
+.TQ
+.B  -K
+List the specified secret keys.  If no keys are specified, then all
+known secret keys are listed.  A \fB#\fR after the initial tags
+\fBsec\fR or \fBssb\fR means that the secret key or subkey is
+currently not usable.  We also say that this key has been taken
+offline (for example, a primary key can be taken offline by exporting
+the key using the command \fB--export-secret-subkeys\fR).  A
+\fB>\fR after these tags indicate that the key is stored on a
+smartcard.  See also \fB--list-keys\fR.
+
+.TP
+.B  --check-signatures
+.TQ
+.B  --check-sigs
+Same as \fB--list-keys\fR, but the key signatures are verified and
+listed too.  Note that for performance reasons the revocation status
+of a signing key is not shown.  This command has the same effect as
+using \fB--list-keys\fR with \fB--with-sig-check\fR.
+
+The status of the verification is indicated by a flag directly
+following the "sig" tag (and thus before the flags described below.  A
+"!" indicates that the signature has been successfully verified, a "-"
+denotes a bad signature and a "%" is used if an error occurred while
+checking the signature (e.g. a non supported algorithm).  Signatures
+where the public key is not available are not listed; to see their
+keyids the command \fB--list-sigs\fR can be used.
+
+For each signature listed, there are several flags in between the
+signature status flag and keyid.  These flags give additional
+information about each key signature.  From left to right, they are
+the numbers 1-3 for certificate check level (see
+\fB--ask-cert-level\fR), "L" for a local or non-exportable
+signature (see \fB--lsign-key\fR), "R" for a nonRevocable signature
+(see the \fB--edit-key\fR command "nrsign"), "P" for a signature
+that contains a policy URL (see \fB--cert-policy-url\fR), "N" for a
+signature that contains a notation (see \fB--cert-notation\fR), "X"
+for an eXpired signature (see \fB--ask-cert-expire\fR), and the
+numbers 1-9 or "T" for 10 and above to indicate trust signature levels
+(see the \fB--edit-key\fR command "tsign").
+
+
+.TP
+.B  --locate-keys
+.TQ
+.B  --locate-external-keys
+Locate the keys given as arguments.  This command basically uses the
+same algorithm as used when locating keys for encryption and may thus
+be used to see what keys \fBgpg\fR might use.  In particular
+external methods as defined by \fB--auto-key-locate\fR are used to
+locate a key if the arguments comain valid mail addresses.  Only
+public keys are listed.
+
+The variant \fB--locate-external-keys\fR does not consider a
+locally existing key and can thus be used to force the refresh of a
+key via the defined external methods.  If a fingerprint is given and
+and the methods defined by --auto-key-locate define LDAP servers, the
+key is fetched from these resources; defined non-LDAP keyservers are
+skipped.
+
+
+.TP
+.B  --show-keys
+This commands takes OpenPGP keys as input and prints information about
+them in the same way the command \fB--list-keys\fR does for locally
+stored key.  In addition the list options \fBshow-unusable-uids\fR,
+\fBshow-unusable-subkeys\fR, \fBshow-notations\fR and
+\fBshow-policy-urls\fR are also enabled.  As usual for automated
+processing, this command should be combined with the option
+\fB--with-colons\fR.
+
+.TP
+.B  --fingerprint
+List all keys (or the specified ones) along with their
+fingerprints. This is the same output as \fB--list-keys\fR but with
+the additional output of a line with the fingerprint. May also be
+combined with \fB--check-signatures\fR.  If this
+command is given twice, the fingerprints of all secondary keys are
+listed too.  This command also forces pretty printing of fingerprints
+if the keyid format has been set to "none".
+
+.TP
+.B  --list-packets
+List only the sequence of packets.  This command is only useful for
+debugging.  When used with option \fB--verbose\fR the actual MPI
+values are dumped and not only their lengths.  Note that the output of
+this command may change with new releases.
+
+
+.TP
+.B  --edit-card
+.TQ
+.B  --card-edit
+Present a menu to work with a smartcard. The subcommand "help" provides
+an overview on available commands. For a detailed description, please
+see the Card HOWTO at
+https://gnupg.org/documentation/howtos.html#GnuPG-cardHOWTO .
+
+.TP
+.B  --card-status
+Show the content of the smart card.
+
+.TP
+.B  --change-pin
+Present a menu to allow changing the PIN of a smartcard. This
+functionality is also available as the subcommand "passwd" with the
+\fB--edit-card\fR command.
+
+.TP
+.B  --delete-keys \fIname\fR
+Remove key from the public keyring. In batch mode either \fB--yes\fR is
+required or the key must be specified by fingerprint. This is a
+safeguard against accidental deletion of multiple keys.  If the
+exclamation mark syntax is used with the fingerprint of a subkey only
+that subkey is deleted; if the exclamation mark is used with the
+fingerprint of the primary key the entire public key is deleted.
+
+.TP
+.B  --delete-secret-keys \fIname\fR
+Remove key from the secret keyring. In batch mode the key must be
+specified by fingerprint.  The option \fB--yes\fR can be used to
+advise gpg-agent not to request a confirmation.  This extra
+pre-caution is done because \fBgpg\fR can't be sure that the
+secret key (as controlled by gpg-agent) is only used for the given
+OpenPGP public key.  If the exclamation mark syntax is used with the
+fingerprint of a subkey only the secret part of that subkey is
+deleted; if the exclamation mark is used with the fingerprint of the
+primary key only the secret part of the primary key is deleted.
+
+
+.TP
+.B  --delete-secret-and-public-key \fIname\fR
+Same as \fB--delete-key\fR, but if a secret key exists, it will be
+removed first. In batch mode the key must be specified by fingerprint.
+The option \fB--yes\fR can be used to advise gpg-agent not to
+request a confirmation.
+
+.TP
+.B  --export
+Either export all keys from all keyrings (default keyring and those
+registered via option \fB--keyring\fR), or if at least one name is given,
+those of the given name. The exported keys are written to STDOUT or to the
+file given with option \fB--output\fR.  Use together with
+\fB--armor\fR to mail those keys.
+
+.TP
+.B  --send-keys \fIkeyIDs\fR
+Similar to \fB--export\fR but sends the keys to a keyserver.
+Fingerprints may be used instead of key IDs.
+Don't send your complete keyring to a keyserver --- select
+only those keys which are new or changed by you.  If no \fIkeyIDs\fR
+are given, \fBgpg\fR does nothing.
+
+Take care: Keyservers are by design write only systems and thus it is
+not possible to ever delete keys once they have been send to a
+keyserver.
+
+
+.TP
+.B  --export-secret-keys
+.TQ
+.B  --export-secret-subkeys
+Same as \fB--export\fR, but exports the secret keys instead.  The
+exported keys are written to STDOUT or to the file given with option
+\fB--output\fR.  This command is often used along with the option
+\fB--armor\fR to allow for easy printing of the key for paper backup;
+however the external tool \fBpaperkey\fR does a better job of
+creating backups on paper.  Note that exporting a secret key can be a
+security risk if the exported keys are sent over an insecure channel.
+
+The second form of the command has the special property to render the
+secret part of the primary key useless; this is a GNU extension to
+OpenPGP and other implementations can not be expected to successfully
+import such a key.  Its intended use is in generating a full key with
+an additional signing subkey on a dedicated machine.  This command
+then exports the key without the primary key to the main machine.
+
+GnuPG may ask you to enter the passphrase for the key.  This is
+required, because the internal protection method of the secret key is
+different from the one specified by the OpenPGP protocol.
+
+.TP
+.B  --export-ssh-key
+This command is used to export a key in the OpenSSH public key format.
+It requires the specification of one key by the usual means and
+exports the latest valid subkey which has an authentication capability
+to STDOUT or to the file given with option \fB--output\fR.  That
+output can directly be added to ssh's \(oq\fIauthorized_key\fR\(cq file.
+
+By specifying the key to export using a key ID or a fingerprint
+suffixed with an exclamation mark (!), a specific subkey or the
+primary key can be exported.  This does not even require that the key
+has the authentication capability flag set.
+
+.TP
+.B  --import
+.TQ
+.B  --fast-import
+Import/merge keys. This adds the given keys to the
+keyring. The fast version is currently just a synonym.
+
+There are a few other options which control how this command works.
+Most notable here is the \fB--import-options merge-only\fR option
+which does not insert new keys but does only the merging of new
+signatures, user-IDs and subkeys.
+
+.TP
+.B  --receive-keys \fIkeyIDs\fR
+.TQ
+.B  --recv-keys \fIkeyIDs\fR
+Import the keys with the given \fIkeyIDs\fR from a keyserver.
+
+.TP
+.B  --refresh-keys
+Request updates from a keyserver for keys that already exist on the
+local keyring. This is useful for updating a key with the latest
+signatures, user IDs, etc. Calling this with no arguments will refresh
+the entire keyring.
+
+.TP
+.B  --search-keys \fInames\fR
+Search the keyserver for the given \fInames\fR. Multiple names given
+here will be joined together to create the search string for the
+keyserver.  Note that keyservers search for \fInames\fR in a different
+and simpler way than gpg does.  The best choice is to use a mail
+address.  Due to data privacy reasons keyservers may even not even
+allow searching by user id or mail address and thus may only return
+results when being used with the \fB--recv-key\fR command to
+search by key fingerprint or keyid.
+
+.TP
+.B  --fetch-keys \fIURIs\fR
+Retrieve keys located at the specified \fIURIs\fR. Note that different
+installations of GnuPG may support different protocols (HTTP, FTP,
+LDAP, etc.).  When using HTTPS the system provided root certificates
+are used by this command.
+
+.TP
+.B  --update-trustdb
+Do trust database maintenance. This command iterates over all keys and
+builds the Web of Trust. This is an interactive command because it may
+have to ask for the "ownertrust" values for keys. The user has to give
+an estimation of how far she trusts the owner of the displayed key to
+correctly certify (sign) other keys. GnuPG only asks for the ownertrust
+value if it has not yet been assigned to a key. Using the
+\fB--edit-key\fR menu, the assigned value can be changed at any time.
+
+.TP
+.B  --check-trustdb
+Do trust database maintenance without user interaction. From time to
+time the trust database must be updated so that expired keys or
+signatures and the resulting changes in the Web of Trust can be
+tracked. Normally, GnuPG will calculate when this is required and do it
+automatically unless \fB--no-auto-check-trustdb\fR is set. This
+command can be used to force a trust database check at any time. The
+processing is identical to that of \fB--update-trustdb\fR but it
+skips keys with a not yet defined "ownertrust".
+
+For use with cron jobs, this command can be used together with
+\fB--batch\fR in which case the trust database check is done only if
+a check is needed. To force a run even in batch mode add the option
+\fB--yes\fR.
+
+
+.TP
+.B  --export-ownertrust
+Send the ownertrust values to STDOUT. This is useful for backup purposes
+as these values are the only ones which can't be re-created from a
+corrupted trustdb.  Example:
+.RS
+.RS 2
+.nf
+  gpg --export-ownertrust > otrust.txt
+.fi
+.RE
+.RE
+
+
+.TP
+.B  --import-ownertrust
+Update the trustdb with the ownertrust values stored in \fBfiles\fR (or
+STDIN if not given); existing values will be overwritten.  In case of a
+severely damaged trustdb and if you have a recent backup of the
+ownertrust values (e.g. in the file \(oq\fIotrust.txt\fR\(cq), you may re-create
+the trustdb using these commands:
+.RS
+.RS 2
+.nf
+  cd ~/.gnupg
+  rm trustdb.gpg
+  gpg --import-ownertrust < otrust.txt
+.fi
+.RE
+.RE
+
+
+.TP
+.B  --rebuild-keydb-caches
+When updating from version 1.0.6 to 1.0.7 this command should be used
+to create signature caches in the keyring. It might be handy in other
+situations too.
+
+.TP
+.B  --print-md \fIalgo\fR
+.TQ
+.B  --print-mds
+Print message digest of algorithm \fIalgo\fR for all given files or STDIN.
+With the second form (or a deprecated "*" for \fIalgo\fR) digests for all
+available algorithms are printed.
+
+.TP
+.B  --gen-random \fI0|1|2|16|30\fR \fIcount\fR
+Emit \fIcount\fR random bytes of the given quality level 0, 1 or 2. If
+\fIcount\fR is not given or zero, an endless sequence of random bytes
+will be emitted.  If used with \fB--armor\fR the output will be
+base64 encoded.  The special level 16 uses a quality level of 1 and
+outpust end endless stream of hex-encoded octets.  The special level
+30 outputs random as 30 zBase-32 characters.
+
+.TP
+.B  --gen-prime \fImode\fR  \fIbits\fR
+Use the source, Luke :-). The output format is subject to change
+with ant release.
+
+
+.TP
+.B  --enarmor
+.TQ
+.B  --dearmor
+Pack or unpack an arbitrary input into/from an OpenPGP ASCII armor.
+This is a GnuPG extension to OpenPGP and in general not very useful.
+The \fB--dearmor\fR command can also be used to dearmor PEM armors.
+
+.TP
+.B  --unwrap
+This command is similar to \fB--decrypt\fR with the change that the
+output is not the usual plaintext but the original message with the
+decryption layer removed.  Thus the output will be an OpenPGP data
+structure which often means a signed OpenPGP message.  Note that this
+command may or may not remove a compression layer which is often found
+beneath the encryption layer.
+
+.TP
+.B  --tofu-policy {auto|good|unknown|bad|ask}  \fIkeys\fR
+Set the TOFU policy for all the bindings associated with the specified
+\fIkeys\fR.  For more information about the meaning of the policies,
+see: [trust-model-tofu].  The \fIkeys\fR may be specified either by their
+fingerprint (preferred) or their keyid.
+
+
+.P
+
+
+
+.SS  How to manage your keys
+\ 
+
+This section explains the main commands for key management.
+
+
+.TP
+.B  --quick-generate-key \fIuser-id\fR [\fIalgo\fR [\fIusage\fR [\fIexpire\fR]]]
+.TQ
+.B  --quick-gen-key
+This is a simple command to generate a standard key with one user id.
+In contrast to \fB--generate-key\fR the key is generated directly
+without the need to answer a bunch of prompts.  Unless the option
+\fB--yes\fR is given, the key creation will be canceled if the
+given user id already exists in the keyring.
+
+If invoked directly on the console without any special options an
+answer to a ``Continue?'' style confirmation prompt is required.  In
+case the user id already exists in the keyring a second prompt to
+force the creation of the key will show up.
+
+If \fIalgo\fR or \fIusage\fR are given, only the primary key is
+created and no prompts are shown.  To specify an expiration date but
+still create a primary and subkey use ``default'' or
+``future-default'' for \fIalgo\fR and ``default'' for \fIusage\fR.
+For a description of these optional arguments see the command
+\fB--quick-add-key\fR.  The \fIusage\fR accepts also the value
+``cert'' which can be used to create a certification only primary key;
+the default is to a create certification and signing key.
+
+The \fIexpire\fR argument can be used to specify an expiration date
+for the key.  Several formats are supported; commonly the ISO formats
+``YYYY-MM-DD'' or ``YYYYMMDDThhmmss'' are used.  To make the key
+expire in N seconds, N days, N weeks, N months, or N years use
+``seconds=N'', ``Nd'', ``Nw'', ``Nm'', or ``Ny'' respectively.  Not
+specifying a value, or using ``-'' results in a key expiring in a
+reasonable default interval.  The values ``never'', ``none'' can be
+used for no expiration date.
+
+If this command is used with \fB--batch\fR,
+\fB--pinentry-mode\fR has been set to \fBloopback\fR, and one of
+the passphrase options (\fB--passphrase\fR,
+\fB--passphrase-fd\fR, or \fB--passphrase-file\fR) is used, the
+supplied passphrase is used for the new key and the agent does not ask
+for it.  To create a key without any protection \fB--passphrase ''\fR
+may be used.
+
+To create an OpenPGP key from the keys available on the currently
+inserted smartcard, the special string ``card'' can be used for
+\fIalgo\fR.  If the card features an encryption and a signing key, gpg
+will figure them out and creates an OpenPGP key consisting of the
+usual primary key and one subkey.  This works only with certain
+smartcards.  Note that the interactive \fB--full-gen-key\fR command
+allows to do the same but with greater flexibility in the selection of
+the smartcard keys.
+
+Note that it is possible to create a primary key and a subkey using
+non-default algorithms by using ``default'' and changing the default
+parameters using the option \fB--default-new-key-algo\fR.
+
+.TP
+.B  --quick-set-expire \fIfpr\fR \fIexpire\fR [*|\fIsubfprs\fR]
+With two arguments given, directly set the expiration time of the
+primary key identified by \fIfpr\fR to \fIexpire\fR.  To remove the
+expiration time \fB0\fR can be used.  With three arguments and the
+third given as an asterisk, the expiration time of all non-revoked and
+not yet expired subkeys are set to \fIexpire\fR.  With more than two
+arguments and a list of fingerprints given for \fIsubfprs\fR, all
+non-revoked subkeys matching these fingerprints are set to
+\fIexpire\fR.
+
+
+.TP
+.B  --quick-add-key \fIfpr\fR [\fIalgo\fR [\fIusage\fR [\fIexpire\fR]]]
+Directly add a subkey to the key identified by the fingerprint
+\fIfpr\fR.  Without the optional arguments an encryption subkey is
+added.  If any of the arguments are given a more specific subkey is
+added.
+
+\fIalgo\fR may be any of the supported algorithms or curve names
+given in the format as used by key listings.  To use the default
+algorithm the string ``default'' or ``-'' can be used.  Supported
+algorithms are ``rsa'', ``dsa'', ``elg'', ``ed25519'', ``cv25519'',
+and other ECC curves.  For example the string ``rsa'' adds an RSA key
+with the default key length; a string ``rsa4096'' requests that the
+key length is 4096 bits.  The string ``future-default'' is an alias
+for the algorithm which will likely be used as default algorithm in
+future versions of gpg.  To list the supported ECC curves the command
+\fBgpg --with-colons --list-config curve\fR can be used.
+
+Depending on the given \fIalgo\fR the subkey may either be an
+encryption subkey or a signing subkey.  If an algorithm is capable of
+signing and encryption and such a subkey is desired, a \fIusage\fR
+string must be given.  This string is either ``default'' or ``-'' to
+keep the default or a comma delimited list (or space delimited list)
+of keywords: ``sign'' for a signing subkey, ``auth'' for an
+authentication subkey, and ``encr'' for an encryption subkey
+(``encrypt'' can be used as alias for ``encr'').  The valid
+combinations depend on the algorithm.
+
+The \fIexpire\fR argument can be used to specify an expiration date
+for the key.  Several formats are supported; commonly the ISO formats
+``YYYY-MM-DD'' or ``YYYYMMDDThhmmss'' are used.  To make the key
+expire in N seconds, N days, N weeks, N months, or N years use
+``seconds=N'', ``Nd'', ``Nw'', ``Nm'', or ``Ny'' respectively.  Not
+specifying a value, or using ``-'' results in a key expiring in a
+reasonable default interval.  The values ``never'', ``none'' can be
+used for no expiration date.
+
+.TP
+.B  --generate-key
+.TQ
+.B  --gen-key
+Generate a new key pair using the current default parameters.  This is
+the standard command to create a new key.  In addition to the key a
+revocation certificate is created and stored in the
+\(oq\fIopenpgp-revocs.d\fR\(cq directory below the GnuPG home directory.
+
+.TP
+.B  --full-generate-key
+.TQ
+.B  --full-gen-key
+Generate a new key pair with dialogs for all options.  This is an
+extended version of \fB--generate-key\fR.
+
+There is also a feature which allows you to create keys in batch
+mode. See the manual section ``Unattended key generation'' on how
+to use this.
+
+
+.TP
+.B  --generate-revocation \fIname\fR
+.TQ
+.B  --gen-revoke \fIname\fR
+Generate a revocation certificate for the complete key.  To only revoke
+a subkey or a key signature, use the \fB--edit\fR command.
+
+This command merely creates the revocation certificate so that it can
+be used to revoke the key if that is ever needed.  To actually revoke
+a key the created revocation certificate needs to be merged with the
+key to revoke.  This is done by importing the revocation certificate
+using the \fB--import\fR command.  Then the revoked key needs to be
+published, which is best done by sending the key to a keyserver
+(command \fB--send-key\fR) and by exporting (\fB--export\fR) it
+to a file which is then send to frequent communication partners.
+
+
+.TP
+.B  --generate-designated-revocation \fIname\fR
+.TQ
+.B  --desig-revoke \fIname\fR
+Generate a designated revocation certificate for a key. This allows a
+user (with the permission of the keyholder) to revoke someone else's
+key.
+
+
+.TP
+.B  --edit-key
+Present a menu which enables you to do most of the key management
+related tasks.  It expects the specification of a key on the command
+line.
+
+.RS
+
+.TP
+.B  uid \fIn\fR
+Toggle selection of user ID or photographic user ID with index \fIn\fR.
+Use \fB*\fR to select all and \fB0\fR to deselect all.
+
+.TP
+.B  key \fIn\fR
+Toggle selection of subkey with index \fIn\fR or key ID \fIn\fR.
+Use \fB*\fR to select all and \fB0\fR to deselect all.
+
+.TP
+.B  sign
+Make a signature on key of user \fBname\fR. If the key is not yet
+signed by the default user (or the users given with \fB-u\fR), the program
+displays the information of the key again, together with its
+fingerprint and asks whether it should be signed. This question is
+repeated for all users specified with
+\fB-u\fR.
+
+.TP
+.B  lsign
+Same as "sign" but the signature is marked as non-exportable and will
+therefore never be used by others. This may be used to make keys
+valid only in the local environment.
+
+.TP
+.B  nrsign
+Same as "sign" but the signature is marked as non-revocable and can
+therefore never be revoked.
+
+.TP
+.B  tsign
+Make a trust signature. This is a signature that combines the notions
+of certification (like a regular signature), and trust (like the
+"trust" command). It is generally only useful in distinct communities
+or groups.  For more information please read the sections
+``Trust Signature'' and ``Regular Expression'' in RFC-4880.
+.RE
+
+.RS
+Note that "l" (for local / non-exportable), "nr" (for non-revocable,
+and "t" (for trust) may be freely mixed and prefixed to "sign" to
+create a signature of any type desired.
+.RE
+
+If the option \fB--only-sign-text-ids\fR is specified, then any
+non-text based user ids (e.g., photo IDs) will not be selected for
+signing.
+
+.RS
+
+.TP
+.B  delsig
+Delete a signature. Note that it is not possible to retract a signature,
+once it has been send to the public (i.e. to a keyserver).  In that case
+you better use \fBrevsig\fR.
+
+.TP
+.B  revsig
+Revoke a signature. For every signature which has been generated by
+one of the secret keys, GnuPG asks whether a revocation certificate
+should be generated.
+
+.TP
+.B  check
+Check the signatures on all selected user IDs.  With the extra
+option \fBselfsig\fR only self-signatures are shown.
+
+.TP
+.B  adduid
+Create an additional user ID.
+
+.TP
+.B  addphoto
+Create a photographic user ID. This will prompt for a JPEG file that
+will be embedded into the user ID. Note that a very large JPEG will make
+for a very large key. Also note that some programs will display your
+JPEG unchanged (GnuPG), and some programs will scale it to fit in a
+dialog box (PGP).
+
+.TP
+.B  showphoto
+Display the selected photographic user ID.
+
+.TP
+.B  deluid
+Delete a user ID or photographic user ID.  Note that it is not
+possible to retract a user id, once it has been send to the public
+(i.e. to a keyserver).  In that case you better use \fBrevuid\fR.
+
+.TP
+.B  revuid
+Revoke a user ID or photographic user ID.
+
+.TP
+.B  primary
+Flag the current user id as the primary one, removes the primary user
+id flag from all other user ids and sets the timestamp of all affected
+self-signatures one second ahead. Note that setting a photo user ID
+as primary makes it primary over other photo user IDs, and setting a
+regular user ID as primary makes it primary over other regular user
+IDs.
+
+.TP
+.B  keyserver
+Set a preferred keyserver for the specified user ID(s). This allows
+other users to know where you prefer they get your key from. See
+\fB--keyserver-options honor-keyserver-url\fR for more on how this
+works.  Setting a value of "none" removes an existing preferred
+keyserver.
+
+.TP
+.B  notation
+Set a name=value notation for the specified user ID(s). See
+\fB--cert-notation\fR for more on how this works. Setting a value of
+"none" removes all notations, setting a notation prefixed with a minus
+sign (-) removes that notation, and setting a notation name (without the
+=value) prefixed with a minus sign removes all notations with that name.
+
+.TP
+.B  pref
+List preferences from the selected user ID. This shows the actual
+preferences, without including any implied preferences.
+
+.TP
+.B  showpref
+More verbose preferences listing for the selected user ID. This shows
+the preferences in effect by including the implied preferences of 3DES
+(cipher), SHA-1 (digest), and Uncompressed (compression) if they are
+not already included in the preference list. In addition, the
+preferred keyserver and signature notations (if any) are shown.
+
+.TP
+.B  setpref \fIstring\fR
+Set the list of user ID preferences to \fIstring\fR for all (or just
+the selected) user IDs. Calling setpref with no arguments sets the
+preference list to the default (either built-in or set via
+\fB--default-preference-list\fR), and calling setpref with "none"
+as the argument sets an empty preference list. Use \fBgpg
+--version\fR to get a list of available algorithms. Note that while you
+can change the preferences on an attribute user ID (aka "photo ID"),
+GnuPG does not select keys via attribute user IDs so these preferences
+will not be used by GnuPG.
+
+When setting preferences, you should list the algorithms in the order
+which you'd like to see them used by someone else when encrypting a
+message to your key.  If you don't include 3DES, it will be
+automatically added at the end.  Note that there are many factors that
+go into choosing an algorithm (for example, your key may not be the
+only recipient), and so the remote OpenPGP application being used to
+send to you may or may not follow your exact chosen order for a given
+message.  It will, however, only choose an algorithm that is present
+on the preference list of every recipient key.  See also the
+INTEROPERABILITY WITH OTHER OPENPGP PROGRAMS section below.
+
+.TP
+.B  addkey
+Add a subkey to this key.
+
+.TP
+.B  addcardkey
+Generate a subkey on a card and add it to this key.
+
+.TP
+.B  keytocard
+Transfer the selected secret subkey (or the primary key if no subkey
+has been selected) to a smartcard. The secret key in the keyring will
+be replaced by a stub if the key could be stored successfully on the
+card and you use the save command later. Only certain key types may be
+transferred to the card. A sub menu allows you to select on what card
+to store the key. Note that it is not possible to get that key back
+from the card - if the card gets broken your secret key will be lost
+unless you have a backup somewhere.
+
+.TP
+.B  bkuptocard \fIfile\fR
+Restore the given \fIfile\fR to a card. This command may be used to restore a
+backup key (as generated during card initialization) to a new card. In
+almost all cases this will be the encryption key. You should use this
+command only with the corresponding public key and make sure that the
+file given as argument is indeed the backup to restore. You should then
+select 2 to restore as encryption key.  You will first be asked to enter
+the passphrase of the backup key and then for the Admin PIN of the card.
+
+.TP
+.B  keytotpm
+Transfer the selected secret subkey (or the primary key if no subkey
+has been selected) to TPM form.  The secret key in the keyring will
+be replaced by the TPM representation of that key, which can only be
+read by the particular TPM that created it (so the keyfile now
+becomes locked to the laptop containing the TPM).  Only certain key
+types may be transferred to the TPM (all TPM 2.0 systems are
+mandated to have the rsa2048 and nistp256 algorithms but newer TPMs
+may have more). Note that the key itself is not transferred into the
+TPM, merely encrypted by the TPM in-place, so if the keyfile is
+deleted, the key will be lost.  Once transferred to TPM
+representation, the key file can never be converted back to non-TPM
+form and the key will die when the TPM does, so you should first
+have a backup on secure offline storage of the actual secret key
+file before conversion.  It is essential to use the physical system
+TPM that you have rw permission on the TPM resource manager device
+(/dev/tpmrm0).  Usually this means you must be a member of the tss
+group.
+
+.TP
+.B  delkey
+Remove a subkey (secondary key). Note that it is not possible to retract
+a subkey, once it has been send to the public (i.e. to a keyserver).  In
+that case you better use \fBrevkey\fR.  Also note that this only
+deletes the public part of a key.
+
+.TP
+.B  revkey
+Revoke a subkey.
+
+.TP
+.B  expire
+Change the key or subkey expiration time. If a subkey is selected, the
+expiration time of this subkey will be changed. With no selection, the
+key expiration of the primary key is changed.
+
+.TP
+.B  trust
+Change the owner trust value for the key. This updates the trust-db
+immediately and no save is required.
+
+.TP
+.B  disable
+.TQ
+.B  enable
+Disable or enable an entire key. A disabled key can not normally be
+used for encryption.
+
+.TP
+.B  addrevoker
+Add a designated revoker to the key. This takes one optional argument:
+"sensitive". If a designated revoker is marked as sensitive, it will
+not be exported by default (see export-options).
+
+.TP
+.B  passwd
+Change the passphrase of the secret key.
+
+.TP
+.B  toggle
+This is dummy command which exists only for backward compatibility.
+
+.TP
+.B  clean
+Compact (by removing all signatures except the selfsig) any user ID
+that is no longer usable (e.g. revoked, or expired). Then, remove any
+signatures that are not usable by the trust calculations.
+Specifically, this removes any signature that does not validate, any
+signature that is superseded by a later signature, revoked signatures,
+and signatures issued by keys that are not present on the keyring.
+
+.TP
+.B  minimize
+Make the key as small as possible. This removes all signatures from
+each user ID except for the most recent self-signature.
+
+.TP
+.B  change-usage
+Change the usage flags (capabilities) of the primary key or of
+subkeys.  These usage flags (e.g. Certify, Sign, Authenticate,
+Encrypt) are set during key creation.  Sometimes it is useful to
+have the opportunity to change them (for example to add
+Authenticate) after they have been created.  Please take care when
+doing this; the allowed usage flags depend on the key algorithm.
+
+.TP
+.B  cross-certify
+Add cross-certification signatures to signing subkeys that may not
+currently have them. Cross-certification signatures protect against a
+subtle attack against signing subkeys. See
+\fB--require-cross-certification\fR.  All new keys generated have
+this signature by default, so this command is only useful to bring
+older keys up to date.
+
+.TP
+.B  save
+Save all changes to the keyring and quit.
+
+.TP
+.B  quit
+Quit the program without updating the
+keyring.
+.RE
+
+.RS
+The listing shows you the key with its secondary keys and all user
+IDs.  The primary user ID is indicated by a dot, and selected keys or
+user IDs are indicated by an asterisk.  The trust
+value is displayed with the primary key: "trust" is the assigned owner
+trust and "validity" is the calculated validity of the key.  Validity
+values are also displayed for all user IDs.
+For possible values of trust, see: [trust-values].
+.RE
+
+.TP
+.B  --sign-key \fIname\fR
+Signs a public key with your secret key. This is a shortcut version of
+the subcommand "sign" from \fB--edit-key\fR.
+
+.TP
+.B  --lsign-key \fIname\fR
+Signs a public key with your secret key but marks it as
+non-exportable. This is a shortcut version of the subcommand "lsign"
+from \fB--edit-key\fR.
+
+.TP
+.B  --quick-sign-key \fIfpr\fR [\fInames\fR]
+.TQ
+.B  --quick-lsign-key \fIfpr\fR [\fInames\fR]
+Directly sign a key from the passphrase without any further user
+interaction.  The \fIfpr\fR must be the verified primary fingerprint
+of a key in the local keyring. If no \fInames\fR are given, all
+useful user ids are signed; with given [\fInames\fR] only useful user
+ids matching one of these names are signed.  By default, or if a name
+is prefixed with a '*', a case insensitive substring match is used.
+If a name is prefixed with a '=' a case sensitive exact match is done.
+
+The command \fB--quick-lsign-key\fR marks the signatures as
+non-exportable.  If such a non-exportable signature already exists the
+\fB--quick-sign-key\fR turns it into a exportable signature.  If
+you need to update an existing signature, for example to add or change
+notation data, you need to use the option \fB--force-sign-key\fR.
+
+This command uses reasonable defaults and thus does not provide the
+full flexibility of the "sign" subcommand from \fB--edit-key\fR.
+Its intended use is to help unattended key signing by utilizing a list
+of verified fingerprints.
+
+.TP
+.B  --quick-add-uid  \fIuser-id\fR \fInew-user-id\fR
+This command adds a new user id to an existing key.  In contrast to
+the interactive sub-command \fBadduid\fR of \fB--edit-key\fR the
+\fInew-user-id\fR is added verbatim with only leading and trailing
+white space removed, it is expected to be UTF-8 encoded, and no checks
+on its form are applied.
+
+.TP
+.B  --quick-revoke-uid  \fIuser-id\fR \fIuser-id-to-revoke\fR
+This command revokes a user ID on an existing key.  It cannot be used
+to revoke the last user ID on key (some non-revoked user ID must
+remain), with revocation reason ``User ID is no longer valid''.  If
+you want to specify a different revocation reason, or to supply
+supplementary revocation text, you should use the interactive
+sub-command \fBrevuid\fR of \fB--edit-key\fR.
+
+.TP
+.B  --quick-revoke-sig  \fIfpr\fR \fIsigning-fpr\fR [\fInames\fR]
+This command revokes the key signatures made by \fIsigning-fpr\fR from
+the key specified by the fingerprint \fIfpr\fR.  With \fInames\fR
+given only the signatures on user ids of the key matching any of the
+given names are affected (see \fB--quick-sign-key\fR).  If a
+revocation already exists a notice is printed instead of creating a
+new revocation; no error is returned in this case.  Note that key
+signature revocations may be superseded by a newer key signature and
+in turn again revoked.
+
+.TP
+.B  --quick-set-primary-uid  \fIuser-id\fR \fIprimary-user-id\fR
+This command sets or updates the primary user ID flag on an existing
+key.  \fIuser-id\fR specifies the key and \fIprimary-user-id\fR the
+user ID which shall be flagged as the primary user ID.  The primary
+user ID flag is removed from all other user ids and the timestamp of
+all affected self-signatures is set one second ahead.
+
+
+.TP
+.B  --change-passphrase \fIuser-id\fR
+.TQ
+.B  --passwd \fIuser-id\fR
+Change the passphrase of the secret key belonging to the certificate
+specified as \fIuser-id\fR.  This is a shortcut for the sub-command
+\fBpasswd\fR of the \fB--edit-key\fR menu.  When using together with the
+option \fB--dry-run\fR this will not actually change the passphrase
+but check that the current passphrase is correct.
+
+.P
+
+
+
+.SH OPTIONS
+
+\fBgpg\fR features a bunch of options to control the exact
+behaviour and to change the default configuration.
+
+
+Long options can be put in an options file (default
+"~/.gnupg/gpg.conf"). Short option names will not work - for example,
+"armor" is a valid option for the options file, while "a" is not. Do not
+write the 2 dashes, but simply the name of the option and any required
+arguments. Lines with a hash ('#') as the first non-white-space
+character are ignored. Commands may be put in this file too, but that is
+not generally useful as the command will execute automatically with
+every execution of gpg.
+
+Please remember that option parsing stops as soon as a non-option is
+encountered, you can explicitly stop parsing by using the special option
+\fB--\fR.
+
+
+.SS  How to change the configuration
+\ 
+
+These options are used to change the configuration and most of them
+are usually found in the option file.
+
+
+.TP
+.B  --default-key \fIname\fR
+Use \fIname\fR as the default key to sign with. If this option is not
+used, the default key is the first key found in the secret keyring.
+Note that \fB-u\fR or \fB--local-user\fR overrides this option.
+This option may be given multiple times.  In this case, the last key
+for which a secret key is available is used.  If there is no secret
+key available for any of the specified values, GnuPG will not emit an
+error message but continue as if this option wasn't given.
+
+.TP
+.B  --default-recipient \fIname\fR
+Use \fIname\fR as default recipient if option \fB--recipient\fR is
+not used and don't ask if this is a valid one. \fIname\fR must be
+non-empty.
+
+.TP
+.B  --default-recipient-self
+Use the default key as default recipient if option \fB--recipient\fR is not
+used and don't ask if this is a valid one. The default key is the first
+one from the secret keyring or the one set with \fB--default-key\fR.
+
+.TP
+.B  --no-default-recipient
+Reset \fB--default-recipient\fR and \fB--default-recipient-self\fR.
+Should not be used in an option file.
+
+.TP
+.B  -v, --verbose
+Give more information during processing. If used
+twice, the input data is listed in detail.
+
+.TP
+.B  --no-verbose
+Reset verbose level to 0.  Should not be used in an option file.
+
+.TP
+.B  -q, --quiet
+Try to be as quiet as possible.  Should not be used in an option file.
+
+.TP
+.B  --batch
+.TQ
+.B  --no-batch
+Use batch mode.  Never ask, do not allow interactive commands.
+\fB--no-batch\fR disables this option.  Note that even with a
+filename given on the command line, gpg might still need to read from
+STDIN (in particular if gpg figures that the input is a
+detached signature and no data file has been specified).  Thus if you
+do not want to feed data via STDIN, you should connect STDIN to
+\(oq\fI/dev/null\fR\(cq.
+
+It is highly recommended to use this option along with the options
+\fB--status-fd\fR and \fB--with-colons\fR for any unattended use of
+\fBgpg\fR.  Should not be used in an option file.
+
+.TP
+.B  --no-tty
+Make sure that the TTY (terminal) is never used for any output.
+This option is needed in some cases because GnuPG sometimes prints
+warnings to the TTY even if \fB--batch\fR is used.
+
+.TP
+.B  --yes
+Assume "yes" on most questions.  Should not be used in an option file.
+
+.TP
+.B  --no
+Assume "no" on most questions.  Should not be used in an option file.
+
+
+.TP
+.B  --list-options \fIparameters\fR
+This is a space or comma delimited string that gives options used when
+listing keys and signatures (that is, \fB--list-keys\fR,
+\fB--check-signatures\fR, \fB--list-public-keys\fR,
+\fB--list-secret-keys\fR, and the \fB--edit-key\fR functions).
+Options can be prepended with a \fBno-\fR (after the two dashes) to
+give the opposite meaning.  The options are:
+
+.RS
+
+.TP
+.B  show-photos
+Causes \fB--list-keys\fR, \fB--check-signatures\fR,
+\fB--list-public-keys\fR, and \fB--list-secret-keys\fR to
+display any photo IDs attached to the key.  Defaults to no. See also
+\fB--photo-viewer\fR.  Does not work with \fB--with-colons\fR:
+see \fB--attribute-fd\fR for the appropriate way to get photo data
+for scripts and other frontends.
+
+.TP
+.B  show-usage
+Show usage information for keys and subkeys in the standard key
+listing.  This is a list of letters indicating the allowed usage for a
+key (\fBE\fR=encryption, \fBS\fR=signing, \fBC\fR=certification,
+\fBA\fR=authentication).  Defaults to yes.
+
+.TP
+.B  show-policy-urls
+Show policy URLs in the  \fB--check-signatures\fR
+listings.  Defaults to no.
+
+.TP
+.B  show-notations
+.TQ
+.B  show-std-notations
+.TQ
+.B  show-user-notations
+Show all, IETF standard, or user-defined signature notations in the
+\fB--check-signatures\fR listings. Defaults to no.
+
+.TP
+.B  show-keyserver-urls
+Show any preferred keyserver URL in the
+\fB--check-signatures\fR listings. Defaults to no.
+
+.TP
+.B  show-uid-validity
+Display the calculated validity of user IDs during key listings.
+Defaults to yes.
+
+.TP
+.B  show-unusable-uids
+Show revoked and expired user IDs in key listings. Defaults to no.
+
+.TP
+.B  show-unusable-subkeys
+Show revoked and expired subkeys in key listings. Defaults to no.
+
+.TP
+.B  show-keyring
+Display the keyring name at the head of key listings to show which
+keyring a given key resides on. Defaults to no.
+
+.TP
+.B  show-sig-expire
+Show signature expiration dates (if any) during
+\fB--check-signatures\fR listings. Defaults to no.
+
+.TP
+.B  show-sig-subpackets
+Include signature subpackets in the key listing. This option can take an
+optional argument list of the subpackets to list. If no argument is
+passed, list all subpackets. Defaults to no. This option is only
+meaningful when using \fB--with-colons\fR along with
+\fB--check-signatures\fR.
+
+.TP
+.B  show-only-fpr-mbox
+For each user-id which has a valid mail address print
+only the fingerprint followed by the mail address.
+
+.TP
+.B  sort-sigs
+With --list-sigs and --check-sigs sort the signatures by keyID and
+creation time to make it easier to view the history of these
+signatures.  The self-signature is also listed before other
+signatures. Defaults to yes.
+
+.RE
+
+.TP
+.B  --verify-options \fIparameters\fR
+This is a space or comma delimited string that gives options used when
+verifying signatures. Options can be prepended with a `no-' to give
+the opposite meaning. The options are:
+
+.RS
+
+.TP
+.B  show-photos
+Display any photo IDs present on the key that issued the signature.
+Defaults to no. See also \fB--photo-viewer\fR.
+
+.TP
+.B  show-policy-urls
+Show policy URLs in the signature being verified. Defaults to yes.
+
+.TP
+.B  show-notations
+.TQ
+.B  show-std-notations
+.TQ
+.B  show-user-notations
+Show all, IETF standard, or user-defined signature notations in the
+signature being verified. Defaults to IETF standard.
+
+.TP
+.B  show-keyserver-urls
+Show any preferred keyserver URL in the signature being verified.
+Defaults to yes.
+
+.TP
+.B  show-uid-validity
+Display the calculated validity of the user IDs on the key that issued
+the signature. Defaults to yes.
+
+.TP
+.B  show-unusable-uids
+Show revoked and expired user IDs during signature verification.
+Defaults to no.
+
+.TP
+.B  show-primary-uid-only
+Show only the primary user ID during signature verification.  That is
+all the AKA lines as well as photo Ids are not shown with the signature
+verification status.
+
+.RE
+
+.TP
+.B  --enable-large-rsa
+.TQ
+.B  --disable-large-rsa
+With --generate-key and --batch, enable the creation of RSA secret keys as
+large as 8192 bit.  Note: 8192 bit is more than is generally
+recommended.  These large keys don't significantly improve security,
+but they are more expensive to use, and their signatures and
+certifications are larger.  This option is only available if the
+binary was build with large-secmem support.
+
+.TP
+.B  --enable-dsa2
+.TQ
+.B  --disable-dsa2
+Enable hash truncation for all DSA keys even for old DSA Keys up to
+1024 bit.  This is also the default with \fB--openpgp\fR.  Note
+that older versions of GnuPG also required this flag to allow the
+generation of DSA larger than 1024 bit.
+
+.TP
+.B  --photo-viewer \fIstring\fR
+This is the command line that should be run to view a photo ID. "%i"
+will be expanded to a filename containing the photo. "%I" does the
+same, except the file will not be deleted once the viewer exits.
+Other flags are "%k" for the key ID, "%K" for the long key ID, "%f"
+for the key fingerprint, "%t" for the extension of the image type
+(e.g. "jpg"), "%T" for the MIME type of the image (e.g. "image/jpeg"),
+"%v" for the single-character calculated validity of the image being
+viewed (e.g. "f"), "%V" for the calculated validity as a string (e.g.
+"full"), "%U" for a base32 encoded hash of the user ID,
+and "%%" for an actual percent sign. If neither %i or %I are present,
+then the photo will be supplied to the viewer on standard input.
+
+On Unix the default viewer is
+\fBxloadimage -fork -quiet -title 'KeyID 0x%k' STDIN\fR
+with a fallback to
+\fBdisplay -title 'KeyID 0x%k' %i\fR
+and finally to
+\fBxdg-open %i\fR.
+On Windows
+\fB!ShellExecute 400 %i\fR is used; here the command is a meta
+command to use that API call followed by a wait time in milliseconds
+which is used to give the viewer time to read the temporary image file
+before gpg deletes it again.  Note that if your image viewer program
+is not secure, then executing it from gpg does not make it secure.
+
+.TP
+.B  --exec-path \fIstring\fR
+Sets a list of directories to search for photo viewers If not provided
+photo viewers use the \fBPATH\fR environment variable.
+
+.TP
+.B  --keyring \fIfile\fR
+Add \fIfile\fR to the current list of keyrings. If \fIfile\fR begins
+with a tilde and a slash, these are replaced by the $HOME directory. If
+the filename does not contain a slash, it is assumed to be in the GnuPG
+home directory ("~/.gnupg" unless \fB--homedir\fR or $GNUPGHOME is
+used).
+
+Note that this adds a keyring to the current list. If the intent is to
+use the specified keyring alone, use \fB--keyring\fR along with
+\fB--no-default-keyring\fR.
+
+If the option \fB--no-keyring\fR has been used no keyrings will
+be used at all.
+
+Note that if the option \fBuse-keyboxd\fR is enabled in
+\(oq\fIcommon.conf\fR\(cq, no keyrings are used at all and keys are all
+maintained by the keyboxd process in its own database.
+
+.TP
+.B  --primary-keyring \fIfile\fR
+This is a varian of \fB--keyring\fR and designates \fIfile\fR as
+the primary public keyring. This means that newly imported keys (via
+\fB--import\fR or keyserver \fB--recv-from\fR) will go to this
+keyring.
+
+
+.TP
+.B  --secret-keyring \fIfile\fR
+This is an obsolete option and ignored.  All secret keys are stored in
+the \(oq\fIprivate-keys-v1.d\fR\(cq directory below the GnuPG home directory.
+
+.TP
+.B  --trustdb-name \fIfile\fR
+Use \fIfile\fR instead of the default trustdb. If \fIfile\fR begins
+with a tilde and a slash, these are replaced by the $HOME directory. If
+the filename does not contain a slash, it is assumed to be in the GnuPG
+home directory (\(oq\fI~/.gnupg\fR\(cq if \fB--homedir\fR or $GNUPGHOME is
+not used).
+
+.TP
+.B  --homedir \fIdir\fR
+Set the name of the home directory to \fIdir\fR. If this option is not
+used, the home directory defaults to \(oq\fI~/.gnupg\fR\(cq.  It is only
+recognized when given on the command line.  It also overrides any home
+directory stated through the environment variable \(oq\fIGNUPGHOME\fR\(cq or
+(on Windows systems) by means of the Registry entry
+\fIHKCU\\Software\\GNU\\GnuPG:HomeDir\fR.
+
+On Windows systems it is possible to install GnuPG as a portable
+application.  In this case only this command line option is
+considered, all other ways to set a home directory are ignored.
+
+To install GnuPG as a portable application under Windows, create an
+empty file named \(oq\fIgpgconf.ctl\fR\(cq in the same directory as the tool
+\(oq\fIgpgconf.exe\fR\(cq.  The root of the installation is then that
+directory; or, if \(oq\fIgpgconf.exe\fR\(cq has been installed directly below
+a directory named \(oq\fIbin\fR\(cq, its parent directory.  You also need to
+make sure that the following directories exist and are writable:
+\(oq\fIROOT/home\fR\(cq for the GnuPG home and \(oq\fIROOT/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/var/cache/gnupg\fR\(cq
+for internal cache files.
+
+
+.TP
+.B  --display-charset \fIname\fR
+Set the name of the native character set. This is used to convert some
+informational strings like user IDs to the proper UTF-8 encoding.
+Note that this has nothing to do with the character set of data to be
+encrypted or signed; GnuPG does not recode user-supplied data. If this
+option is not used, the default character set is determined from the
+current locale. A verbosity level of 3 shows the chosen set.  This
+option should not be used on Windows.  Valid values for \fIname\fR
+are:
+
+.RS
+
+.TP
+.B  iso-8859-1
+This is the Latin 1 set.
+
+.TP
+.B  iso-8859-2
+The Latin 2 set.
+
+.TP
+.B  iso-8859-15
+This is currently an alias for
+the Latin 1 set.
+
+.TP
+.B  koi8-r
+The usual Russian set (RFC-1489).
+
+.TP
+.B  utf-8
+Bypass all translations and assume
+that the OS uses native UTF-8 encoding.
+.RE
+
+.TP
+.B  --utf8-strings
+.TQ
+.B  --no-utf8-strings
+Assume that command line arguments are given as UTF-8 strings. The
+default (\fB--no-utf8-strings\fR) is to assume that arguments are
+encoded in the character set as specified by
+\fB--display-charset\fR. These options affect all following
+arguments. Both options may be used multiple times.
+This option should not be used in an option file.
+
+This option has no effect on Windows.  There the internal used UTF-8
+encoding is translated for console input and output.  The command line
+arguments are expected as Unicode and translated to UTF-8.  Thus when
+calling this program from another, make sure to use the Unicode
+version of CreateProcess.
+
+
+.TP
+.B  --options \fIfile\fR
+Read options from \fIfile\fR and do not try to read them from the
+default options file in the homedir (see \fB--homedir\fR). This
+option is ignored if used in an options file.
+
+.TP
+.B  --no-options
+Shortcut for \fB--options /dev/null\fR. This option is detected
+before an attempt to open an option file.  Using this option will also
+prevent the creation of a \(oq\fI~/.gnupg\fR\(cq homedir.
+
+.TP
+.B  -z \fIn\fR
+.TQ
+.B  --compress-level \fIn\fR
+.TQ
+.B  --bzip2-compress-level \fIn\fR
+Set compression level to \fIn\fR for the ZIP and ZLIB compression
+algorithms. The default is to use the default compression level of zlib
+(normally 6). \fB--bzip2-compress-level\fR sets the compression level
+for the BZIP2 compression algorithm (defaulting to 6 as well). This is a
+different option from \fB--compress-level\fR since BZIP2 uses a
+significant amount of memory for each additional compression level.
+\fB-z\fR sets both. A value of 0 for \fIn\fR disables compression.
+
+.TP
+.B  --bzip2-decompress-lowmem
+Use a different decompression method for BZIP2 compressed files. This
+alternate method uses a bit more than half the memory, but also runs
+at half the speed. This is useful under extreme low memory
+circumstances when the file was originally compressed at a high
+\fB--bzip2-compress-level\fR.
+
+
+.TP
+.B  --mangle-dos-filenames
+.TQ
+.B  --no-mangle-dos-filenames
+Older version of Windows cannot handle filenames with more than one
+dot. \fB--mangle-dos-filenames\fR causes GnuPG to replace (rather
+than add to) the extension of an output filename to avoid this
+problem. This option is off by default and has no effect on non-Windows
+platforms.
+
+.TP
+.B  --ask-cert-level
+.TQ
+.B  --no-ask-cert-level
+When making a key signature, prompt for a certification level. If this
+option is not specified, the certification level used is set via
+\fB--default-cert-level\fR. See \fB--default-cert-level\fR for
+information on the specific levels and how they are
+used. \fB--no-ask-cert-level\fR disables this option. This option
+defaults to no.
+
+.TP
+.B  --default-cert-level \fIn\fR
+The default to use for the check level when signing a key.
+
+0 means you make no particular claim as to how carefully you verified
+the key.
+
+1 means you believe the key is owned by the person who claims to own
+it but you could not, or did not verify the key at all. This is
+useful for a "persona" verification, where you sign the key of a
+pseudonymous user.
+
+2 means you did casual verification of the key. For example, this
+could mean that you verified the key fingerprint and checked the
+user ID on the key against a photo ID.
+
+3 means you did extensive verification of the key. For example, this
+could mean that you verified the key fingerprint with the owner of the
+key in person, and that you checked, by means of a hard to forge
+document with a photo ID (such as a passport) that the name of the key
+owner matches the name in the user ID on the key, and finally that you
+verified (by exchange of email) that the email address on the key
+belongs to the key owner.
+
+Note that the examples given above for levels 2 and 3 are just that:
+examples. In the end, it is up to you to decide just what "casual"
+and "extensive" mean to you.
+
+This option defaults to 0 (no particular claim).
+
+.TP
+.B  --min-cert-level
+When building the trust database, treat any signatures with a
+certification level below this as invalid. Defaults to 2, which
+disregards level 1 signatures. Note that level 0 "no particular
+claim" signatures are always accepted.
+
+.TP
+.B  --trusted-key \fIlong key ID or fingerprint\fR
+Assume that the specified key (which should be given as fingerprint)
+is as trustworthy as one of your own secret keys. This option is
+useful if you don't want to keep your secret keys (or one of them)
+online but still want to be able to check the validity of a given
+recipient's or signator's key.  If the given key is not locally
+available but an LDAP keyserver is configured the missing key is
+imported from that server.
+
+.TP
+.B  --trust-model {pgp|classic|tofu|tofu+pgp|direct|always|auto}
+Set what trust model GnuPG should follow. The models are:
+
+.RS
+
+.TP
+.B  pgp
+This is the Web of Trust combined with trust signatures as used in PGP
+5.x and later. This is the default trust model when creating a new
+trust database.
+
+.TP
+.B  classic
+This is the standard Web of Trust as introduced by PGP 2.
+
+.TP
+.B  tofu
+
+TOFU stands for Trust On First Use.  In this trust model, the first
+time a key is seen, it is memorized.  If later another key with a
+user id with the same email address is seen, both keys are marked as
+suspect.  In that case, the next time either is used, a warning is
+displayed describing the conflict, why it might have occurred
+(either the user generated a new key and failed to cross sign the
+old and new keys, the key is forgery, or a man-in-the-middle attack
+is being attempted), and the user is prompted to manually confirm
+the validity of the key in question.
+
+Because a potential attacker is able to control the email address
+and thereby circumvent the conflict detection algorithm by using an
+email address that is similar in appearance to a trusted email
+address, whenever a message is verified, statistics about the number
+of messages signed with the key are shown.  In this way, a user can
+easily identify attacks using fake keys for regular correspondents.
+
+When compared with the Web of Trust, TOFU offers significantly
+weaker security guarantees.  In particular, TOFU only helps ensure
+consistency (that is, that the binding between a key and email
+address doesn't change).  A major advantage of TOFU is that it
+requires little maintenance to use correctly.  To use the web of
+trust properly, you need to actively sign keys and mark users as
+trusted introducers.  This is a time-consuming process and anecdotal
+evidence suggests that even security-conscious users rarely take the
+time to do this thoroughly and instead rely on an ad-hoc TOFU
+process.
+
+In the TOFU model, policies are associated with bindings between
+keys and email addresses (which are extracted from user ids and
+normalized).  There are five policies, which can be set manually
+using the \fB--tofu-policy\fR option.  The default policy can be
+set using the \fB--tofu-default-policy\fR option.
+
+The TOFU policies are: \fBauto\fR, \fBgood\fR, \fBunknown\fR,
+\fBbad\fR and \fBask\fR.  The \fBauto\fR policy is used by
+default (unless overridden by \fB--tofu-default-policy\fR) and
+marks a binding as marginally trusted.  The \fBgood\fR,
+\fBunknown\fR and \fBbad\fR policies mark a binding as fully
+trusted, as having unknown trust or as having trust never,
+respectively.  The \fBunknown\fR policy is useful for just using
+TOFU to detect conflicts, but to never assign positive trust to a
+binding.  The final policy, \fBask\fR prompts the user to indicate
+the binding's trust.  If batch mode is enabled (or input is
+inappropriate in the context), then the user is not prompted and the
+\fBundefined\fR trust level is returned.
+
+.TP
+.B  tofu+pgp
+This trust model combines TOFU with the Web of Trust.  This is done
+by computing the trust level for each model and then taking the
+maximum trust level where the trust levels are ordered as follows:
+\fBunknown < undefined < marginal < fully < ultimate < expired <
+never\fR.
+
+By setting \fB--tofu-default-policy=unknown\fR, this model can be
+used to implement the web of trust with TOFU's conflict detection
+algorithm, but without its assignment of positive trust values,
+which some security-conscious users don't like.
+
+.TP
+.B  direct
+Key validity is set directly by the user and not calculated via the
+Web of Trust.  This model is solely based on the key and does
+not distinguish user IDs.  Note that when changing to another trust
+model the trust values assigned to a key are transformed into
+ownertrust values, which also indicate how you trust the owner of
+the key to sign other keys.
+
+.TP
+.B  always
+Skip key validation and assume that used keys are always fully
+valid. You generally won't use this unless you are using some
+external validation scheme. This option also suppresses the
+"[uncertain]" tag printed with signature checks when there is no
+evidence that the user ID is bound to the key.  Note that this
+trust model still does not allow the use of expired, revoked, or
+disabled keys.
+
+.TP
+.B  auto
+Select the trust model depending on whatever the internal trust
+database says. This is the default model if such a database already
+exists.  Note that a tofu trust model is not considered here and
+must be enabled explicitly.
+.RE
+
+
+.TP
+.B  --auto-key-locate \fImechanisms\fR
+.TQ
+.B  --no-auto-key-locate
+GnuPG can automatically locate and retrieve keys as needed using this
+option.  This happens when encrypting to an email address (in the
+"user@example.com" form), and there are no "user@example.com" keys
+on the local keyring.  This option takes any number of the mechanisms
+listed below, in the order they are to be tried.  Instead of listing
+the mechanisms as comma delimited arguments, the option may also be
+given several times to add more mechanism.  The option
+\fB--no-auto-key-locate\fR or the mechanism "clear" resets the
+list.  The default is "local,wkd".
+
+.RS
+
+.TP
+.B  cert
+Locate a key using DNS CERT, as specified in RFC-4398.
+
+.TP
+.B  dane
+Locate a key using DANE, as specified
+in draft-ietf-dane-openpgpkey-05.txt.
+
+.TP
+.B  wkd
+Locate a key using the Web Key Directory protocol.
+
+.TP
+.B  ldap
+Using DNS Service Discovery, check the domain in question for any LDAP
+keyservers to use.  If this fails, attempt to locate the key using the
+PGP Universal method of checking \(oqldap://keys.(thedomain)\(cq.
+
+.TP
+.B  ntds
+Locate the key using the Active Directory (Windows only).  This
+method also allows to search by fingerprint using the command
+\fB--locate-external-key\fR.  Note that this mechanism is
+actually a shortcut for the mechanism \(oqkeyserver\(cq but using
+"ldap:///" as the keyserver.
+
+.TP
+.B  keyserver
+Locate a key using a keyserver.  This method also allows to search
+by fingerprint using the command \fB--locate-external-key\fR if
+any of the configured keyservers is an LDAP server.
+
+.TP
+.B  keyserver-URL
+In addition, a keyserver URL as used in the \fBdirmngr\fR
+configuration may be used here to query that particular keyserver.
+This method also allows to search by fingerprint using the command
+\fB--locate-external-key\fR if the URL specifies an LDAP server.
+
+.TP
+.B  local
+Locate the key using the local keyrings.  This mechanism allows the user to
+select the order a local key lookup is done.  Thus using
+\(oq--auto-key-locate local\(cq is identical to
+\fB--no-auto-key-locate\fR.
+
+.TP
+.B  nodefault
+This flag disables the standard local key lookup, done before any of the
+mechanisms defined by the \fB--auto-key-locate\fR are tried.  The
+position of this mechanism in the list does not matter.  It is not
+required if \fBlocal\fR is also used.
+
+.TP
+.B  clear
+Clear all defined mechanisms.  This is useful to override
+mechanisms given in a config file.  Note that a \fBnodefault\fR in
+\fImechanisms\fR will also be cleared unless it is given after the
+\fBclear\fR.
+
+.RE
+
+
+.TP
+.B  --auto-key-import
+.TQ
+.B  --no-auto-key-import
+This is an offline mechanism to get a missing key for signature
+verification and for later encryption to this key.  If this option is
+enabled and a signature includes an embedded key, that key is
+used to verify the signature and on verification success the key is
+imported. The default is \fB--no-auto-key-import\fR.
+
+On the sender (signing) site the option \fB--include-key-block\fR
+needs to be used to put the public part of the signing key as “Key
+Block subpacket” into the signature.
+
+.TP
+.B  --auto-key-retrieve
+.TQ
+.B  --no-auto-key-retrieve
+These options enable or disable the automatic retrieving of keys from
+a keyserver when verifying signatures made by keys that are not on the
+local keyring.  The default is \fB--no-auto-key-retrieve\fR.
+
+The order of methods tried to lookup the key is:
+
+1. If the option \fB--auto-key-import\fR is set and the signatures
+includes an embedded key, that key is used to verify the signature and
+on verification success that key is imported.
+
+2. If a preferred keyserver is specified in the signature and the
+option \fBhonor-keyserver-url\fR is active (which is not the
+default), that keyserver is tried.  Note that the creator of the
+signature uses the option \fB--sig-keyserver-url\fR to specify the
+preferred keyserver for data signatures.
+
+3. If the signature has the Signer's UID set (e.g. using
+\fB--sender\fR while creating the signature) a Web Key Directory
+(WKD) lookup is done.  This is the default configuration but can be
+disabled by removing WKD from the auto-key-locate list or by using the
+option \fB--disable-signer-uid\fR.
+
+4. If any keyserver is configured and the Issuer Fingerprint is part
+of the signature (since GnuPG 2.1.16), the configured keyservers are
+tried.
+
+Note that this option makes a "web bug" like behavior possible.
+Keyserver or Web Key Directory operators can see which keys you
+request, so by sending you a message signed by a brand new key (which
+you naturally will not have on your local keyring), the operator can
+tell both your IP address and the time when you verified the
+signature.
+
+.TP
+.B  --keyid-format {none|short|0xshort|long|0xlong}
+Select how to display key IDs.  "none" does not show the key ID at all
+but shows the fingerprint in a separate line.  "short" is the
+traditional 8-character key ID.  "long" is the more accurate (but less
+convenient) 16-character key ID.  Add an "0x" to either to include an
+"0x" at the beginning of the key ID, as in 0x99242560.  Note that this
+option is ignored if the option \fB--with-colons\fR is used.
+
+.TP
+.B  --keyserver \fIname\fR
+This option is deprecated - please use the \fB--keyserver\fR in
+\(oq\fIdirmngr.conf\fR\(cq instead.
+
+Use \fIname\fR as your keyserver. This is the server that
+\fB--receive-keys\fR, \fB--send-keys\fR, and \fB--search-keys\fR
+will communicate with to receive keys from, send keys to, and search for
+keys on. The format of the \fIname\fR is a URI:
+`scheme:[//]keyservername[:port]' The scheme is the type of keyserver:
+"hkp"/"hkps" for the HTTP (or compatible) keyservers or "ldap"/"ldaps"
+for the LDAP keyservers.  Note that your particular installation of
+GnuPG may have other keyserver types available as well. Keyserver
+schemes are case-insensitive.
+
+Most keyservers synchronize with each other, so there is generally no
+need to send keys to more than one server. The keyserver
+\fBhkp://keys.gnupg.net\fR uses round robin DNS to give a different
+keyserver each time you use it.
+
+.TP
+.B  --keyserver-options {\fIname\fR=\fIvalue\fR}
+This is a space or comma delimited string that gives options for the
+keyserver. Options can be prefixed with a `no-' to give the opposite
+meaning. Valid import-options or export-options may be used here as
+well to apply to importing (\fB--recv-key\fR) or exporting
+(\fB--send-key\fR) a key from a keyserver. While not all options
+are available for all keyserver types, some common options are:
+
+.RS
+
+.TP
+.B  include-revoked
+When searching for a key with \fB--search-keys\fR, include keys that
+are marked on the keyserver as revoked. Note that not all keyservers
+differentiate between revoked and unrevoked keys, and for such
+keyservers this option is meaningless. Note also that most keyservers do
+not have cryptographic verification of key revocations, and so turning
+this option off may result in skipping keys that are incorrectly marked
+as revoked.
+
+.TP
+.B  include-disabled
+When searching for a key with \fB--search-keys\fR, include keys that
+are marked on the keyserver as disabled. Note that this option is not
+used with HKP keyservers.
+
+.TP
+.B  auto-key-retrieve
+This is an obsolete alias for the option \fBauto-key-retrieve\fR.
+Please do not use it; it will be removed in future versions..
+
+.TP
+.B  honor-keyserver-url
+When using \fB--refresh-keys\fR, if the key in question has a preferred
+keyserver URL, then use that preferred keyserver to refresh the key
+from. In addition, if auto-key-retrieve is set, and the signature
+being verified has a preferred keyserver URL, then use that preferred
+keyserver to fetch the key from. Note that this option introduces a
+"web bug": The creator of the key can see when the keys is
+refreshed.  Thus this option is not enabled by default.
+
+.TP
+.B  include-subkeys
+When receiving a key, include subkeys as potential targets. Note that
+this option is not used with HKP keyservers, as they do not support
+retrieving keys by subkey id.
+
+.TP
+.B  timeout
+.TQ
+.B  http-proxy=\fIvalue\fR
+.TQ
+.B  verbose
+.TQ
+.B  debug
+.TQ
+.B  check-cert
+.TP
+.B  ca-cert-file
+These options have no more function since GnuPG 2.1.  Use the
+\fBdirmngr\fR configuration options instead.
+
+.RE
+
+The default list of options is: "self-sigs-only, import-clean,
+repair-keys, repair-pks-subkey-bug, export-attributes". However, if
+the actual used source is an LDAP server "no-self-sigs-only" is
+assumed unless "self-sigs-only" has been explictly configured.
+
+
+.TP
+.B  --completes-needed \fIn\fR
+Number of completely trusted users to introduce a new
+key signer (defaults to 1).
+
+.TP
+.B  --marginals-needed \fIn\fR
+Number of marginally trusted users to introduce a new
+key signer (defaults to 3)
+
+.TP
+.B  --tofu-default-policy {auto|good|unknown|bad|ask}
+The default TOFU policy (defaults to \fBauto\fR).  For more
+information about the meaning of this option, see: [trust-model-tofu].
+
+.TP
+.B  --max-cert-depth \fIn\fR
+Maximum depth of a certification chain (default is 5).
+
+.TP
+.B  --no-sig-cache
+Do not cache the verification status of key signatures.
+Caching gives a much better performance in key listings. However, if
+you suspect that your public keyring is not safe against write
+modifications, you can use this option to disable the caching. It
+probably does not make sense to disable it because all kind of damage
+can be done if someone else has write access to your public keyring.
+
+.TP
+.B  --auto-check-trustdb
+.TQ
+.B  --no-auto-check-trustdb
+If GnuPG feels that its information about the Web of Trust has to be
+updated, it automatically runs the \fB--check-trustdb\fR command
+internally.  This may be a time consuming
+process. \fB--no-auto-check-trustdb\fR disables this option.
+
+.TP
+.B  --use-agent
+.TQ
+.B  --no-use-agent
+This is dummy option. \fBgpg\fR always requires the agent.
+
+.TP
+.B  --gpg-agent-info
+This is dummy option. It has no effect when used with \fBgpg\fR.
+
+
+.TP
+.B  --agent-program \fIfile\fR
+Specify an agent program to be used for secret key operations.  The
+default value is determined by running \fBgpgconf\fR with the
+option \fB--list-dirs\fR.  Note that the pipe symbol (\fB|\fR) is
+used for a regression test suite hack and may thus not be used in the
+file name.
+
+.TP
+.B  --dirmngr-program \fIfile\fR
+Specify a dirmngr program to be used for keyserver access.  The
+default value is \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/bin/dirmngr\fR\(cq.
+
+.TP
+.B  --disable-dirmngr
+Entirely disable the use of the Dirmngr.
+
+.TP
+.B  --no-autostart
+Do not start the gpg-agent or the dirmngr if it has not yet been
+started and its service is required.  This option is mostly useful on
+machines where the connection to gpg-agent has been redirected to
+another machines.  If dirmngr is required on the remote machine, it
+may be started manually using \fBgpgconf --launch dirmngr\fR.
+
+.TP
+.B  --lock-once
+Lock the databases the first time a lock is requested
+and do not release the lock until the process
+terminates.
+
+.TP
+.B  --lock-multiple
+Release the locks every time a lock is no longer
+needed. Use this to override a previous \fB--lock-once\fR
+from a config file.
+
+.TP
+.B  --lock-never
+Disable locking entirely. This option should be used only in very
+special environments, where it can be assured that only one process
+is accessing those files. A bootable floppy with a stand-alone
+encryption system will probably use this. Improper usage of this
+option may lead to data and key corruption.
+
+.TP
+.B  --exit-on-status-write-error
+This option will cause write errors on the status FD to immediately
+terminate the process. That should in fact be the default but it never
+worked this way and thus we need an option to enable this, so that the
+change won't break applications which close their end of a status fd
+connected pipe too early. Using this option along with
+\fB--enable-progress-filter\fR may be used to cleanly cancel long
+running gpg operations.
+
+.TP
+.B  --limit-card-insert-tries \fIn\fR
+With \fIn\fR greater than 0 the number of prompts asking to insert a
+smartcard gets limited to N-1. Thus with a value of 1 gpg won't at
+all ask to insert a card if none has been inserted at startup. This
+option is useful in the configuration file in case an application does
+not know about the smartcard support and waits ad infinitum for an
+inserted card.
+
+.TP
+.B  --no-random-seed-file
+GnuPG uses a file to store its internal random pool over invocations.
+This makes random generation faster; however sometimes write operations
+are not desired. This option can be used to achieve that with the cost of
+slower random generation.
+
+.TP
+.B  --no-greeting
+Suppress the initial copyright message.
+
+.TP
+.B  --no-secmem-warning
+Suppress the warning about "using insecure memory".
+
+.TP
+.B  --no-permission-warning
+Suppress the warning about unsafe file and home directory (\fB--homedir\fR)
+permissions. Note that the permission checks that GnuPG performs are
+not intended to be authoritative, but rather they simply warn about
+certain common permission problems. Do not assume that the lack of a
+warning means that your system is secure.
+
+Note that the warning for unsafe \fB--homedir\fR permissions cannot be
+suppressed in the gpg.conf file, as this would allow an attacker to
+place an unsafe gpg.conf file in place, and use this file to suppress
+warnings about itself. The \fB--homedir\fR permissions warning may only be
+suppressed on the command line.
+
+.TP
+.B  --require-secmem
+.TQ
+.B  --no-require-secmem
+Refuse to run if GnuPG cannot get secure memory. Defaults to no
+(i.e. run, but give a warning).
+
+
+.TP
+.B  --require-cross-certification
+.TQ
+.B  --no-require-cross-certification
+When verifying a signature made from a subkey, ensure that the cross
+certification "back signature" on the subkey is present and valid.  This
+protects against a subtle attack against subkeys that can sign.
+Defaults to \fB--require-cross-certification\fR for
+\fBgpg\fR.
+
+.TP
+.B  --expert
+.TQ
+.B  --no-expert
+Allow the user to do certain nonsensical or "silly" things like
+signing an expired or revoked key, or certain potentially incompatible
+things like generating unusual key types. This also disables certain
+warning messages about potentially incompatible actions. As the name
+implies, this option is for experts only. If you don't fully
+understand the implications of what it allows you to do, leave this
+off. \fB--no-expert\fR disables this option.
+
+.P
+
+
+
+.SS  Key related options
+\ 
+
+
+.TP
+.B  --recipient \fIname\fR
+.TQ
+.B  -r
+Encrypt for user id \fIname\fR. If this option or
+\fB--hidden-recipient\fR is not specified, GnuPG asks for the user-id
+unless \fB--default-recipient\fR is given.
+
+.TP
+.B  --hidden-recipient \fIname\fR
+.TQ
+.B  -R
+Encrypt for user ID \fIname\fR, but hide the key ID of this user's
+key. This option helps to hide the receiver of the message and is a
+limited countermeasure against traffic analysis. If this option or
+\fB--recipient\fR is not specified, GnuPG asks for the user ID unless
+\fB--default-recipient\fR is given.
+
+.TP
+.B  --recipient-file \fIfile\fR
+.TQ
+.B  -f
+This option is similar to \fB--recipient\fR except that it
+encrypts to a key stored in the given file.  \fIfile\fR must be the
+name of a file containing exactly one key.  \fBgpg\fR assumes that
+the key in this file is fully valid.
+
+.TP
+.B  --hidden-recipient-file \fIfile\fR
+.TQ
+.B  -F
+This option is similar to \fB--hidden-recipient\fR except that it
+encrypts to a key stored in the given file.  \fIfile\fR must be the
+name of a file containing exactly one key.  \fBgpg\fR assumes that
+the key in this file is fully valid.
+
+.TP
+.B  --encrypt-to \fIname\fR
+Same as \fB--recipient\fR but this one is intended for use in the
+options file and may be used with your own user-id as an
+"encrypt-to-self". These keys are only used when there are other
+recipients given either by use of \fB--recipient\fR or by the asked
+user id.  No trust checking is performed for these user ids and even
+disabled keys can be used.
+
+.TP
+.B  --hidden-encrypt-to \fIname\fR
+Same as \fB--hidden-recipient\fR but this one is intended for use in the
+options file and may be used with your own user-id as a hidden
+"encrypt-to-self". These keys are only used when there are other
+recipients given either by use of \fB--recipient\fR or by the asked user id.
+No trust checking is performed for these user ids and even disabled
+keys can be used.
+
+.TP
+.B  --no-encrypt-to
+Disable the use of all \fB--encrypt-to\fR and
+\fB--hidden-encrypt-to\fR keys.
+
+.TP
+.B  --group {\fIname\fR=\fIvalue\fR}
+Sets up a named group, which is similar to aliases in email programs.
+Any time the group name is a recipient (\fB-r\fR or
+\fB--recipient\fR), it will be expanded to the values
+specified. Multiple groups with the same name are automatically merged
+into a single group.
+
+The values are \fBkey IDs\fR or fingerprints, but any key description
+is accepted. Note that a value with spaces in it will be treated as
+two different values. Note also there is only one level of expansion
+--- you cannot make an group that points to another group. When used
+from the command line, it may be necessary to quote the argument to
+this option to prevent the shell from treating it as multiple
+arguments.
+
+.TP
+.B  --ungroup \fIname\fR
+Remove a given entry from the \fB--group\fR list.
+
+.TP
+.B  --no-groups
+Remove all entries from the \fB--group\fR list.
+
+.TP
+.B  --local-user \fIname\fR
+.TQ
+.B  -u
+Use \fIname\fR as the key to sign with. Note that this option overrides
+\fB--default-key\fR.
+
+.TP
+.B  --sender \fImbox\fR
+This option has two purposes.  \fImbox\fR must either be a complete
+user ID containing a proper mail address or just a plain mail address.
+The option can be given multiple times.
+
+When creating a signature this option tells gpg the signing key's user
+id used to make the signature and embeds that user ID into the created
+signature (using OpenPGP's ``Signer's User ID'' subpacket).  If the
+option is given multiple times a suitable user ID is picked.  However,
+if the signing key was specified directly by using a mail address
+(i.e. not by using a fingerprint or key ID) this option is used and
+the mail address is embedded in the created signature.
+
+When verifying a signature \fImbox\fR is used to restrict the
+information printed by the TOFU code to matching user IDs.  If the
+option is used and the signature contains a ``Signer's User ID''
+subpacket that information is is also used to restrict the printed
+information.  Note that GnuPG considers only the mail address part of
+a User ID.
+
+If this option or the said subpacket is available the TRUST lines as
+printed by option \fBstatus-fd\fR correspond to the corresponding
+User ID; if no User ID is known the TRUST lines are computed directly
+on the key and do not give any information about the User ID.  In the
+latter case it his highly recommended to scripts and other frontends
+to evaluate the VALIDSIG line, retrieve the key and print all User IDs
+along with their validity (trust) information.
+
+
+.TP
+.B  --try-secret-key \fIname\fR
+For hidden recipients GPG needs to know the keys to use for trial
+decryption.  The key set with \fB--default-key\fR is always tried
+first, but this is often not sufficient.  This option allows setting more
+keys to be used for trial decryption.  Although any valid user-id
+specification may be used for \fIname\fR it makes sense to use at least
+the long keyid to avoid ambiguities.  Note that gpg-agent might pop up a
+pinentry for a lot keys to do the trial decryption.  If you want to stop
+all further trial decryption you may use close-window button instead of
+the cancel button.
+
+.TP
+.B  --try-all-secrets
+Don't look at the key ID as stored in the message but try all secret
+keys in turn to find the right decryption key. This option forces the
+behaviour as used by anonymous recipients (created by using
+\fB--throw-keyids\fR or \fB--hidden-recipient\fR) and might come
+handy in case where an encrypted message contains a bogus key ID.
+
+.TP
+.B  --skip-hidden-recipients
+.TQ
+.B  --no-skip-hidden-recipients
+During decryption skip all anonymous recipients.  This option helps in
+the case that people use the hidden recipients feature to hide their
+own encrypt-to key from others.  If one has many secret keys this
+may lead to a major annoyance because all keys are tried in turn to
+decrypt something which was not really intended for it.  The drawback
+of this option is that it is currently not possible to decrypt a
+message which includes real anonymous recipients.
+
+
+.P
+
+
+.SS  Input and Output
+\ 
+
+
+.TP
+.B  --armor
+.TQ
+.B  -a
+Create ASCII armored output.  The default is to create the binary
+OpenPGP format.
+
+.TP
+.B  --no-armor
+Assume the input data is not in ASCII armored format.
+
+.TP
+.B  --output \fIfile\fR
+.TQ
+.B  -o \fIfile\fR
+Write output to \fIfile\fR.  To write to stdout use \fB-\fR as the
+filename.
+
+.TP
+.B  --max-output \fIn\fR
+This option sets a limit on the number of bytes that will be generated
+when processing a file. Since OpenPGP supports various levels of
+compression, it is possible that the plaintext of a given message may be
+significantly larger than the original OpenPGP message. While GnuPG
+works properly with such messages, there is often a desire to set a
+maximum file size that will be generated before processing is forced to
+stop by the OS limits. Defaults to 0, which means "no limit".
+
+.TP
+.B  --chunk-size \fIn\fR
+The AEAD encryption mode encrypts the data in chunks so that a
+receiving side can check for transmission errors or tampering at the
+end of each chunk and does not need to delay this until all data has
+been received.  The used chunk size is 2^\fIn\fR byte.  The lowest
+allowed value for \fIn\fR is 6 (64 byte) and the largest is the
+default of 22 which creates chunks not larger than 4 MiB.
+
+.TP
+.B  --input-size-hint \fIn\fR
+This option can be used to tell GPG the size of the input data in
+bytes.  \fIn\fR must be a positive base-10 number.  This option is
+only useful if the input is not taken from a file.  GPG may use this
+hint to optimize its buffer allocation strategy.  It is also used by
+the \fB--status-fd\fR line ``PROGRESS'' to provide a value for
+``total'' if that is not available by other means.
+
+.TP
+.B  --key-origin \fIstring\fR[,\fIurl\fR]
+gpg can track the origin of a key. Certain origins are implicitly
+known (e.g. keyserver, web key directory) and set.  For a standard
+import the origin of the keys imported can be set with this option.
+To list the possible values use "help" for \fIstring\fR.  Some origins
+can store an optional \fIurl\fR argument.  That URL can appended to
+\fIstring\fR after a comma.
+
+.TP
+.B  --import-options \fIparameters\fR
+This is a space or comma delimited string that gives options for
+importing keys. Options can be prepended with a `no-' to give the
+opposite meaning. The options are:
+
+.RS
+
+.TP
+.B  import-local-sigs
+Allow importing key signatures marked as "local". This is not
+generally useful unless a shared keyring scheme is being used.
+Defaults to no.
+
+.TP
+.B  keep-ownertrust
+Normally possible still existing ownertrust values of a key are
+cleared if a key is imported.  This is in general desirable so that
+a formerly deleted key does not automatically gain an ownertrust
+values merely due to import.  On the other hand it is sometimes
+necessary to re-import a trusted set of keys again but keeping
+already assigned ownertrust values.  This can be achieved by using
+this option.
+
+.TP
+.B  repair-pks-subkey-bug
+During import, attempt to repair the damage caused by the PKS keyserver
+bug (pre version 0.9.6) that mangles keys with multiple subkeys. Note
+that this cannot completely repair the damaged key as some crucial data
+is removed by the keyserver, but it does at least give you back one
+subkey. Defaults to no for regular \fB--import\fR and to yes for
+keyserver \fB--receive-keys\fR.
+
+.TP
+.B  import-show
+.TQ
+.B  show-only
+Show a listing of the key as imported right before it is stored.
+This can be combined with the option \fB--dry-run\fR to only look
+at keys; the option \fBshow-only\fR is a shortcut for this
+combination.  The command \fB--show-keys\fR is another shortcut
+for this.  Note that suffixes like '#' for "sec" and "sbb" lines
+may or may not be printed.
+
+.TP
+.B  import-export
+Run the entire import code but instead of storing the key to the
+local keyring write it to the output.  The export option
+\fBexport-dane\fR affect the output.  This option can for example
+be used to remove all invalid parts from a key without the
+need to store it.
+
+.TP
+.B  merge-only
+During import, allow key updates to existing keys, but do not allow
+any new keys to be imported. Defaults to no.
+
+.TP
+.B  import-clean
+After import, compact (remove all signatures except the
+self-signature) any user IDs from the new key that are not usable.
+Then, remove any signatures from the new key that are not usable.
+This includes signatures that were issued by keys that are not present
+on the keyring. This option is the same as running the \fB--edit-key\fR
+command "clean" after import. Defaults to no.
+
+.TP
+.B  self-sigs-only
+Accept only self-signatures while importing a key.  All other key
+signatures are skipped at an early import stage.  This option can be
+used with \fBkeyserver-options\fR to mitigate attempts to flood a
+key with bogus signatures from a keyserver.  The drawback is that
+all other valid key signatures, as required by the Web of Trust are
+also not imported.  Note that when using this option along with
+import-clean it suppresses the final clean step after merging the
+imported key into the existing key.
+
+.TP
+.B  repair-keys
+After import, fix various problems with the
+keys.  For example, this reorders signatures, and strips duplicate
+signatures.  Defaults to yes.
+
+.TP
+.B  bulk-import
+When used the keyboxd (option \fBuse-keyboxd\fR in \(oq\fIcommon.conf\fR\(cq)
+does the import within a single
+transaction.
+
+.TP
+.B  import-minimal
+Import the smallest key possible. This removes all signatures except
+the most recent self-signature on each user ID. This option is the
+same as running the \fB--edit-key\fR command "minimize" after import.
+Defaults to no.
+
+.TP
+.B  restore
+.TQ
+.B  import-restore
+Import in key restore mode.  This imports all data which is usually
+skipped during import; including all GnuPG specific data.  All other
+contradicting options are overridden.
+.RE
+
+.TP
+.B  --import-filter {\fIname\fR=\fIexpr\fR}
+.TQ
+.B  --export-filter {\fIname\fR=\fIexpr\fR}
+These options define an import/export filter which are applied to the
+imported/exported keyblock right before it will be stored/written.
+\fIname\fR defines the type of filter to use, \fIexpr\fR the
+expression to evaluate.  The option can be used several times which
+then appends more expression to the same \fIname\fR.
+
+
+The available filter types are:
+
+.RS
+
+.TP
+.B  keep-uid
+This filter will keep a user id packet and its dependent packets in
+the keyblock if the expression evaluates to true.
+
+.TP
+.B  drop-subkey
+This filter drops the selected subkeys.
+Currently only implemented for --export-filter.
+
+.TP
+.B  drop-sig
+This filter drops the selected key signatures on user ids.
+Self-signatures are not considered.
+Currently only implemented for --import-filter.
+
+.RE
+
+For the syntax of the expression see the chapter "FILTER EXPRESSIONS".
+The property names for the expressions depend on the actual filter
+type and are indicated in the following table.
+
+The available properties are:
+
+.RS
+
+.TP
+.B  uid
+A string with the user id.  (keep-uid)
+
+.TP
+.B  mbox
+The addr-spec part of a user id with mailbox or the empty string.
+(keep-uid)
+
+.TP
+.B  key_algo
+A number with the public key algorithm of a key or subkey packet.
+(drop-subkey)
+
+.TP
+.B  key_created
+.TQ
+.B  key_created_d
+The first is the timestamp a public key or subkey packet was
+created.  The second is the same but given as an ISO string,
+e.g. "2016-08-17". (drop-subkey)
+
+.TP
+.B  fpr
+The hexified fingerprint of the current subkey or primary key.
+(drop-subkey)
+
+.TP
+.B  primary
+Boolean indicating whether the user id is the primary one.  (keep-uid)
+
+.TP
+.B  expired
+Boolean indicating whether a user id (keep-uid), a key (drop-subkey), or a
+signature (drop-sig) expired.
+
+.TP
+.B  revoked
+Boolean indicating whether a user id (keep-uid) or a key (drop-subkey) has
+been revoked.
+
+.TP
+.B  disabled
+Boolean indicating whether a primary key is disabled. (not used)
+
+.TP
+.B  secret
+Boolean indicating whether a key or subkey is a secret one.
+(drop-subkey)
+
+.TP
+.B  usage
+A string indicating the usage flags for the subkey, from the
+sequence ``ecsa?''.  For example, a subkey capable of just signing
+and authentication would be an exact match for ``sa''. (drop-subkey)
+
+.TP
+.B  sig_created
+.TQ
+.B  sig_created_d
+The first is the timestamp a signature packet was created.  The
+second is the same but given as an ISO date string,
+e.g. "2016-08-17". (drop-sig)
+
+.TP
+.B  sig_algo
+A number with the public key algorithm of a signature packet. (drop-sig)
+
+.TP
+.B  sig_digest_algo
+A number with the digest algorithm of a signature packet. (drop-sig)
+
+.RE
+
+.TP
+.B  --export-options \fIparameters\fR
+This is a space or comma delimited string that gives options for
+exporting keys.  Options can be prepended with a `no-' to give the
+opposite meaning.  The options are:
+
+.RS
+
+.TP
+.B  export-local-sigs
+Allow exporting key signatures marked as "local". This is not
+generally useful unless a shared keyring scheme is being used.
+Defaults to no.
+
+.TP
+.B  export-attributes
+Include attribute user IDs (photo IDs) while exporting. Not
+including attribute user IDs is useful to export keys that are going
+to be used by an OpenPGP program that does not accept attribute user
+IDs.  Defaults to yes.
+
+.TP
+.B  export-sensitive-revkeys
+Include designated revoker information that was marked as
+"sensitive". Defaults to no.
+
+
+.TP
+.B  backup
+.TQ
+.B  export-backup
+Export for use as a backup.  The exported data includes all data
+which is needed to restore the key or keys later with GnuPG.  The
+format is basically the OpenPGP format but enhanced with GnuPG
+specific data.  All other contradicting options are overridden.
+
+.TP
+.B  export-clean
+Compact (remove all signatures from) user IDs on the key being
+exported if the user IDs are not usable. Also, do not export any
+signatures that are not usable. This includes signatures that were
+issued by keys that are not present on the keyring. This option is
+the same as running the \fB--edit-key\fR command "clean" before export
+except that the local copy of the key is not modified. Defaults to
+no.
+
+.TP
+.B  export-minimal
+Export the smallest key possible. This removes all signatures except the
+most recent self-signature on each user ID. This option is the same as
+running the \fB--edit-key\fR command "minimize" before export except
+that the local copy of the key is not modified. Defaults to no.
+
+.TP
+.B  export-dane
+Instead of outputting the key material output OpenPGP DANE records
+suitable to put into DNS zone files.  An ORIGIN line is printed before
+each record to allow diverting the records to the corresponding zone
+file.
+
+.RE
+
+.TP
+.B  --with-colons
+Print key listings delimited by colons. Note that the output will be
+encoded in UTF-8 regardless of any \fB--display-charset\fR setting. This
+format is useful when GnuPG is called from scripts and other programs
+as it is easily machine parsed. The details of this format are
+documented in the file \(oq\fIdoc/DETAILS\fR\(cq, which is included in the GnuPG
+source distribution.
+
+.TP
+.B  --fixed-list-mode
+Do not merge primary user ID and primary key in \fB--with-colon\fR
+listing mode and print all timestamps as seconds since 1970-01-01.
+Since GnuPG 2.0.10, this mode is always used and thus this option is
+obsolete; it does not harm to use it though.
+
+.TP
+.B  --legacy-list-mode
+Revert to the pre-2.1 public key list mode.  This only affects the
+human readable output and not the machine interface
+(i.e. \fB--with-colons\fR).  Note that the legacy format does not
+convey suitable information for elliptic curves.
+
+.TP
+.B  --with-fingerprint
+Same as the command \fB--fingerprint\fR but changes only the format
+of the output and may be used together with another command.
+
+.TP
+.B  --with-subkey-fingerprint
+If a fingerprint is printed for the primary key, this option forces
+printing of the fingerprint for all subkeys.  This could also be
+achieved by using the \fB--with-fingerprint\fR twice but by using
+this option along with keyid-format "none" a compact fingerprint is
+printed.
+
+.TP
+.B  --with-icao-spelling
+Print the ICAO spelling of the fingerprint in addition to the hex digits.
+
+.TP
+.B  --with-keygrip
+Include the keygrip in the key listings.  In \fB--with-colons\fR mode
+this is implicitly enable for secret keys.
+
+.TP
+.B  --with-key-origin
+Include the locally held information on the origin and last update of
+a key in a key listing.  In \fB--with-colons\fR mode this is always
+printed.  This data is currently experimental and shall not be
+considered part of the stable API.
+
+.TP
+.B  --with-wkd-hash
+Print a Web Key Directory identifier along with each user ID in key
+listings.  This is an experimental feature and semantics may change.
+
+.TP
+.B  --with-secret
+Include info about the presence of a secret key in public key listings
+done with \fB--with-colons\fR.
+
+.P
+
+
+.SS  OpenPGP protocol specific options
+\ 
+
+
+.TP
+.B  -t, --textmode
+.TQ
+.B  --no-textmode
+Treat input files as text and store them in the OpenPGP canonical text
+form with standard "CRLF" line endings. This also sets the necessary
+flags to inform the recipient that the encrypted or signed data is text
+and may need its line endings converted back to whatever the local
+system uses. This option is useful when communicating between two
+platforms that have different line ending conventions (UNIX-like to Mac,
+Mac to Windows, etc). \fB--no-textmode\fR disables this option, and
+is the default.
+
+.TP
+.B  --force-v3-sigs
+.TQ
+.B  --no-force-v3-sigs
+.TP
+.B  --force-v4-certs
+.TQ
+.B  --no-force-v4-certs
+These options are obsolete and have no effect since GnuPG 2.1.
+
+.TP
+.B  --force-aead
+Force the use of AEAD encryption over MDC encryption.  AEAD is a
+modern and faster way to do authenticated encryption than the old MDC
+method.  See also options \fB--aead-algo\fR and
+\fB--chunk-size\fR.
+
+.TP
+.B  --force-mdc
+.TQ
+.B  --disable-mdc
+These options are obsolete and have no effect since GnuPG 2.2.8.  The
+MDC is always used unless the keys indicate that an AEAD algorithm can
+be used in which case AEAD is used.  But note: If the creation of a
+legacy non-MDC message is exceptionally required, the option
+\fB--rfc2440\fR allows for this.
+
+.TP
+.B  --disable-signer-uid
+By default the user ID of the signing key is embedded in the data signature.
+As of now this is only done if the signing key has been specified with
+\fBlocal-user\fR using a mail address, or with \fBsender\fR.  This
+information can be helpful for verifier to locate the key; see option
+\fB--auto-key-retrieve\fR.
+
+.TP
+.B  --include-key-block
+.TQ
+.B  --no-include-key-block
+This option is used to embed the actual signing key into a data
+signature.  The embedded key is stripped down to a single user id and
+includes only the signing subkey used to create the signature as well
+as as valid encryption subkeys.  All other info is removed from the
+key to keep it and thus the signature small.  This option is the
+OpenPGP counterpart to the \fBgpgsm\fR option
+\fB--include-certs\fR and allows the recipient of a signed message
+to reply encrypted to the sender without using any online directories
+to lookup the key.  The default is \fB--no-include-key-block\fR.
+See also the option \fB--auto-key-import\fR.
+
+.TP
+.B  --personal-cipher-preferences \fIstring\fR
+Set the list of personal cipher preferences to \fIstring\fR.  Use
+\fBgpg --version\fR to get a list of available algorithms,
+and use \fBnone\fR to set no preference at all.  This allows the user
+to safely override the algorithm chosen by the recipient key
+preferences, as GPG will only select an algorithm that is usable by
+all recipients.  The most highly ranked cipher in this list is also
+used for the \fB--symmetric\fR encryption command.
+
+.TP
+.B  --personal-aead-preferences \fIstring\fR
+Set the list of personal AEAD preferences to \fIstring\fR.  Use
+\fBgpg --version\fR to get a list of available algorithms,
+and use \fBnone\fR to set no preference at all.  This allows the user
+to safely override the algorithm chosen by the recipient key
+preferences, as GPG will only select an algorithm that is usable by
+all recipients.  The most highly ranked cipher in this list is also
+used for the \fB--symmetric\fR encryption command.
+
+.TP
+.B  --personal-digest-preferences \fIstring\fR
+Set the list of personal digest preferences to \fIstring\fR.  Use
+\fBgpg --version\fR to get a list of available algorithms,
+and use \fBnone\fR to set no preference at all.  This allows the user
+to safely override the algorithm chosen by the recipient key
+preferences, as GPG will only select an algorithm that is usable by
+all recipients.  The most highly ranked digest algorithm in this list
+is also used when signing without encryption
+(e.g. \fB--clear-sign\fR or \fB--sign\fR).
+
+.TP
+.B  --personal-compress-preferences \fIstring\fR
+Set the list of personal compression preferences to \fIstring\fR.
+Use \fBgpg --version\fR to get a list of available
+algorithms, and use \fBnone\fR to set no preference at all.  This
+allows the user to safely override the algorithm chosen by the
+recipient key preferences, as GPG will only select an algorithm that
+is usable by all recipients.  The most highly ranked compression
+algorithm in this list is also used when there are no recipient keys
+to consider (e.g. \fB--symmetric\fR).
+
+.TP
+.B  --s2k-cipher-algo \fIname\fR
+Use \fIname\fR as the cipher algorithm for symmetric encryption with
+a passphrase if \fB--personal-cipher-preferences\fR and
+\fB--cipher-algo\fR are not given.  The default is AES-128.
+
+.TP
+.B  --s2k-digest-algo \fIname\fR
+Use \fIname\fR as the digest algorithm used to mangle the passphrases
+for symmetric encryption.  The default is SHA-1.
+
+.TP
+.B  --s2k-mode \fIn\fR
+Selects how passphrases for symmetric encryption are mangled. If
+\fIn\fR is 0 a plain passphrase (which is in general not recommended)
+will be used, a 1 adds a salt (which should not be used) to the
+passphrase and a 3 (the default) iterates the whole process a number
+of times (see \fB--s2k-count\fR).
+
+.TP
+.B  --s2k-count \fIn\fR
+Specify how many times the passphrases mangling for symmetric
+encryption is repeated.  This value may range between 1024 and
+65011712 inclusive.  The default is inquired from gpg-agent.  Note
+that not all values in the 1024-65011712 range are legal and if an
+illegal value is selected, GnuPG will round up to the nearest legal
+value.  This option is only meaningful if \fB--s2k-mode\fR is set
+to the default of 3.
+
+
+.P
+
+
+.SS  Compliance options
+\ 
+
+These options control what GnuPG is compliant to. Only one of these
+options may be active at a time. Note that the default setting of
+this is nearly always the correct one. See the INTEROPERABILITY WITH
+OTHER OPENPGP PROGRAMS section below before using one of these
+options.
+
+
+.TP
+.B  --gnupg
+Use standard GnuPG behavior. This is essentially OpenPGP behavior (see
+\fB--openpgp\fR), but with extension from the proposed update to
+OpenPGP and with some additional workarounds for common compatibility
+problems in different versions of PGP.  This is the default option, so
+it is not generally needed, but it may be useful to override a
+different compliance option in the gpg.conf file.
+
+.TP
+.B  --openpgp
+Reset all packet, cipher and digest options to strict OpenPGP
+behavior.  This option implies \fB--allow-old-cipher-algos\fR.  Use
+this option to reset all previous options like \fB--s2k-*\fR,
+\fB--cipher-algo\fR, \fB--digest-algo\fR and
+\fB--compress-algo\fR to OpenPGP compliant values. All PGP
+workarounds are disabled.
+
+.TP
+.B  --rfc4880
+Reset all packet, cipher and digest options to strict RFC-4880
+behavior.  This option implies \fB--allow-old-cipher-algos\fR.
+Note that this is currently the same thing as \fB--openpgp\fR.
+
+.TP
+.B  --rfc4880bis
+Reset all packet, cipher and digest options to strict according to the
+proposed updates of RFC-4880.
+
+.TP
+.B  --rfc2440
+Reset all packet, cipher and digest options to strict RFC-2440
+behavior.  Note that by using this option encryption packets are
+created in a legacy mode without MDC protection.  This is dangerous
+and should thus only be used for experiments.  This option implies
+\fB--allow-old-cipher-algos\fR.  See also option
+\fB--ignore-mdc-error\fR.
+
+.TP
+.B  --pgp6
+This option is obsolete; it is handled as an alias for \fB--pgp7\fR
+
+.TP
+.B  --pgp7
+Set up all options to be as PGP 7 compliant as possible. This allowed
+the ciphers IDEA, 3DES, CAST5,AES128, AES192, AES256, and TWOFISH.,
+the hashes MD5, SHA1 and RIPEMD160, and the compression algorithms
+none and ZIP.  This option implies \fB--escape-from-lines\fR and
+disables \fB--throw-keyids\fR,
+
+.TP
+.B  --pgp8
+Set up all options to be as PGP 8 compliant as possible. PGP 8 is a lot
+closer to the OpenPGP standard than previous versions of PGP, so all
+this does is disable \fB--throw-keyids\fR and set
+\fB--escape-from-lines\fR.  All algorithms are allowed except for the
+SHA224, SHA384, and SHA512 digests.
+
+.TP
+.B  --compliance \fIstring\fR
+This option can be used instead of one of the options above.  Valid
+values for \fIstring\fR are the above option names (without the double
+dash) and possibly others as shown when using "help" for \fIstring\fR.
+
+.TP
+.B  --min-rsa-length \fIn\fR
+This option adjusts the compliance mode "de-vs" for stricter key size
+requirements.  For example, a value of 3000 turns rsa2048 and dsa2048
+keys into non-VS-NfD compliant keys.
+
+.TP
+.B  --require-compliance
+To check that data has been encrypted according to the rules of the
+current compliance mode, a gpg user needs to evaluate the status
+lines.  This is allows frontends to handle compliance check in a more
+flexible way.  However, for scripted use the required evaluation of
+the status-line requires quite some effort; this option can be used
+instead to make sure that the gpg process exits with a failure if the
+compliance rules are not fulfilled.  Note that this option has
+currently an effect only in "de-vs" mode.
+
+.P
+
+
+
+.SS  Doing things one usually doesn't want to do
+\ 
+
+
+.TP
+.B  -n
+.TQ
+.B  --dry-run
+Don't make any changes (this is not completely implemented).
+
+.TP
+.B  --list-only
+Changes the behaviour of some commands. This is like \fB--dry-run\fR but
+different in some cases. The semantic of this option may be extended in
+the future. Currently it only skips the actual decryption pass and
+therefore enables a fast listing of the encryption keys.
+
+.TP
+.B  -i
+.TQ
+.B  --interactive
+Prompt before overwriting any files.
+
+.TP
+.B  --debug-level \fIlevel\fR
+Select the debug level for investigating problems. \fIlevel\fR may be
+a numeric value or by a keyword:
+
+.RS
+.TP
+.B  none
+No debugging at all.  A value of less than 1 may be used instead of
+the keyword.
+.TP
+.B  basic
+Some basic debug messages.  A value between 1 and 2 may be used
+instead of the keyword.
+.TP
+.B  advanced
+More verbose debug messages.  A value between 3 and 5 may be used
+instead of the keyword.
+.TP
+.B  expert
+Even more detailed messages.  A value between 6 and 8 may be used
+instead of the keyword.
+.TP
+.B  guru
+All of the debug messages you can get. A value greater than 8 may be
+used instead of the keyword.  The creation of hash tracing files is
+only enabled if the keyword is used.
+.RE
+
+How these messages are mapped to the actual debugging flags is not
+specified and may change with newer releases of this program. They are
+however carefully selected to best aid in debugging.
+
+.TP
+.B  --debug \fIflags\fR
+Set debug flags.  All flags are or-ed and \fIflags\fR may be given
+in C syntax (e.g. 0x0042) or as a comma separated list of flag names.
+To get a list of all supported flags the single word "help" can be
+used. This option is only useful for debugging and the behavior may
+change at any time without notice.
+
+.TP
+.B  --debug-all
+Set all useful debugging flags.
+
+.TP
+.B  --debug-iolbf
+Set stdout into line buffered mode.  This option is only honored when
+given on the command line.
+
+.TP
+.B  --debug-set-iobuf-size \fIn\fR
+Change the buffer size of the IOBUFs to \fIn\fR kilobyte.  Using 0
+prints the current size.  Note well: This is a maintainer only option
+and may thus be changed or removed at any time without notice.
+
+.TP
+.B  --debug-allow-large-chunks
+To facilitate software tests and experiments this option allows to
+specify a limit of up to 4 EiB (\fB--chunk-size 62\fR).
+
+.TP
+.B  --faked-system-time \fIepoch\fR
+This option is only useful for testing; it sets the system time back or
+forth to \fIepoch\fR which is the number of seconds elapsed since the year
+1970.  Alternatively \fIepoch\fR may be given as a full ISO time string
+(e.g. "20070924T154812").
+
+If you suffix \fIepoch\fR with an exclamation mark (!), the system time
+will appear to be frozen at the specified time.
+
+.TP
+.B  --full-timestrings
+Change the format of printed creation and expiration times from just
+the date to the date and time.  This is in general not useful and the
+same information is anyway available in \fB--with-colons\fR mode.
+These longer strings are also not well aligned with other printed
+data.
+
+.TP
+.B  --enable-progress-filter
+Enable certain PROGRESS status outputs. This option allows frontends
+to display a progress indicator while gpg is processing larger files.
+There is a slight performance overhead using it.
+
+.TP
+.B  --status-fd \fIn\fR
+Write special status strings to the file descriptor \fIn\fR.
+See the file DETAILS in the documentation for a listing of them.
+
+.TP
+.B  --status-file \fIfile\fR
+Same as \fB--status-fd\fR, except the status data is written to file
+\fIfile\fR.
+
+.TP
+.B  --logger-fd \fIn\fR
+Write log output to file descriptor \fIn\fR and not to STDERR.
+
+.TP
+.B  --log-file \fIfile\fR
+.TQ
+.B  --logger-file \fIfile\fR
+Same as \fB--logger-fd\fR, except the logger data is written to
+file \fIfile\fR.  Use \(oq\fIsocket://\fR\(cq to log to s socket.
+
+.TP
+.B  --attribute-fd \fIn\fR
+Write attribute subpackets to the file descriptor \fIn\fR. This is most
+useful for use with \fB--status-fd\fR, since the status messages are
+needed to separate out the various subpackets from the stream delivered
+to the file descriptor.
+
+.TP
+.B  --attribute-file \fIfile\fR
+Same as \fB--attribute-fd\fR, except the attribute data is written to
+file \fIfile\fR.
+
+.TP
+.B  --comment \fIstring\fR
+.TQ
+.B  --no-comments
+Use \fIstring\fR as a comment string in cleartext signatures and ASCII
+armored messages or keys (see \fB--armor\fR). The default behavior is
+not to use a comment string. \fB--comment\fR may be repeated multiple
+times to get multiple comment strings. \fB--no-comments\fR removes
+all comments.  It is a good idea to keep the length of a single comment
+below 60 characters to avoid problems with mail programs wrapping such
+lines.  Note that comment lines, like all other header lines, are not
+protected by the signature.
+
+.TP
+.B  --emit-version
+.TQ
+.B  --no-emit-version
+Force inclusion of the version string in ASCII armored output.  If
+given once only the name of the program and the major number is
+emitted, given twice the minor is also emitted, given thrice
+the micro is added, and given four times an operating system identification
+is also emitted.  \fB--no-emit-version\fR (default) disables the version
+line.
+
+.TP
+.B  --sig-notation {\fIname\fR=\fIvalue\fR}
+.TQ
+.B  --cert-notation {\fIname\fR=\fIvalue\fR}
+.TQ
+.B  -N, --set-notation {\fIname\fR=\fIvalue\fR}
+Put the name value pair into the signature as notation data.
+\fIname\fR must consist only of printable characters or spaces, and
+must contain a '@' character in the form keyname@domain.example.com
+(substituting the appropriate keyname and domain name, of course).  This
+is to help prevent pollution of the IETF reserved notation
+namespace. The \fB--expert\fR flag overrides the '@'
+check. \fIvalue\fR may be any printable string; it will be encoded in
+UTF-8, so you should check that your \fB--display-charset\fR is set
+correctly. If you prefix \fIname\fR with an exclamation mark (!), the
+notation data will be flagged as critical
+(rfc4880:5.2.3.16). \fB--sig-notation\fR sets a notation for data
+signatures. \fB--cert-notation\fR sets a notation for key signatures
+(certifications). \fB--set-notation\fR sets both.
+
+There are special codes that may be used in notation names. "%k" will
+be expanded into the key ID of the key being signed, "%K" into the
+long key ID of the key being signed, "%f" into the fingerprint of the
+key being signed, "%s" into the key ID of the key making the
+signature, "%S" into the long key ID of the key making the signature,
+"%g" into the fingerprint of the key making the signature (which might
+be a subkey), "%p" into the fingerprint of the primary key of the key
+making the signature, "%c" into the signature count from the OpenPGP
+smartcard, and "%%" results in a single "%". %k, %K, and %f are only
+meaningful when making a key signature (certification), and %c is only
+meaningful when using the OpenPGP smartcard.
+
+.TP
+.B  --known-notation \fIname\fR
+Adds \fIname\fR to a list of known critical signature notations.  The
+effect of this is that gpg will not mark a signature with a critical
+signature notation of that name as bad.  Note that gpg already knows
+by default about a few critical signatures notation names.
+
+.TP
+.B  --sig-policy-url \fIstring\fR
+.TQ
+.B  --cert-policy-url \fIstring\fR
+.TQ
+.B  --set-policy-url \fIstring\fR
+Use \fIstring\fR as a Policy URL for signatures (rfc4880:5.2.3.20).  If
+you prefix it with an exclamation mark (!), the policy URL packet will
+be flagged as critical. \fB--sig-policy-url\fR sets a policy url for
+data signatures. \fB--cert-policy-url\fR sets a policy url for key
+signatures (certifications). \fB--set-policy-url\fR sets both.
+
+The same %-expandos used for notation data are available here as well.
+
+.TP
+.B  --sig-keyserver-url \fIstring\fR
+Use \fIstring\fR as a preferred keyserver URL for data signatures. If
+you prefix it with an exclamation mark (!), the keyserver URL packet
+will be flagged as critical.
+
+The same %-expandos used for notation data are available here as well.
+
+.TP
+.B  --set-filename \fIstring\fR
+Use \fIstring\fR as the filename which is stored inside messages.
+This overrides the default, which is to use the actual filename of the
+file being encrypted.  Using the empty string for \fIstring\fR
+effectively removes the filename from the output.
+
+.TP
+.B  --for-your-eyes-only
+.TQ
+.B  --no-for-your-eyes-only
+Set the `for your eyes only' flag in the message. This causes GnuPG to
+refuse to save the file unless the \fB--output\fR option is given,
+and PGP to use a "secure viewer" with a claimed Tempest-resistant font
+to display the message. This option overrides \fB--set-filename\fR.
+\fB--no-for-your-eyes-only\fR disables this option.
+
+.TP
+.B  --use-embedded-filename
+.TQ
+.B  --no-use-embedded-filename
+Try to create a file with a name as embedded in the data. This can be
+a dangerous option as it enables overwriting files.  Defaults to no.
+Note that the option \fB--output\fR overrides this option.
+
+.TP
+.B  --cipher-algo \fIname\fR
+Use \fIname\fR as cipher algorithm. Running the program with the
+command \fB--version\fR yields a list of supported algorithms. If
+this is not used the cipher algorithm is selected from the preferences
+stored with the key. In general, you do not want to use this option as
+it allows you to violate the OpenPGP standard.  The option
+\fB--personal-cipher-preferences\fR is the safe way to accomplish the
+same thing.
+
+.TP
+.B  --aead-algo \fIname\fR
+Specify that the AEAD algorithm \fIname\fR is to be used.  This is
+useful for symmetric encryption where no key preference are available
+to select the AEAD algorithm.  Running \fBgpg\fR with option
+\fB--version\fR shows the available AEAD algorithms.  In general,
+you do not want to use this option as it allows you to violate the
+OpenPGP standard.  The option \fB--personal-aead-preferences\fR is
+the safe way to accomplish the same thing.
+
+.TP
+.B  --digest-algo \fIname\fR
+Use \fIname\fR as the message digest algorithm. Running the program
+with the command \fB--version\fR yields a list of supported
+algorithms. In general, you do not want to use this option as it
+allows you to violate the OpenPGP standard.  The option
+\fB--personal-digest-preferences\fR is the safe way to accomplish
+the same thing.
+
+.TP
+.B  --compress-algo \fIname\fR
+Use compression algorithm \fIname\fR. "zlib" is RFC-1950 ZLIB
+compression. "zip" is RFC-1951 ZIP compression which is used by PGP.
+"bzip2" is a more modern compression scheme that can compress some
+things better than zip or zlib, but at the cost of more memory used
+during compression and decompression. "uncompressed" or "none"
+disables compression. If this option is not used, the default
+behavior is to examine the recipient key preferences to see which
+algorithms the recipient supports. If all else fails, ZIP is used for
+maximum compatibility.
+
+ZLIB may give better compression results than ZIP, as the compression
+window size is not limited to 8k. BZIP2 may give even better
+compression results than that, but will use a significantly larger
+amount of memory while compressing and decompressing. This may be
+significant in low memory situations. Note, however, that PGP (all
+versions) only supports ZIP compression. Using any algorithm other
+than ZIP or "none" will make the message unreadable with PGP. In
+general, you do not want to use this option as it allows you to
+violate the OpenPGP standard.  The option
+\fB--personal-compress-preferences\fR is the safe way to accomplish
+the same thing.
+
+.TP
+.B  --cert-digest-algo \fIname\fR
+Use \fIname\fR as the message digest algorithm used when signing a
+key. Running the program with the command \fB--version\fR yields a
+list of supported algorithms.  Be aware that if you choose an
+algorithm that GnuPG supports but other OpenPGP implementations do
+not, then some users will not be able to use the key signatures you
+make, or quite possibly your entire key.  Note also that a public key
+algorithm must be compatible with the specified digest algorithm; thus
+selecting an arbitrary digest algorithm may result in error messages
+from lower crypto layers or lead to security flaws.
+
+
+.TP
+.B  --disable-cipher-algo \fIname\fR
+Never allow the use of \fIname\fR as cipher algorithm.
+The given name will not be checked so that a later loaded algorithm
+will still get disabled.
+
+.TP
+.B  --disable-pubkey-algo \fIname\fR
+Never allow the use of \fIname\fR as public key algorithm.
+The given name will not be checked so that a later loaded algorithm
+will still get disabled.
+
+.TP
+.B  --throw-keyids
+.TQ
+.B  --no-throw-keyids
+Do not put the recipient key IDs into encrypted messages. This helps to
+hide the receivers of the message and is a limited countermeasure
+against traffic analysis. ([Using a little social engineering
+anyone who is able to decrypt the message can check whether one of the
+other recipients is the one he suspects.])  On the receiving side, it may
+slow down the decryption process because all available secret keys must
+be tried.  \fB--no-throw-keyids\fR disables this option. This option
+is essentially the same as using \fB--hidden-recipient\fR for all
+recipients.
+
+.TP
+.B  --not-dash-escaped
+This option changes the behavior of cleartext signatures
+so that they can be used for patch files. You should not
+send such an armored file via email because all spaces
+and line endings are hashed too. You can not use this
+option for data which has 5 dashes at the beginning of a
+line, patch files don't have this. A special armor header
+line tells GnuPG about this cleartext signature option.
+
+.TP
+.B  --escape-from-lines
+.TQ
+.B  --no-escape-from-lines
+Because some mailers change lines starting with "From " to ">From " it
+is good to handle such lines in a special way when creating cleartext
+signatures to prevent the mail system from breaking the signature. Note
+that all other PGP versions do it this way too.  Enabled by
+default. \fB--no-escape-from-lines\fR disables this option.
+
+.TP
+.B  --passphrase-repeat \fIn\fR
+Specify how many times \fBgpg\fR will request a new
+passphrase be repeated.  This is useful for helping memorize a
+passphrase.  Defaults to 1 repetition; can be set to 0 to disable any
+passphrase repetition.  Note that a \fIn\fR greater than 1 will pop up
+the pinentry window \fIn\fR+1 times even if a modern pinentry with
+two entry fields is used.
+
+.TP
+.B  --passphrase-fd \fIn\fR
+Read the passphrase from file descriptor \fIn\fR. Only the first line
+will be read from file descriptor \fIn\fR. If you use 0 for \fIn\fR,
+the passphrase will be read from STDIN. This can only be used if only
+one passphrase is supplied.
+
+Note that since Version 2.0 this passphrase is only used if the
+option \fB--batch\fR has also been given. Since Version 2.1
+the \fB--pinentry-mode\fR also needs to be set to \fBloopback\fR.
+
+.TP
+.B  --passphrase-file \fIfile\fR
+Read the passphrase from file \fIfile\fR. Only the first line will
+be read from file \fIfile\fR. This can only be used if only one
+passphrase is supplied. Obviously, a passphrase stored in a file is
+of questionable security if other users can read this file. Don't use
+this option if you can avoid it.
+
+Note that since Version 2.0 this passphrase is only used if the
+option \fB--batch\fR has also been given. Since Version 2.1
+the \fB--pinentry-mode\fR also needs to be set to \fBloopback\fR.
+
+.TP
+.B  --passphrase \fIstring\fR
+Use \fIstring\fR as the passphrase. This can only be used if only one
+passphrase is supplied. Obviously, this is of very questionable
+security on a multi-user system. Don't use this option if you can
+avoid it.
+
+Note that since Version 2.0 this passphrase is only used if the
+option \fB--batch\fR has also been given. Since Version 2.1
+the \fB--pinentry-mode\fR also needs to be set to \fBloopback\fR.
+
+.TP
+.B  --pinentry-mode \fImode\fR
+Set the pinentry mode to \fImode\fR.  Allowed values for \fImode\fR
+are:
+.RS
+.TP
+.B  default
+Use the default of the agent, which is \fBask\fR.
+.TP
+.B  ask
+Force the use of the Pinentry.
+.TP
+.B  cancel
+Emulate use of Pinentry's cancel button.
+.TP
+.B  error
+Return a Pinentry error (``No Pinentry'').
+.TP
+.B  loopback
+Redirect Pinentry queries to the caller.  Note that in contrast to
+Pinentry the user is not prompted again if he enters a bad password.
+.RE
+
+.TP
+.B  --no-symkey-cache
+Disable the passphrase cache used for symmetrical en- and decryption.
+This cache is based on the message specific salt value
+(cf. \fB--s2k-mode\fR).
+
+.TP
+.B  --request-origin \fIorigin\fR
+Tell gpg to assume that the operation ultimately originated at
+\fIorigin\fR.  Depending on the origin certain restrictions are applied
+and the Pinentry may include an extra note on the origin.  Supported
+values for \fIorigin\fR are: \fBlocal\fR which is the default,
+\fBremote\fR to indicate a remote origin or \fBbrowser\fR for an
+operation requested by a web browser.
+
+.TP
+.B  --command-fd \fIn\fR
+This is a replacement for the deprecated shared-memory IPC mode.
+If this option is enabled, user input on questions is not expected
+from the TTY but from the given file descriptor. It should be used
+together with \fB--status-fd\fR. See the file doc/DETAILS in the source
+distribution for details on how to use it.
+
+.TP
+.B  --command-file \fIfile\fR
+Same as \fB--command-fd\fR, except the commands are read out of file
+\fIfile\fR
+
+.TP
+.B  --allow-non-selfsigned-uid
+.TQ
+.B  --no-allow-non-selfsigned-uid
+Allow the import and use of keys with user IDs which are not
+self-signed. This is not recommended, as a non self-signed user ID is
+trivial to forge. \fB--no-allow-non-selfsigned-uid\fR disables.
+
+.TP
+.B  --allow-freeform-uid
+Disable all checks on the form of the user ID while generating a new
+one. This option should only be used in very special environments as
+it does not ensure the de-facto standard format of user IDs.
+
+.TP
+.B  --ignore-time-conflict
+GnuPG normally checks that the timestamps associated with keys and
+signatures have plausible values. However, sometimes a signature
+seems to be older than the key due to clock problems. This option
+makes these checks just a warning. See also \fB--ignore-valid-from\fR for
+timestamp issues on subkeys.
+
+.TP
+.B  --ignore-valid-from
+GnuPG normally does not select and use subkeys created in the future.
+This option allows the use of such keys and thus exhibits the
+pre-1.0.7 behaviour. You should not use this option unless there
+is some clock problem. See also \fB--ignore-time-conflict\fR for timestamp
+issues with signatures.
+
+.TP
+.B  --ignore-crc-error
+The ASCII armor used by OpenPGP is protected by a CRC checksum against
+transmission errors. Occasionally the CRC gets mangled somewhere on
+the transmission channel but the actual content (which is protected by
+the OpenPGP protocol anyway) is still okay. This option allows GnuPG
+to ignore CRC errors.
+
+.TP
+.B  --ignore-mdc-error
+This option changes a MDC integrity protection failure into a warning.
+It is required to decrypt old messages which did not use an MDC.  It
+may also be useful if a message is partially garbled, but it is
+necessary to get as much data as possible out of that garbled message.
+Be aware that a missing or failed MDC can be an indication of an
+attack.  Use with great caution; see also option \fB--rfc2440\fR.
+
+.TP
+.B  --allow-old-cipher-algos
+Old cipher algorithms like 3DES, IDEA, or CAST5 encrypt data using
+blocks of 64 bits; modern algorithms use blocks of 128 bit instead.
+To avoid certain attack on these old algorithms it is suggested not to
+encrypt more than 150 MiByte using the same key.  For this reason gpg
+does not allow the use of 64 bit block size algorithms for encryption
+unless this option is specified.
+
+.TP
+.B  --allow-weak-digest-algos
+Signatures made with known-weak digest algorithms are normally
+rejected with an ``invalid digest algorithm'' message.  This option
+allows the verification of signatures made with such weak algorithms.
+MD5 is the only digest algorithm considered weak by default.  See also
+\fB--weak-digest\fR to reject other digest algorithms.
+
+.TP
+.B  --weak-digest \fIname\fR
+Treat the specified digest algorithm as weak.  Signatures made over
+weak digests algorithms are normally rejected. This option can be
+supplied multiple times if multiple algorithms should be considered
+weak.  See also \fB--allow-weak-digest-algos\fR to disable
+rejection of weak digests.  MD5 is always considered weak, and does
+not need to be listed explicitly.
+
+.TP
+.B  --allow-weak-key-signatures
+To avoid a minor risk of collision attacks on third-party key
+signatures made using SHA-1, those key signatures are considered
+invalid.  This options allows to override this restriction.
+
+.TP
+.B  --override-compliance-check
+The signature verification only allows the use of keys suitable in the
+current compliance mode.  If the compliance mode has been forced by a
+global option, there might be no way to check certain signature.  This
+option allows to override this and prints an extra warning in such a
+case.  This option is ignored in --batch mode so that no accidental
+unattended verification may happen.
+
+.TP
+.B  --no-default-keyring
+Do not add the default keyring to the list of keyrings. Note that
+GnuPG needs for almost all operations a keyring. Thus if you use this
+option and do not provide alternate keyrings via \fB--keyring\fR,
+then GnuPG will still use the default keyring.
+
+Note that if the option \fBuse-keyboxd\fR is enabled in
+\(oq\fIcommon.conf\fR\(cq, no keyrings are used at all and keys are all
+maintained by the keyboxd process in its own database.
+
+.TP
+.B  --no-keyring
+Do not use any keyring at all.  This overrides the default and all
+options which specify keyrings.
+
+.TP
+.B  --skip-verify
+Skip the signature verification step. This may be
+used to make the decryption faster if the signature
+verification is not needed.
+
+.TP
+.B  --with-key-data
+Print key listings delimited by colons (like \fB--with-colons\fR) and
+print the public key data.
+
+.TP
+.B  --list-signatures
+.TQ
+.B  --list-sigs
+Same as \fB--list-keys\fR, but the signatures are listed too.  This
+command has the same effect as using \fB--list-keys\fR with
+\fB--with-sig-list\fR.  Note that in contrast to
+\fB--check-signatures\fR the key signatures are not verified.  This
+command can be used to create a list of signing keys missing in the
+local keyring; for example:
+
+.RS 2
+.nf
+      gpg --list-sigs --with-colons USERID | \\
+        awk -F: '$1=="sig" && $2=="?" {if($13){print $13}else{print $5}}'
+.fi
+.RE
+
+.TP
+.B  --fast-list-mode
+Changes the output of the list commands to work faster; this is achieved
+by leaving some parts empty. Some applications don't need the user ID
+and the trust information given in the listings. By using this options
+they can get a faster listing. The exact behaviour of this option may
+change in future versions.  If you are missing some information, don't
+use this option.
+
+.TP
+.B  --no-literal
+This is not for normal use. Use the source to see for what it might be useful.
+
+.TP
+.B  --set-filesize
+This is not for normal use. Use the source to see for what it might be useful.
+
+.TP
+.B  --show-session-key
+Display the session key used for one message. See
+\fB--override-session-key\fR for the counterpart of this option.
+
+We think that Key Escrow is a Bad Thing; however the user should have
+the freedom to decide whether to go to prison or to reveal the content
+of one specific message without compromising all messages ever
+encrypted for one secret key.
+
+You can also use this option if you receive an encrypted message which
+is abusive or offensive, to prove to the administrators of the
+messaging system that the ciphertext transmitted corresponds to an
+inappropriate plaintext so they can take action against the offending
+user.
+
+.TP
+.B  --override-session-key \fIstring\fR
+.TQ
+.B  --override-session-key-fd \fIfd\fR
+Don't use the public key but the session key \fIstring\fR respective
+the session key taken from the first line read from file descriptor
+\fIfd\fR.  The format of this string is the same as the one printed by
+\fB--show-session-key\fR. This option is normally not used but
+comes handy in case someone forces you to reveal the content of an
+encrypted message; using this option you can do this without handing
+out the secret key.  Note that using \fB--override-session-key\fR
+may reveal the session key to all local users via the global process
+table.  Often it is useful to combine this option with
+\fB--no-keyring\fR.
+
+.TP
+.B  --ask-sig-expire
+.TQ
+.B  --no-ask-sig-expire
+When making a data signature, prompt for an expiration time. If this
+option is not specified, the expiration time set via
+\fB--default-sig-expire\fR is used. \fB--no-ask-sig-expire\fR
+disables this option.
+
+.TP
+.B  --default-sig-expire
+The default expiration time to use for signature expiration. Valid
+values are "0" for no expiration, a number followed by the letter d
+(for days), w (for weeks), m (for months), or y (for years) (for
+example "2m" for two months, or "5y" for five years), or an absolute
+date in the form YYYY-MM-DD. Defaults to "0".
+
+.TP
+.B  --ask-cert-expire
+.TQ
+.B  --no-ask-cert-expire
+When making a key signature, prompt for an expiration time. If this
+option is not specified, the expiration time set via
+\fB--default-cert-expire\fR is used. \fB--no-ask-cert-expire\fR
+disables this option.
+
+.TP
+.B  --default-cert-expire
+The default expiration time to use for key signature expiration.
+Valid values are "0" for no expiration, a number followed by the
+letter d (for days), w (for weeks), m (for months), or y (for years)
+(for example "2m" for two months, or "5y" for five years), or an
+absolute date in the form YYYY-MM-DD. Defaults to "0".
+
+.TP
+.B  --default-new-key-algo \fIstring\fR
+This option can be used to change the default algorithms for key
+generation. The \fIstring\fR is similar to the arguments required for
+the command \fB--quick-add-key\fR but slightly different.  For
+example the current default of \fB"rsa2048/cert,sign+rsa2048/encr"\fR
+(or \fB"rsa3072"\fR) can be changed to the value of what we currently
+call future default, which is \fB"ed25519/cert,sign+cv25519/encr"\fR.
+You need to consult the source code to learn the details.  Note that
+the advanced key generation commands can always be used to specify a
+key algorithm directly.
+
+.TP
+.B  --no-auto-trust-new-key
+When creating a new key the ownertrust of the new key is set to
+ultimate.  This option disables this and the user needs to manually
+assign an ownertrust value.
+
+.TP
+.B  --force-sign-key
+This option modifies the behaviour of the commands
+\fB--quick-sign-key\fR, \fB--quick-lsign-key\fR, and the "sign"
+sub-commands of \fB--edit-key\fR by forcing the creation of a key
+signature, even if one already exists.
+
+.TP
+.B  --forbid-gen-key
+This option is intended for use in the global config file to disallow
+the use of generate key commands.  Those commands will then fail with
+the error code for Not Enabled.
+
+.TP
+.B  --allow-secret-key-import
+This is an obsolete option and is not used anywhere.
+
+.TP
+.B  --allow-multiple-messages
+.TP
+.B  --no-allow-multiple-messages
+These are obsolete options; they have no more effect since GnuPG 2.2.8.
+
+.TP
+.B  --enable-special-filenames
+This option enables a mode in which filenames of the form
+\(oq\fI-&n\fR\(cq, where n is a non-negative decimal number,
+refer to the file descriptor n and not to a file with that name.
+
+.TP
+.B  --no-expensive-trust-checks
+Experimental use only.
+
+.TP
+.B  --preserve-permissions
+Don't change the permissions of a secret keyring back to user
+read/write only. Use this option only if you really know what you are doing.
+
+.TP
+.B  --default-preference-list \fIstring\fR
+Set the list of default preferences to \fIstring\fR. This preference
+list is used for new keys and becomes the default for "setpref" in the
+\fB--edit-key\fR menu.
+
+.TP
+.B  --default-keyserver-url \fIname\fR
+Set the default keyserver URL to \fIname\fR. This keyserver will be
+used as the keyserver URL when writing a new self-signature on a key,
+which includes key generation and changing preferences.
+
+.TP
+.B  --list-config
+Display various internal configuration parameters of GnuPG. This option
+is intended for external programs that call GnuPG to perform tasks, and
+is thus not generally useful. See the file \(oq\fIdoc/DETAILS\fR\(cq in the
+source distribution for the details of which configuration items may be
+listed. \fB--list-config\fR is only usable with
+\fB--with-colons\fR set.
+
+.TP
+.B  --list-gcrypt-config
+Display various internal configuration parameters of Libgcrypt.
+
+.TP
+.B  --gpgconf-list
+This command is similar to \fB--list-config\fR but in general only
+internally used by the \fBgpgconf\fR tool.
+
+.TP
+.B  --gpgconf-test
+This is more or less dummy action.  However it parses the configuration
+file and returns with failure if the configuration file would prevent
+\fBgpg\fR from startup.  Thus it may be used to run a syntax check
+on the configuration file.
+
+
+.TP
+.B  --chuid \fIuid\fR
+Change the current user to \fIuid\fR which may either be a number or a
+name.  This can be used from the root account to run gpg for
+another user.  If \fIuid\fR is not the current UID a standard PATH is
+set and the envvar GNUPGHOME is unset.  To override the latter the
+option \fB--homedir\fR can be used.  This option has only an effect
+when used on the command line.  This option has currently no effect at
+all on Windows.
+
+.P
+
+
+.SS  Deprecated options
+\ 
+
+
+.TP
+.B  --show-photos
+.TQ
+.B  --no-show-photos
+Causes \fB--list-keys\fR, \fB--list-signatures\fR,
+\fB--list-public-keys\fR, \fB--list-secret-keys\fR, and verifying
+a signature to also display the photo ID attached to the key, if
+any. See also \fB--photo-viewer\fR. These options are deprecated. Use
+\fB--list-options [no-]show-photos\fR and/or \fB--verify-options
+[no-]show-photos\fR instead.
+
+.TP
+.B  --show-keyring
+Display the keyring name at the head of key listings to show which
+keyring a given key resides on. This option is deprecated: use
+\fB--list-options [no-]show-keyring\fR instead.
+
+.TP
+.B  --always-trust
+Identical to \fB--trust-model always\fR. This option is deprecated.
+
+.TP
+.B  --show-notation
+.TQ
+.B  --no-show-notation
+Show signature notations in the \fB--list-signatures\fR or \fB--check-signatures\fR listings
+as well as when verifying a signature with a notation in it. These
+options are deprecated. Use \fB--list-options [no-]show-notation\fR
+and/or \fB--verify-options [no-]show-notation\fR instead.
+
+.TP
+.B  --show-policy-url
+.TQ
+.B  --no-show-policy-url
+Show policy URLs in the \fB--list-signatures\fR or \fB--check-signatures\fR
+listings as well as when verifying a signature with a policy URL in
+it. These options are deprecated. Use \fB--list-options
+[no-]show-policy-url\fR and/or \fB--verify-options
+[no-]show-policy-url\fR instead.
+
+
+.P
+
+
+
+.SH EXAMPLES
+
+
+.TP
+.B  gpg -se -r \fBBob\fR \fBfile\fR
+sign and encrypt for user Bob
+
+.TP
+.B  gpg --clear-sign \fBfile\fR
+make a cleartext signature
+
+.TP
+.B  gpg -sb \fBfile\fR
+make a detached signature
+
+.TP
+.B  gpg -u 0x12345678 -sb \fBfile\fR
+make a detached signature with the key 0x12345678
+
+.TP
+.B  gpg --list-keys \fBuser_ID\fR
+show keys
+
+.TP
+.B  gpg --fingerprint \fBuser_ID\fR
+show fingerprint
+
+.TP
+.B  gpg --verify \fBpgpfile\fR
+.TQ
+.B  gpg --verify \fBsigfile\fR [\fBdatafile\fR]
+Verify the signature of the file but do not output the data unless
+requested.  The second form is used for detached signatures, where
+\fBsigfile\fR is the detached signature (either ASCII armored or
+binary) and \fBdatafile\fR are the signed data; if this is not given, the name of the
+file holding the signed data is constructed by cutting off the
+extension (".asc" or ".sig") of \fBsigfile\fR or by asking the user
+for the filename.  If the option \fB--output\fR is also used the
+signed data is written to the file specified by that option; use
+\fB-\fR to write the signed data to stdout.
+.P
+
+
+
+.SH HOW TO SPECIFY A USER ID
+
+There are different ways to specify a user ID to GnuPG.  Some of them
+are only valid for \fBgpg\fR others are only good for
+\fBgpgsm\fR.  Here is the entire list of ways to specify a key:
+
+
+.TP
+.B  By key Id.
+This format is deduced from the length of the string and its content or
+\fB0x\fR prefix. The key Id of an X.509 certificate are the low 64 bits
+of its SHA-1 fingerprint.  The use of key Ids is just a shortcut, for
+all automated processing the fingerprint should be used.
+
+When using \fBgpg\fR an exclamation mark (!) may be appended to
+force using the specified primary or secondary key and not to try and
+calculate which primary or secondary key to use.
+
+The last four lines of the example give the key ID in their long form as
+internally used by the OpenPGP protocol. You can see the long key ID
+using the option \fB--with-colons\fR.
+
+.RS 2
+.nf
+234567C4
+0F34E556E
+01347A56A
+0xAB123456
+
+234AABBCC34567C4
+0F323456784E56EAB
+01AB3FED1347A5612
+0x234AABBCC34567C4
+.fi
+.RE
+
+
+
+.TP
+.B  By fingerprint.
+This format is deduced from the length of the string and its content or
+the \fB0x\fR prefix.  Note, that only the 20 byte version fingerprint
+is available with \fBgpgsm\fR (i.e. the SHA-1 hash of the
+certificate).
+
+When using \fBgpg\fR an exclamation mark (!) may be appended to
+force using the specified primary or secondary key and not to try and
+calculate which primary or secondary key to use.
+
+The best way to specify a key Id is by using the fingerprint.  This
+avoids any ambiguities in case that there are duplicated key IDs.
+
+.RS 2
+.nf
+1234343434343434C434343434343434
+123434343434343C3434343434343734349A3434
+0E12343434343434343434EAB3484343434343434
+0xE12343434343434343434EAB3484343434343434
+.fi
+.RE
+
+
+\fBgpgsm\fR also accepts colons between each pair of hexadecimal
+digits because this is the de-facto standard on how to present X.509
+fingerprints.  \fBgpg\fR also allows the use of the space
+separated SHA-1 fingerprint as printed by the key listing commands.
+
+.TP
+.B  By exact match on OpenPGP user ID.
+This is denoted by a leading equal sign. It does not make sense for
+X.509 certificates.
+
+.RS 2
+.nf
+=Heinrich Heine <heinrichh@uni-duesseldorf.de>
+.fi
+.RE
+
+.TP
+.B  By exact match on an email address.
+This is indicated by enclosing the email address in the usual way
+with left and right angles.
+
+.RS 2
+.nf
+<heinrichh@uni-duesseldorf.de>
+.fi
+.RE
+
+
+.TP
+.B  By partial match on an email address.
+This is indicated by prefixing the search string with an \fB@\fR.
+This uses a substring search but considers only the mail address
+(i.e. inside the angle brackets).
+
+.RS 2
+.nf
+@heinrichh
+.fi
+.RE
+
+.TP
+.B  By exact match on the subject's DN.
+This is indicated by a leading slash, directly followed by the RFC-2253
+encoded DN of the subject.  Note that you can't use the string printed
+by \fBgpgsm --list-keys\fR because that one has been reordered and modified
+for better readability; use \fB--with-colons\fR to print the raw
+(but standard escaped) RFC-2253 string.
+
+.RS 2
+.nf
+/CN=Heinrich Heine,O=Poets,L=Paris,C=FR
+.fi
+.RE
+
+.TP
+.B  By exact match on the issuer's DN.
+This is indicated by a leading hash mark, directly followed by a slash
+and then directly followed by the RFC-2253 encoded DN of the issuer.
+This should return the Root cert of the issuer.  See note above.
+
+.RS 2
+.nf
+#/CN=Root Cert,O=Poets,L=Paris,C=FR
+.fi
+.RE
+
+
+.TP
+.B  By exact match on serial number and issuer's DN.
+This is indicated by a hash mark, followed by the hexadecimal
+representation of the serial number, then followed by a slash and the
+RFC-2253 encoded DN of the issuer. See note above.
+
+.RS 2
+.nf
+#4F03/CN=Root Cert,O=Poets,L=Paris,C=FR
+.fi
+.RE
+
+.TP
+.B  By keygrip.
+This is indicated by an ampersand followed by the 40 hex digits of a
+keygrip.  \fBgpgsm\fR prints the keygrip when using the command
+\fB--dump-cert\fR.
+
+.RS 2
+.nf
+&D75F22C3F86E355877348498CDC92BD21010A480
+.fi
+.RE
+
+
+.TP
+.B  By substring match.
+This is the default mode but applications may want to explicitly
+indicate this by putting the asterisk in front.  Match is not case
+sensitive.
+
+.RS 2
+.nf
+Heine
+*Heine
+.fi
+.RE
+
+.TP
+.B  . and + prefixes
+These prefixes are reserved for looking up mails anchored at the end
+and for a word search mode.  They are not yet implemented and using
+them is undefined.
+
+
+Please note that we have reused the hash mark identifier which was used
+in old GnuPG versions to indicate the so called local-id.  It is not
+anymore used and there should be no conflict when used with X.509 stuff.
+
+Using the RFC-2253 format of DNs has the drawback that it is not
+possible to map them back to the original encoding, however we don't
+have to do this because our key database stores this encoding as meta
+data.
+
+.SH FILTER EXPRESSIONS
+
+The options \fB--import-filter\fR and \fB--export-filter\fR use
+expressions with this syntax (square brackets indicate an optional
+part and curly braces a repetition, white space between the elements
+are allowed):
+
+.RS
+.RS 2
+.nf
+  [lc] {[{flag}] PROPNAME op VALUE [lc]}
+.fi
+.RE
+.RE
+
+The name of a property (\fIPROPNAME\fR) may only consist of letters,
+digits and underscores.  The description for the filter type
+describes which properties are defined.  If an undefined property is
+used it evaluates to the empty string.  Unless otherwise noted, the
+\fIVALUE\fR must always be given and may not be the empty string.  No
+quoting is defined for the value, thus the value may not contain the
+strings \fB&&\fR or \fB||\fR, which are used as logical connection
+operators.  The flag \fB--\fR can be used to remove this restriction.
+
+Numerical values are computed as long int; standard C notation
+applies.  \fIlc\fR is the logical connection operator; either
+\fB&&\fR for a conjunction or \fB||\fR for a disjunction.  A
+conjunction is assumed at the begin of an expression.  Conjunctions
+have higher precedence than disjunctions.  If \fIVALUE\fR starts with
+one of the characters used in any \fIop\fR a space after the
+\fIop\fR is required.
+
+
+The supported operators (\fIop\fR) are:
+
+
+.TP
+.B  =~
+Substring must match.
+
+.TP
+.B   !~
+Substring must not match.
+
+.TP
+.B   =
+The full string must match.
+
+.TP
+.B   <>
+The full string must not match.
+
+.TP
+.B   ==
+The numerical value must match.
+
+.TP
+.B   !=
+The numerical value must not match.
+
+.TP
+.B   <=
+The numerical value of the field must be LE than the value.
+
+.TP
+.B   <
+The numerical value of the field must be LT than the value.
+
+.TP
+.B   >
+The numerical value of the field must be GT than the value.
+
+.TP
+.B   >=
+The numerical value of the field must be GE than the value.
+
+.TP
+.B   -le
+The string value of the field must be less or equal than the value.
+
+.TP
+.B   -lt
+The string value of the field must be less than the value.
+
+.TP
+.B   -gt
+The string value of the field must be greater than the value.
+
+.TP
+.B   -ge
+The string value of the field must be greater or equal than the value.
+
+.TP
+.B   -n
+True if value is not empty (no value allowed).
+
+.TP
+.B   -z
+True if value is empty (no value allowed).
+
+.TP
+.B   -t
+Alias for "PROPNAME != 0" (no value allowed).
+
+.TP
+.B   -f
+Alias for "PROPNAME == 0" (no value allowed).
+
+.P
+
+
+Values for \fIflag\fR must be space separated.  The supported flags
+are:
+
+.TP
+.B  --
+\fIVALUE\fR spans to the end of the expression.
+.TP
+.B  -c
+The string match in this part is done case-sensitive.
+.TP
+.B  -t
+Leading and trailing spaces are not removed from \fIVALUE\fR.
+The optional single space after \fIop\fR is here required.
+.P
+
+The filter options concatenate several specifications for a filter of
+the same type.  For example the four options in this example:
+
+.RS
+.RS 2
+.nf
+ --import-filter keep-uid="uid =~ Alfa"
+ --import-filter keep-uid="&& uid !~ Test"
+ --import-filter keep-uid="|| uid =~ Alpha"
+ --import-filter keep-uid="uid !~ Test"
+.fi
+.RE
+.RE
+
+
+which is equivalent to
+
+.RS
+.RS 2
+.nf
+ --import-filter \\
+  keep-uid="uid =~ Alfa" && uid !~ Test" || uid =~ Alpha" && "uid !~ Test"
+.fi
+.RE
+.RE
+
+imports only the user ids of a key containing the strings "Alfa"
+or "Alpha" but not the string "test".
+
+.SH TRUST VALUES
+
+Trust values are used to indicate ownertrust and validity of keys and
+user IDs.  They are displayed with letters or strings:
+
+
+.TP
+.B  -
+.TQ
+.B  unknown
+No ownertrust assigned / not yet calculated.
+
+.TP
+.B  e
+.TQ
+.B  expired
+
+Trust calculation has failed; probably due to an expired key.
+
+.TP
+.B  q
+.TQ
+.B  undefined, undef
+Not enough information for calculation.
+
+.TP
+.B  n
+.TQ
+.B  never
+Never trust this key.
+
+.TP
+.B  m
+.TQ
+.B  marginal
+Marginally trusted.
+
+.TP
+.B  f
+.TQ
+.B  full
+Fully trusted.
+
+.TP
+.B  u
+.TQ
+.B  ultimate
+Ultimately trusted.
+
+.TP
+.B  r
+.TQ
+.B  revoked
+For validity only: the key or the user ID has been revoked.
+
+.TP
+.B  ?
+.TQ
+.B  err
+The program encountered an unknown trust value.
+
+.P
+
+.SH FILES
+
+There are a few configuration files to control certain aspects of
+\fBgpg\fR's operation. Unless noted, they are expected in the
+current home directory (see: [option --homedir]).
+
+
+.TP
+.B  gpg.conf
+This is the standard configuration file read by \fBgpg\fR on
+startup.  It may contain any valid long option; the leading two dashes
+may not be entered and the option may not be abbreviated.  This default
+name may be changed on the command line (see: [gpg-option --options]).
+You should backup this file.
+
+.TP
+.B  common.conf
+This is an optional configuration file read by \fBgpg\fR on
+startup.  It may contain options pertaining to all components of
+GnuPG.  Its current main use is for the "use-keyboxd" option.
+
+.P
+
+Note that on larger installations, it is useful to put predefined files
+into the directory \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/etc/skel/.gnupg\fR\(cq so that
+newly created users start up with a working configuration.
+For existing users a small
+helper script is provided to create these files (see: [addgnupghome]).
+
+For internal purposes \fBgpg\fR creates and maintains a few other
+files; They all live in the current home directory (see: [option
+--homedir]).  Only the \fBgpg\fR program may modify these files.
+
+
+.TP
+.B  ~/.gnupg
+This is the default home directory which is used if neither the
+environment variable \fBGNUPGHOME\fR nor the option
+\fB--homedir\fR is given.
+
+.TP
+.B  ~/.gnupg/pubring.gpg
+The public keyring using a legacy format.  You should backup this file.
+
+If this file is not available, \fBgpg\fR defaults to the new
+keybox format and creates a file \(oq\fIpubring.kbx\fR\(cq unless that file
+already exists in which case that file will also be used for OpenPGP
+keys.
+
+Note that in the case that both files, \(oq\fIpubring.gpg\fR\(cq and
+\(oq\fIpubring.kbx\fR\(cq exists but the latter has no OpenPGP keys, the
+legacy file \(oq\fIpubring.gpg\fR\(cq will be used.  Take care: GnuPG
+versions before 2.1 will always use the file \(oq\fIpubring.gpg\fR\(cq
+because they do not know about the new keybox format. In the case
+that you have to use GnuPG 1.4 to decrypt archived data you should
+keep this file.
+
+.TP
+.B  ~/.gnupg/pubring.gpg.lock
+The lock file for the public keyring.
+
+.TP
+.B  ~/.gnupg/pubring.kbx
+The public keyring using the new keybox format.  This file is shared
+with \fBgpgsm\fR.  You should backup this file.  See above for
+the relation between this file and it predecessor.
+
+To convert an existing \(oq\fIpubring.gpg\fR\(cq file to the keybox format, you
+first backup the ownertrust values, then rename \(oq\fIpubring.gpg\fR\(cq to
+\(oq\fIpublickeys.backup\fR\(cq, so it won’t be recognized by any GnuPG version,
+run import, and finally restore the ownertrust values:
+
+.RS 2
+.nf
+$ cd ~/.gnupg
+$ gpg --export-ownertrust >otrust.lst
+$ mv pubring.gpg publickeys.backup
+$ gpg --import-options restore --import publickeys.backup
+$ gpg --import-ownertrust otrust.lst
+.fi
+.RE
+
+.TP
+.B  ~/.gnupg/pubring.kbx.lock
+The lock file for \(oq\fIpubring.kbx\fR\(cq.
+
+.TP
+.B  ~/.gnupg/secring.gpg
+The legacy secret keyring as used by GnuPG versions before 2.1.  It is not
+used by GnuPG 2.1 and later.  You may want to keep it in case you
+have to use GnuPG 1.4 to decrypt archived data.
+
+.TP
+.B  ~/.gnupg/secring.gpg.lock
+The lock file for the legacy secret keyring.
+
+.TP
+.B  ~/.gnupg/.gpg-v21-migrated
+File indicating that a migration to GnuPG 2.1 has been done.
+
+.TP
+.B  ~/.gnupg/trustdb.gpg
+The trust database.  There is no need to backup this file; it is better
+to backup the ownertrust values (see: [option --export-ownertrust]).
+
+.TP
+.B  ~/.gnupg/trustdb.gpg.lock
+The lock file for the trust database.
+
+.TP
+.B  ~/.gnupg/random_seed
+A file used to preserve the state of the internal random pool.
+
+.TP
+.B  ~/.gnupg/openpgp-revocs.d/
+This is the directory where gpg stores pre-generated revocation
+certificates.  The file name corresponds to the OpenPGP fingerprint of
+the respective key.  It is suggested to backup those certificates and
+if the primary private key is not stored on the disk to move them to
+an external storage device.  Anyone who can access these files is
+able to revoke the corresponding key.  You may want to print them out.
+You should backup all files in this directory and take care to keep
+this backup closed away.
+
+.P
+
+Operation is further controlled by a few environment variables:
+
+
+.TP
+.B  HOME
+Used to locate the default home directory.
+
+.TP
+.B  GNUPGHOME
+If set directory used instead of "~/.gnupg".
+
+.TP
+.B  GPG_AGENT_INFO
+This variable is obsolete; it was used by GnuPG versions before 2.1.
+
+.TP
+.B  PINENTRY_USER_DATA
+This value is passed via gpg-agent to pinentry.  It is useful to convey
+extra information to a custom pinentry.
+
+.TP
+.B  COLUMNS
+.TQ
+.B  LINES
+Used to size some displays to the full size of the screen.
+
+.TP
+.B  LANGUAGE
+Apart from its use by GNU, it is used in the W32 version to override the
+language selection done through the Registry.  If used and set to a
+valid and available language name (\fIlangid\fR), the file with the
+translation is loaded from
+\fB\fIgpgdir\fR/gnupg.nls/\fIlangid\fR.mo\fR.  Here \fIgpgdir\fR is the
+directory out of which the gpg binary has been loaded.  If it can't be
+loaded the Registry is tried and as last resort the native Windows
+locale system is used.
+
+.TP
+.B  GNUPG_BUILD_ROOT
+This variable is only used by the regression test suite as a helper
+under operating systems without proper support to figure out the
+name of a process' text file.
+
+.TP
+.B  GNUPG_EXEC_DEBUG_FLAGS
+This variable allows to enable diagnostics for process management.
+A numeric decimal value is expected.  Bit 0 enables general
+diagnostics, bit 1 enables certain warnings on Windows.
+
+.P
+
+When calling the gpg-agent component \fBgpg\fR sends a set of
+environment variables to gpg-agent.  The names of these variables can
+be listed using the command:
+
+.RS 2
+.nf
+  gpg-connect-agent 'getinfo std_env_names' /bye | awk '$1=="D" {print $2}'
+.fi
+.RE
+
+
+
+
+.SH BUGS
+
+On older systems this program should be installed as setuid(root). This
+is necessary to lock memory pages. Locking memory pages prevents the
+operating system from writing memory pages (which may contain
+passphrases or other sensitive material) to disk. If you get no
+warning message about insecure memory your operating system supports
+locking without being root. The program drops root privileges as soon
+as locked memory is allocated.
+
+Note also that some systems (especially laptops) have the ability to
+``suspend to disk'' (also known as ``safe sleep'' or ``hibernate'').
+This writes all memory to disk before going into a low power or even
+powered off mode.  Unless measures are taken in the operating system
+to protect the saved memory, passphrases or other sensitive material
+may be recoverable from it later.
+
+Before you report a bug you should first search the mailing list
+archives for similar problems and second check whether such a bug has
+already been reported to our bug tracker at \fBhttps://bugs.gnupg.org\fR.
+
+
+.SH SEE ALSO
+\fBgpgv\fR(1),
+\fBgpgsm\fR(1),
+\fBgpg-agent\fR(1)
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.

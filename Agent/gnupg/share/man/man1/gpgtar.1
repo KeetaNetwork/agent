@@ -1,0 +1,255 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPGTAR 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpgtar
+\- Encrypt or sign files into an archive
+.SH SYNOPSIS
+.B  gpgtar
+.RI [ options ]
+.I filename1
+.I [ filename2, ... ]
+.I directory1
+.I [ directory2, ... ]
+
+.SH DESCRIPTION
+\fBgpgtar\fR encrypts or signs files into an archive.  It is an
+gpg-ized tar using the same format as used by PGP's PGP Zip.
+
+.SH OPTIONS
+
+\fBgpgtar\fR understands these options:
+
+
+.TP
+.B  --create
+Put given files and directories into a vanilla ``ustar'' archive.
+
+.TP
+.B  --extract
+Extract all files from a vanilla ``ustar'' archive.
+
+.TP
+.B  --encrypt
+.TQ
+.B  -e
+Encrypt given files and directories into an archive.  This option may
+be combined with option \fB--symmetric\fR for an archive that may
+be decrypted via a secret key or a passphrase.
+
+.TP
+.B  --decrypt
+.TQ
+.B  -d
+Extract all files from an encrypted archive.
+
+.TP
+.B  --sign
+.TQ
+.B  -s
+Make a signed archive from the given files and directories.  This can
+be combined with option \fB--encrypt\fR to create a signed and then
+encrypted archive.
+
+.TP
+.B  --list-archive
+.TQ
+.B  -t
+List the contents of the specified archive.
+
+.TP
+.B  --symmetric
+.TQ
+.B  -c
+Encrypt with a symmetric cipher using a passphrase.  The default
+symmetric cipher used is AES-128, but may be chosen with the
+\fB--cipher-algo\fR option to \fBgpg\fR.
+
+.TP
+.B  --recipient \fIuser\fR
+.TQ
+.B  -r \fIuser\fR
+Encrypt for user id \fIuser\fR. For details see \fBgpg\fR.
+
+.TP
+.B  --local-user \fIuser\fR
+.TQ
+.B  -u \fIuser\fR
+Use \fIuser\fR as the key to sign with.  For details see \fBgpg\fR.
+
+.TP
+.B  --output \fIfile\fR
+.TQ
+.B  -o \fIfile\fR
+Write the archive to the specified file \fIfile\fR.
+
+.TP
+.B  --verbose
+.TQ
+.B  -v
+Enable extra informational output.
+
+.TP
+.B  --quiet
+.TQ
+.B  -q
+Try to be as quiet as possible.
+
+.TP
+.B  --skip-crypto
+Skip all crypto operations and create or extract vanilla ``ustar''
+archives.
+
+.TP
+.B  --dry-run
+Do not actually output the extracted files.
+
+.TP
+.B  --directory \fIdir\fR
+.TQ
+.B  -C \fIdir\fR
+Extract the files into the directory \fIdir\fR.  The default is to
+take the directory name from the input filename.  If no input filename
+is known a directory named \(oq\fIGPGARCH\fR\(cq is used.  For tarball
+creation, switch to directory \fIdir\fR before performing any
+operations.
+
+.TP
+.B  --files-from \fIfile\fR
+.TQ
+.B  -T \fIfile\fR
+Take the file names to work from the file \fIfile\fR; one file per
+line.
+
+.TP
+.B  --null
+Modify option \fB--files-from\fR to use a binary nul instead of a
+linefeed to separate file names.
+
+.TP
+.B  --utf8-strings
+Assume that the file names read by \fB--files-from\fR are UTF-8
+encoded.  This option has an effect only on Windows where the active
+code page is otherwise assumed.
+
+.TP
+.B  --openpgp
+This option has no effect because OpenPGP encryption and signing is
+the default.
+
+.TP
+.B  --cms
+This option is reserved and shall not be used.  It will eventually be
+used to encrypt or sign using the CMS protocol; but that is not yet
+implemented.
+
+.TP
+.B  --batch
+Use batch mode.  Never ask but use the default action.  This option is
+passed directly to \fBgpg\fR.
+
+.TP
+.B  --yes
+Assume "yes" on most questions.  Often used together with
+\fB--batch\fR to overwrite existing files.  This option is passed
+directly to \fBgpg\fR.
+
+.TP
+.B  --no
+Assume "no" on most questions.  This option is passed directly to
+\fBgpg\fR.
+
+.TP
+.B  --require-compliance
+This option is passed directly to \fBgpg\fR.
+
+.TP
+.B  --status-fd \fIn\fR
+Write special status strings to the file descriptor \fIn\fR.
+See the file DETAILS in the documentation for a listing of them.
+
+.TP
+.B  --with-log
+When extracting an encrypted tarball also write a log file with the
+gpg output to a file named after the extraction directory with the
+suffix ".log".
+
+.TP
+.B  --set-filename \fIfile\fR
+Use the last component of \fIfile\fR as the output directory.  The
+default is to take the directory name from the input filename.  If no
+input filename is known a directory named \(oq\fIGPGARCH\fR\(cq is used.
+This option is deprecated in favor of option \fB--directory\fR.
+
+.TP
+.B  --gpg \fIgpgcmd\fR
+Use the specified command \fIgpgcmd\fR instead of \fBgpg\fR.
+
+.TP
+.B  --gpg-args \fIargs\fR
+Pass the specified extra options to \fBgpg\fR.
+
+.TP
+.B  --tar-args \fIargs\fR
+Assume \fIargs\fR are standard options of the command \fBtar\fR
+and parse them.  The only supported tar options are "--directory",
+"--files-from", and "--null" This is an obsolete options because those
+supported tar options can also be given directly.
+
+.TP
+.B  --tar \fIcommand\fR
+This is a dummy option for backward compatibility.
+
+.TP
+.B  --version
+Print version of the program and exit.
+
+.TP
+.B  --help
+Display a brief help page and exit.
+
+.P
+
+.SH EXAMPLES
+
+Encrypt the contents of directory \(oq\fImydocs\fR\(cq for user Bob to file
+\(oq\fItest1\fR\(cq:
+
+.RS 2
+.nf
+gpgtar --encrypt --output test1 -r Bob mydocs
+.fi
+.RE
+
+
+List the contents of archive \(oq\fItest1\fR\(cq:
+
+.RS 2
+.nf
+gpgtar --list-archive test1
+.fi
+.RE
+
+
+.SH DIAGNOSTICS
+
+The program returns 0 if everything was fine, 1 otherwise.
+
+
+.SH SEE ALSO
+\fBgpg\fR(1),
+\fBtar\fR(1),
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.
+
+

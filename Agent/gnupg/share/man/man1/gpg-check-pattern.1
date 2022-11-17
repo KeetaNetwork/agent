@@ -1,0 +1,95 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPG-CHECK-PATTERN 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpg-check-pattern
+\- Check a passphrase on stdin against the patternfile
+.SH SYNOPSIS
+.B gpg\-check\-pattern
+.RI [ options ]
+.I patternfile
+
+.SH DESCRIPTION
+\fBgpg-check-pattern\fR checks a passphrase given on stdin against
+a specified pattern file.
+
+The pattern file is line based with comment lines beginning on the
+\fIfirst\fR position with a \fB#\fR.  Empty lines and lines with
+only white spaces are ignored.  The actual pattern lines may either be
+verbatim string pattern and match as they are (trailing spaces are
+ignored) or extended regular expressions indicated by a \fB/\fR or
+\fB!/\fR in the first column and terminated by another \fB/\fR or
+end of line.  If a regular expression starts with \fB!/\fR the match
+result is reversed. By default all comparisons are case insensitive.
+
+Tag lines may be used to further control the operation of this tool.
+The currently defined tags are:
+
+.TP
+.B  [icase]
+Switch to case insensitive comparison for all further patterns.  This
+is the default.
+
+.TP
+.B  [case]
+Switch to case sensitive comparison for all further patterns.
+
+.TP
+.B  [reject]
+Switch to reject mode.  This is the default mode.
+
+.TP
+.B  [accept]
+Switch to accept mode.
+.P
+
+In the future more tags may be introduced and thus it is advisable not to
+start a plain pattern string with an open bracket.  The tags must be
+given verbatim on the line with no spaces to the left or any non white
+space characters to the right.
+
+In reject mode the program exits on the first match with an exit code
+of 1 (failure).  If at the end of the pattern list the reject mode is
+still active the program exits with code 0 (success).
+
+In accept mode blocks of patterns are used.  A block starts at the
+next pattern after an "accept" tag and ends with the last pattern
+before the next "accept" or "reject" tag or at the end of the pattern
+list.  If all patterns in a block match the program exits with an exit
+code of 0 (success).  If any pattern in a block do not match the next
+pattern block is evaluated.  If at the end of the pattern list the
+accept mode is still active the program exits with code 1 (failure).
+
+
+.SH OPTIONS
+
+
+
+.TP
+.B  --verbose
+Enable extra informational output.
+
+.TP
+.B  --check
+Run only a syntax check on the patternfile.
+
+.TP
+.B  --null
+Input is expected to be null delimited.
+
+.P
+
+.SH SEE ALSO
+\fBgpg-agent\fR(1),
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.

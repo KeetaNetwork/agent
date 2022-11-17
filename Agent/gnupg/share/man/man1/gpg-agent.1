@@ -1,0 +1,950 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPG-AGENT 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpg-agent
+\- Secret key management for GnuPG
+.SH SYNOPSIS
+.B  gpg-agent
+.RB [ \-\-homedir
+.IR dir ]
+.RB [ \-\-options
+.IR file ]
+.RI [ options ]
+.br
+.B  gpg-agent
+.RB [ \-\-homedir
+.IR dir ]
+.RB [ \-\-options
+.IR file ]
+.RI [ options ]
+.B  \-\-server
+.br
+.B  gpg-agent
+.RB [ \-\-homedir
+.IR dir ]
+.RB [ \-\-options
+.IR file ]
+.RI [ options ]
+.B  \-\-daemon
+.RI [ command_line ]
+
+.SH DESCRIPTION
+\fBgpg-agent\fR is a daemon to manage secret (private) keys
+independently from any protocol.  It is used as a backend for
+\fBgpg\fR and \fBgpgsm\fR as well as for a couple of other
+utilities.
+
+The agent is automatically started on demand by \fBgpg\fR,
+\fBgpgsm\fR, \fBgpgconf\fR, or \fBgpg-connect-agent\fR.
+Thus there is no reason to start it manually.  In case you want to use
+the included Secure Shell Agent you may start the agent using:
+
+
+.RS 2
+.nf
+gpg-connect-agent /bye
+.fi
+.RE
+
+
+If you want to manually terminate the currently-running agent, you can
+safely do so with:
+
+.RS 2
+.nf
+gpgconf --kill gpg-agent
+.fi
+.RE
+
+
+You should always add the following lines to your \fB.bashrc\fR or
+whatever initialization file is used for all shell invocations:
+
+.RS 2
+.nf
+GPG_TTY=$(tty)
+export GPG_TTY
+.fi
+.RE
+
+
+It is important that this environment variable always reflects the
+output of the \fBtty\fR command.  For W32 systems this option is not
+required.
+
+Please make sure that a proper pinentry program has been installed
+under the default filename (which is system dependent) or use the
+option \fBpinentry-program\fR to specify the full name of that program.
+It is often useful to install a symbolic link from the actual used
+pinentry (e.g. \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/bin/pinentry-gtk\fR\(cq) to the expected
+one (e.g. \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/bin/pinentry\fR\(cq).
+
+
+
+.SH COMMANDS
+
+Commands are not distinguished from options except for the fact that
+only one command is allowed.
+
+.TP
+.B  --version
+Print the program version and licensing information.  Note that you cannot
+abbreviate this command.
+
+.TP
+.B  --help
+.TQ
+.B  -h
+Print a usage message summarizing the most useful command-line options.
+Note that you cannot abbreviate this command.
+
+.TP
+.B  --dump-options
+Print a list of all available options and commands.  Note that you cannot
+abbreviate this command.
+
+.TP
+.B  --server
+Run in server mode and wait for commands on the \fBstdin\fR.  The
+default mode is to create a socket and listen for commands there.
+
+.TP
+.B  --daemon [\fIcommand line\fR]
+Start the gpg-agent as a daemon; that is, detach it from the console
+and run it in the background.
+
+As an alternative you may create a new process as a child of
+gpg-agent: \fBgpg-agent --daemon /bin/sh\fR.  This way you get a new
+shell with the environment setup properly; after you exit from this
+shell, gpg-agent terminates within a few seconds.
+
+.TP
+.B  --supervised
+Run in the foreground, sending logs by default to stderr, and
+listening on provided file descriptors, which must already be bound to
+listening sockets.  This option is deprecated and not supported on
+Windows.
+
+If in \(oq\fIcommon.conf\fR\(cq the option \fBno-autostart\fR is set, any
+start attemps will be ignored.
+
+In --supervised mode, different file descriptors can be provided for
+use as different socket types (e.g. ssh, extra) as long as they are
+identified in the environment variable \fBLISTEN_FDNAMES\fR (see
+sd_listen_fds(3) on some Linux distributions for more information on
+this convention).
+.P
+
+.SH OPTIONS
+
+Options may either be used on the command line or, after stripping off
+the two leading dashes, in the configuration file.
+
+
+
+.TP
+.B  --options \fIfile\fR
+Reads configuration from \fIfile\fR instead of from the default
+per-user configuration file.  The default configuration file is named
+\(oq\fIgpg-agent.conf\fR\(cq and expected in the \(oq\fI.gnupg\fR\(cq directory
+directly below the home directory of the user.  This option is ignored
+if used in an options file.
+
+
+.TP
+.B  --homedir \fIdir\fR
+Set the name of the home directory to \fIdir\fR. If this option is not
+used, the home directory defaults to \(oq\fI~/.gnupg\fR\(cq.  It is only
+recognized when given on the command line.  It also overrides any home
+directory stated through the environment variable \(oq\fIGNUPGHOME\fR\(cq or
+(on Windows systems) by means of the Registry entry
+\fIHKCU\\Software\\GNU\\GnuPG:HomeDir\fR.
+
+On Windows systems it is possible to install GnuPG as a portable
+application.  In this case only this command line option is
+considered, all other ways to set a home directory are ignored.
+
+To install GnuPG as a portable application under Windows, create an
+empty file named \(oq\fIgpgconf.ctl\fR\(cq in the same directory as the tool
+\(oq\fIgpgconf.exe\fR\(cq.  The root of the installation is then that
+directory; or, if \(oq\fIgpgconf.exe\fR\(cq has been installed directly below
+a directory named \(oq\fIbin\fR\(cq, its parent directory.  You also need to
+make sure that the following directories exist and are writable:
+\(oq\fIROOT/home\fR\(cq for the GnuPG home and \(oq\fIROOT/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/var/cache/gnupg\fR\(cq
+for internal cache files.
+
+
+.TP
+.B  -v
+.TQ
+.B  --verbose
+Outputs additional information while running.
+You can increase the verbosity by giving several
+verbose commands to \fBgpg-agent\fR, such as \(oq-vv\(cq.
+
+.TP
+.B  -q
+.TQ
+.B  --quiet
+Try to be as quiet as possible.
+
+.TP
+.B  --batch
+Don't invoke a pinentry or do any other thing requiring human interaction.
+
+.TP
+.B  --faked-system-time \fIepoch\fR
+This option is only useful for testing; it sets the system time back or
+forth to \fIepoch\fR which is the number of seconds elapsed since the year
+1970.
+
+.TP
+.B  --debug-level \fIlevel\fR
+Select the debug level for investigating problems. \fIlevel\fR may be
+a numeric value or a keyword:
+
+.RS
+.TP
+.B  none
+No debugging at all.  A value of less than 1 may be used instead of
+the keyword.
+.TP
+.B  basic
+Some basic debug messages.  A value between 1 and 2 may be used
+instead of the keyword.
+.TP
+.B  advanced
+More verbose debug messages.  A value between 3 and 5 may be used
+instead of the keyword.
+.TP
+.B  expert
+Even more detailed messages.  A value between 6 and 8 may be used
+instead of the keyword.
+.TP
+.B  guru
+All of the debug messages you can get. A value greater than 8 may be
+used instead of the keyword.  The creation of hash tracing files is
+only enabled if the keyword is used.
+.RE
+
+How these messages are mapped to the actual debugging flags is not
+specified and may change with newer releases of this program. They are
+however carefully selected to best aid in debugging.
+
+.TP
+.B  --debug \fIflags\fR
+Set debug flags.  All flags are or-ed and \fIflags\fR may be given
+in C syntax (e.g. 0x0042) or as a comma separated list of flag names.
+To get a list of all supported flags the single word "help" can be
+used. This option is only useful for debugging and the behavior may
+change at any time without notice.
+
+.TP
+.B  --debug-all
+Same as \fB--debug=0xffffffff\fR
+
+.TP
+.B  --debug-wait \fIn\fR
+When running in server mode, wait \fIn\fR seconds before entering the
+actual processing loop and print the pid.  This gives time to attach a
+debugger.
+
+.TP
+.B  --debug-quick-random
+This option inhibits the use of the very secure random quality level
+(Libgcrypt’s \fBGCRY_VERY_STRONG_RANDOM\fR) and degrades all request
+down to standard random quality.  It is only used for testing and
+should not be used for any production quality keys.  This option is
+only effective when given on the command line.
+
+On GNU/Linux, another way to quickly generate insecure keys is to use
+\fBrngd\fR to fill the kernel's entropy pool with lower quality
+random data.  \fBrngd\fR is typically provided by the
+\fBrng-tools\fR package.  It can be run as follows: \(oqsudo
+rngd -f -r /dev/urandom\(cq.
+
+.TP
+.B  --debug-pinentry
+This option enables extra debug information pertaining to the
+Pinentry.  As of now it is only useful when used along with
+\fB--debug 1024\fR.
+
+.TP
+.B  --no-detach
+Don't detach the process from the console.  This is mainly useful for
+debugging.
+
+.TP
+.B  --steal-socket
+In \fB--daemon\fR mode, gpg-agent detects an already running
+gpg-agent and does not allow to start a new instance. This option can
+be used to override this check: the new gpg-agent process will try to
+take over the communication sockets from the already running process
+and start anyway.  This option should in general not be used.
+
+
+.TP
+.B  -s
+.TQ
+.B  --sh
+.TQ
+.B  -c
+.TQ
+.B  --csh
+Format the info output in daemon mode for use with the standard Bourne
+shell or the C-shell respectively.  The default is to guess it based on
+the environment variable \fBSHELL\fR which is correct in almost all
+cases.
+
+
+.TP
+.B  --grab
+.TQ
+.B  --no-grab
+Tell the pinentry to grab the keyboard and mouse.  This option should
+be used on X-Servers to avoid X-sniffing attacks. Any use of the
+option \fB--grab\fR overrides an used option \fB--no-grab\fR.
+The default is \fB--no-grab\fR.
+
+
+.TP
+.B  --log-file \fIfile\fR
+Append all logging output to \fIfile\fR.  This is very helpful in
+seeing what the agent actually does. Use \(oq\fIsocket://\fR\(cq to log to
+socket.  If neither a log file nor a log file descriptor has been set
+on a Windows platform, the Registry entry
+\fBHKCU\\Software\\GNU\\GnuPG:DefaultLogFile\fR, if set, is used to
+specify the logging output.
+
+
+
+.TP
+.B  --no-allow-mark-trusted
+Do not allow clients to mark keys as trusted, i.e. put them into the
+\(oq\fItrustlist.txt\fR\(cq file.  This makes it harder for users to inadvertently
+accept Root-CA keys.
+
+
+
+.TP
+.B  --no-user-trustlist
+Entirely ignore the user trust list and consider only the global
+trustlist (\(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/etc/gnupg/trustlist.txt\fR\(cq).  This
+implies the [option --no-allow-mark-trusted].
+
+.TP
+.B  --sys-trustlist-name \fIfile\fR
+Changes the default name for the global trustlist from "trustlist.txt"
+to \fIfile\fR.  If \fIfile\fR does not contain any slashes and does
+not start with "~/" it is searched in the system configuration
+directory (\(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/etc/gnupg\fR\(cq).
+
+
+.TP
+.B  --allow-preset-passphrase
+This option allows the use of \fBgpg-preset-passphrase\fR to seed the
+internal cache of \fBgpg-agent\fR with passphrases.
+
+
+.TP
+.B  --no-allow-loopback-pinentry
+.TP
+.B  --allow-loopback-pinentry
+Disallow or allow clients to use the loopback pinentry features; see
+the option \fBpinentry-mode\fR for details.  Allow is the default.
+
+The \fB--force\fR option of the Assuan command \fBDELETE_KEY\fR
+is also controlled by this option: The option is ignored if a loopback
+pinentry is disallowed.
+
+.TP
+.B  --no-allow-external-cache
+Tell Pinentry not to enable features which use an external cache for
+passphrases.
+
+Some desktop environments prefer to unlock all
+credentials with one master password and may have installed a Pinentry
+which employs an additional external cache to implement such a policy.
+By using this option the Pinentry is advised not to make use of such a
+cache and instead always ask the user for the requested passphrase.
+
+.TP
+.B  --allow-emacs-pinentry
+Tell Pinentry to allow features to divert the passphrase entry to a
+running Emacs instance.  How this is exactly handled depends on the
+version of the used Pinentry.
+
+.TP
+.B  --ignore-cache-for-signing
+This option will let \fBgpg-agent\fR bypass the passphrase cache for all
+signing operation.  Note that there is also a per-session option to
+control this behavior but this command line option takes precedence.
+
+.TP
+.B  --default-cache-ttl \fIn\fR
+Set the time a cache entry is valid to \fIn\fR seconds.  The default
+is 600 seconds.  Each time a cache entry is accessed, the entry's
+timer is reset.  To set an entry's maximum lifetime, use
+\fBmax-cache-ttl\fR.  Note that a cached passphrase may not be
+evicted immediately from memory if no client requests a cache
+operation.  This is due to an internal housekeeping function which is
+only run every few seconds.
+
+.TP
+.B  --default-cache-ttl-ssh \fIn\fR
+Set the time a cache entry used for SSH keys is valid to \fIn\fR
+seconds.  The default is 1800 seconds.  Each time a cache entry is
+accessed, the entry's timer is reset.  To set an entry's maximum
+lifetime, use \fBmax-cache-ttl-ssh\fR.
+
+.TP
+.B  --max-cache-ttl \fIn\fR
+Set the maximum time a cache entry is valid to \fIn\fR seconds.  After
+this time a cache entry will be expired even if it has been accessed
+recently or has been set using \fBgpg-preset-passphrase\fR.  The
+default is 2 hours (7200 seconds).
+
+.TP
+.B  --max-cache-ttl-ssh \fIn\fR
+Set the maximum time a cache entry used for SSH keys is valid to
+\fIn\fR seconds.  After this time a cache entry will be expired even
+if it has been accessed recently or has been set using
+\fBgpg-preset-passphrase\fR.  The default is 2 hours (7200
+seconds).
+
+.TP
+.B  --enforce-passphrase-constraints
+Enforce the passphrase constraints by not allowing the user to bypass
+them using the ``Take it anyway'' button.
+
+.TP
+.B  --min-passphrase-len \fIn\fR
+Set the minimal length of a passphrase.  When entering a new passphrase
+shorter than this value a warning will be displayed.  Defaults to 8.
+
+.TP
+.B  --min-passphrase-nonalpha \fIn\fR
+Set the minimal number of digits or special characters required in a
+passphrase.  When entering a new passphrase with less than this number
+of digits or special characters a warning will be displayed.  Defaults
+to 1.
+
+.TP
+.B  --check-passphrase-pattern \fIfile\fR
+.TQ
+.B  --check-sym-passphrase-pattern \fIfile\fR
+Check the passphrase against the pattern given in \fIfile\fR.  When
+entering a new passphrase matching one of these pattern a warning will
+be displayed.  If \fIfile\fR does not contain any slashes and does not
+start with "~/" it is searched in the system configuration directory
+(\(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/etc/gnupg\fR\(cq).  The default is not to use any
+pattern file.  The second version of this option is only used when
+creating a new symmetric key to allow the use of different patterns
+for such passphrases.
+
+Security note: It is known that checking a passphrase against a list of
+pattern or even against a complete dictionary is not very effective to
+enforce good passphrases.  Users will soon figure up ways to bypass such
+a policy.  A better policy is to educate users on good security
+behavior and optionally to run a passphrase cracker regularly on all
+users passphrases to catch the very simple ones.
+
+.TP
+.B  --max-passphrase-days \fIn\fR
+Ask the user to change the passphrase if \fIn\fR days have passed since
+the last change.  With \fB--enforce-passphrase-constraints\fR set the
+user may not bypass this check.
+
+.TP
+.B  --enable-passphrase-history
+This option does nothing yet.
+
+.TP
+.B  --pinentry-invisible-char \fIchar\fR
+This option asks the Pinentry to use \fIchar\fR for displaying hidden
+characters.  \fIchar\fR must be one character UTF-8 string.  A
+Pinentry may or may not honor this request.
+
+.TP
+.B  --pinentry-timeout \fIn\fR
+This option asks the Pinentry to timeout after \fIn\fR seconds with no
+user input.  The default value of 0 does not ask the pinentry to
+timeout, however a Pinentry may use its own default timeout value in
+this case.  A Pinentry may or may not honor this request.
+
+.TP
+.B  --pinentry-formatted-passphrase
+This option asks the Pinentry to enable passphrase formatting when asking the
+user for a new passphrase and masking of the passphrase is turned off.
+
+If passphrase formatting is enabled, then all non-breaking space characters
+are stripped from the entered passphrase.  Passphrase formatting is mostly
+useful in combination with passphrases generated with the GENPIN
+feature of some Pinentries.  Note that such a generated
+passphrase, if not modified by the user, skips all passphrase
+constraints checking because such constraints would actually weaken
+the generated passphrase.
+
+.TP
+.B  --pinentry-program \fIfilename\fR
+Use program \fIfilename\fR as the PIN entry.  The default is
+installation dependent.  With the default configuration the name of
+the default pinentry is \(oq\fIpinentry\fR\(cq; if that file does not exist
+but a \(oq\fIpinentry-basic\fR\(cq exist the latter is used.
+
+On a Windows platform the default is to use the first existing program
+from this list:
+\(oq\fIbin\\pinentry.exe\fR\(cq,
+\(oq\fI..\\Gpg4win\\bin\\pinentry.exe\fR\(cq,
+\(oq\fI..\\Gpg4win\\pinentry.exe\fR\(cq,
+\(oq\fI..\\GNU\\GnuPG\\pinentry.exe\fR\(cq,
+\(oq\fI..\\GNU\\bin\\pinentry.exe\fR\(cq,
+\(oq\fIbin\\pinentry-basic.exe\fR\(cq
+where the file names are relative to the GnuPG installation directory.
+
+
+.TP
+.B  --pinentry-touch-file \fIfilename\fR
+By default the filename of the socket gpg-agent is listening for
+requests is passed to Pinentry, so that it can touch that file before
+exiting (it does this only in curses mode).  This option changes the
+file passed to Pinentry to \fIfilename\fR.  The special name
+\fB/dev/null\fR may be used to completely disable this feature.  Note
+that Pinentry will not create that file, it will only change the
+modification and access time.
+
+
+.TP
+.B  --scdaemon-program \fIfilename\fR
+Use program \fIfilename\fR as the Smartcard daemon.  The default is
+installation dependent and can be shown with the \fBgpgconf\fR
+command.
+
+.TP
+.B  --disable-scdaemon
+Do not make use of the scdaemon tool.  This option has the effect of
+disabling the ability to do smartcard operations.  Note, that enabling
+this option at runtime does not kill an already forked scdaemon.
+
+.TP
+.B  --disable-check-own-socket
+\fBgpg-agent\fR employs a periodic self-test to detect a stolen
+socket.  This usually means a second instance of \fBgpg-agent\fR
+has taken over the socket and \fBgpg-agent\fR will then terminate
+itself.  This option may be used to disable this self-test for
+debugging purposes.
+
+.TP
+.B  --use-standard-socket
+.TQ
+.B  --no-use-standard-socket
+.TQ
+.B  --use-standard-socket-p
+Since GnuPG 2.1 the standard socket is always used.  These options
+have no more effect.  The command \fBgpg-agent
+--use-standard-socket-p\fR will thus always return success.
+
+.TP
+.B  --display \fIstring\fR
+.TQ
+.B  --ttyname \fIstring\fR
+.TQ
+.B  --ttytype \fIstring\fR
+.TQ
+.B  --lc-ctype \fIstring\fR
+.TQ
+.B  --lc-messages \fIstring\fR
+.TQ
+.B  --xauthority \fIstring\fR
+These options are used with the server mode to pass localization
+information.
+
+.TP
+.B  --keep-tty
+.TQ
+.B  --keep-display
+Ignore requests to change the current \fBtty\fR or X window system's
+\fBDISPLAY\fR variable respectively.  This is useful to lock the
+pinentry to pop up at the \fBtty\fR or display you started the agent.
+
+.TP
+.B  --listen-backlog \fIn\fR
+Set the size of the queue for pending connections.  The default is 64.
+
+
+.TP
+.B  --extra-socket \fIname\fR
+The extra socket is created by default, you may use this option to
+change the name of the socket.  To disable the creation of the socket
+use ``none'' or ``/dev/null'' for \fIname\fR.
+
+Also listen on native gpg-agent connections on the given socket.  The
+intended use for this extra socket is to setup a Unix domain socket
+forwarding from a remote machine to this socket on the local machine.
+A \fBgpg\fR running on the remote machine may then connect to the
+local gpg-agent and use its private keys.  This enables decrypting or
+signing data on a remote machine without exposing the private keys to the
+remote machine.
+
+.TP
+.B  --enable-extended-key-format
+.TQ
+.B  --disable-extended-key-format
+Since version 2.3 keys are created in the extended private key format.
+Changing the passphrase of a key will also convert the key to that new
+format.  This new key format is supported since GnuPG version 2.1.12
+and thus there should be no need to disable it.  The disable option
+allows to revert to the old behavior for new keys; be aware that keys
+are never migrated back to the old format.  However if the enable
+option has been used the disable option won't have an effect.  The
+advantage of the extended private key format is that it is text based
+and can carry additional meta data.
+
+
+.TP
+.B  --enable-ssh-support
+.TQ
+.B  --enable-putty-support
+
+The OpenSSH Agent protocol is always enabled, but \fBgpg-agent\fR
+will only set the \fBSSH_AUTH_SOCK\fR variable if this flag is given.
+
+In this mode of operation, the agent does not only implement the
+gpg-agent protocol, but also the agent protocol used by OpenSSH
+(through a separate socket).  Consequently, it should be possible to use
+the gpg-agent as a drop-in replacement for the well known ssh-agent.
+
+SSH Keys, which are to be used through the agent, need to be added to
+the gpg-agent initially through the ssh-add utility.  When a key is
+added, ssh-add will ask for the password of the provided key file and
+send the unprotected key material to the agent; this causes the
+gpg-agent to ask for a passphrase, which is to be used for encrypting
+the newly received key and storing it in a gpg-agent specific
+directory.
+
+Once a key has been added to the gpg-agent this way, the gpg-agent
+will be ready to use the key.
+
+Note: in case the gpg-agent receives a signature request, the user might
+need to be prompted for a passphrase, which is necessary for decrypting
+the stored key.  Since the ssh-agent protocol does not contain a
+mechanism for telling the agent on which display/terminal it is running,
+gpg-agent's ssh-support will use the TTY or X display where gpg-agent
+has been started.  To switch this display to the current one, the
+following command may be used:
+
+.RS 2
+.nf
+gpg-connect-agent updatestartuptty /bye
+.fi
+.RE
+
+Although all GnuPG components try to start the gpg-agent as needed, this
+is not possible for the ssh support because ssh does not know about it.
+Thus if no GnuPG tool which accesses the agent has been run, there is no
+guarantee that ssh is able to use gpg-agent for authentication.  To fix
+this you may start gpg-agent if needed using this simple command:
+
+.RS 2
+.nf
+gpg-connect-agent /bye
+.fi
+.RE
+
+Adding the \fB--verbose\fR shows the progress of starting the agent.
+
+The \fB--enable-putty-support\fR is only available under Windows
+and allows the use of gpg-agent with the ssh implementation
+\fBputty\fR.  This is similar to the regular ssh-agent support but
+makes use of Windows message queue as required by \fBputty\fR.
+
+
+.TP
+.B  --ssh-fingerprint-digest
+
+Select the digest algorithm used to compute ssh fingerprints that are
+communicated to the user, e.g. in pinentry dialogs.  OpenSSH has
+transitioned from using MD5 to the more secure SHA256.
+
+
+.TP
+.B  --auto-expand-secmem \fIn\fR
+Allow Libgcrypt to expand its secure memory area as required.  The
+optional value \fIn\fR is a non-negative integer with a suggested size
+in bytes of each additionally allocated secure memory area.  The value
+is rounded up to the next 32 KiB; usual C style prefixes are allowed.
+For an heavy loaded gpg-agent with many concurrent connection this
+option avoids sign or decrypt errors due to out of secure memory error
+returns.
+
+.TP
+.B  --s2k-calibration \fImilliseconds\fR
+Change the default calibration time to \fImilliseconds\fR.  The given
+value is capped at 60 seconds; a value of 0 resets to the compiled-in
+default.  This option is re-read on a SIGHUP (or \fBgpgconf
+--reload gpg-agent\fR) and the S2K count is then re-calibrated.
+
+.TP
+.B  --s2k-count \fIn\fR
+Specify the iteration count used to protect the passphrase.  This
+option can be used to override the auto-calibration done by default.
+The auto-calibration computes a count which requires by default 100ms
+to mangle a given passphrase.  See also \fB--s2k-calibration\fR.
+
+To view the actually used iteration count and the milliseconds
+required for an S2K operation use:
+
+.RS 2
+.nf
+gpg-connect-agent 'GETINFO s2k_count' /bye
+gpg-connect-agent 'GETINFO s2k_time' /bye
+.fi
+.RE
+
+To view the auto-calibrated count use:
+
+.RS 2
+.nf
+gpg-connect-agent 'GETINFO s2k_count_cal' /bye
+.fi
+.RE
+
+
+.P
+
+
+.SH EXAMPLES
+
+It is important to set the environment variable \fBGPG_TTY\fR in
+your login shell, for example in the \(oq\fI~/.bashrc\fR\(cq init script:
+
+.RS 2
+.nf
+  export GPG_TTY=$(tty)
+.fi
+.RE
+
+If you enabled the Ssh Agent Support, you also need to tell ssh about
+it by adding this to your init script:
+
+.RS 2
+.nf
+unset SSH_AGENT_PID
+if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
+  export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+fi
+.fi
+.RE
+
+
+
+.SH FILES
+
+There are a few configuration files needed for the operation of the
+agent. By default they may all be found in the current home directory
+(see: [option --homedir]).
+
+
+.TP
+.B  gpg-agent.conf
+  This is the standard configuration file read by \fBgpg-agent\fR on
+  startup.  It may contain any valid long option; the leading
+  two dashes may not be entered and the option may not be abbreviated.
+  This file is also read after a \fBSIGHUP\fR however only a few
+  options will actually have an effect.  This default name may be
+  changed on the command line (see: [option --options]).
+  You should backup this file.
+
+.TP
+.B  trustlist.txt
+  This is the list of trusted keys.  You should backup this file.
+
+  Comment lines, indicated by a leading hash mark, as well as empty
+  lines are ignored.  To mark a key as trusted you need to enter its
+  fingerprint followed by a space and a capital letter \fBS\fR.  Colons
+  may optionally be used to separate the bytes of a fingerprint; this
+  enables cutting and pasting the fingerprint from a key listing output.  If
+  the line is prefixed with a \fB!\fR the key is explicitly marked as
+  not trusted.
+
+  Here is an example where two keys are marked as ultimately trusted
+  and one as not trusted:
+
+    .RS 2
+.nf
+  # CN=Wurzel ZS 3,O=Intevation GmbH,C=DE
+  A6935DD34EF3087973C706FC311AA2CCF733765B S
+
+  # CN=PCA-1-Verwaltung-02/O=PKI-1-Verwaltung/C=DE
+  DC:BD:69:25:48:BD:BB:7E:31:6E:BB:80:D3:00:80:35:D4:F8:A6:CD S
+
+  # CN=Root-CA/O=Schlapphuete/L=Pullach/C=DE
+  !14:56:98:D3:FE:9C:CA:5A:31:6E:BC:81:D3:11:4E:00:90:A3:44:C2 S
+  .fi
+.RE
+  
+Before entering a key into this file, you need to ensure its
+authenticity.  How to do this depends on your organisation; your
+administrator might have already entered those keys which are deemed
+trustworthy enough into this file.  Places where to look for the
+fingerprint of a root certificate are letters received from the CA or
+the website of the CA (after making 100% sure that this is indeed the
+website of that CA).  You may want to consider disallowing interactive
+updates of this file by using the [option --no-allow-mark-trusted].
+It might even be advisable to change the permissions to read-only so
+that this file can't be changed inadvertently.
+
+As a special feature a line \fBinclude-default\fR will include a global
+list of trusted certificates (e.g. \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/etc/gnupg/trustlist.txt\fR\(cq).
+This global list is also used if the local list is not available;
+the [option --no-user-trustlist] enforces the use of only
+this global list.
+
+It is possible to add further flags after the \fBS\fR for use by the
+caller:
+
+.RS
+
+.TP
+.B  relax
+Relax checking of some root certificate requirements.  As of now this
+flag allows the use of root certificates with a missing basicConstraints
+attribute (despite that it is a MUST for CA certificates) and disables
+CRL checking for the root certificate.
+
+.TP
+.B  cm
+If validation of a certificate finally issued by a CA with this flag set
+fails, try again using the chain validation model.
+
+.TP
+.B  qual
+The CA is allowed to issue certificates for qualified signatures.
+This flag has an effect only if used in the global list.  This is now
+the preferred way to mark such CA; the old way of having a separate
+file \(oq\fIqualified.txt\fR\(cq is still supported.
+
+.RE
+
+
+.TP
+.B  sshcontrol
+This file is used when support for the secure shell agent protocol has
+been enabled (see: [option --enable-ssh-support]). Only keys present in
+this file are used in the SSH protocol.  You should backup this file.
+
+The \fBssh-add\fR tool may be used to add new entries to this file;
+you may also add them manually.  Comment lines, indicated by a leading
+hash mark, as well as empty lines are ignored.  An entry starts with
+optional whitespace, followed by the keygrip of the key given as 40 hex
+digits, optionally followed by the caching TTL in seconds and another
+optional field for arbitrary flags.  A non-zero TTL overrides the global
+default as set by \fB--default-cache-ttl-ssh\fR.
+
+The only flag support is \fBconfirm\fR.  If this flag is found for a
+key, each use of the key will pop up a pinentry to confirm the use of
+that key.  The flag is automatically set if a new key was loaded into
+\fBgpg-agent\fR using the option \fB-c\fR of the \fBssh-add\fR
+command.
+
+The keygrip may be prefixed with a \fB!\fR to disable an entry.
+
+The following example lists exactly one key.  Note that keys available
+through a OpenPGP smartcard in the active smartcard reader are
+implicitly added to this list; i.e. there is no need to list them.
+
+.RS 2
+.nf
+       # Key added on: 2011-07-20 20:38:46
+       # Fingerprint:  5e:8d:c4:ad:e7:af:6e:27:8a:d6:13:e4:79:ad:0b:81
+       34B62F25E277CF13D3C6BCEBFD3F85D08F0A864B 0 confirm
+.fi
+.RE
+
+.TP
+.B  private-keys-v1.d/
+
+  This is the directory where gpg-agent stores the private keys.  Each
+  key is stored in a file with the name made up of the keygrip and the
+  suffix \(oq\fIkey\fR\(cq.  You should backup all files in this directory
+  and take great care to keep this backup closed away.
+
+
+.P
+
+Note that on larger installations, it is useful to put predefined
+files into the directory \(oq\fI/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/etc/skel/.gnupg\fR\(cq so that newly created
+users start up with a working configuration.  For existing users the
+a small helper script is provided to create these files (see: [addgnupghome]).
+
+
+
+
+.SH SIGNALS
+A running \fBgpg-agent\fR may be controlled by signals, i.e. using
+the \fBkill\fR command to send a signal to the process.
+
+Here is a list of supported signals:
+
+
+.TP
+.B  SIGHUP
+This signal flushes all cached passphrases and if the program has been
+started with a configuration file, the configuration file is read
+again.  Only certain options are honored: \fBquiet\fR,
+\fBverbose\fR, \fBdebug\fR, \fBdebug-all\fR, \fBdebug-level\fR,
+\fBdebug-pinentry\fR,
+\fBno-grab\fR,
+\fBpinentry-program\fR,
+\fBpinentry-invisible-char\fR,
+\fBdefault-cache-ttl\fR,
+\fBmax-cache-ttl\fR, \fBignore-cache-for-signing\fR,
+\fBs2k-count\fR,
+\fBno-allow-external-cache\fR, \fBallow-emacs-pinentry\fR,
+\fBno-allow-mark-trusted\fR, \fBdisable-scdaemon\fR, and
+\fBdisable-check-own-socket\fR.  \fBscdaemon-program\fR is also
+supported but due to the current implementation, which calls the
+scdaemon only once, it is not of much use unless you manually kill the
+scdaemon.
+
+
+.TP
+.B  SIGTERM
+Shuts down the process but waits until all current requests are
+fulfilled.  If the process has received 3 of these signals and requests
+are still pending, a shutdown is forced.
+
+.TP
+.B  SIGINT
+Shuts down the process immediately.
+
+.TP
+.B  SIGUSR1
+Dump internal information to the log file.
+
+.TP
+.B  SIGUSR2
+This signal is used for internal purposes.
+
+.P
+
+
+.SH SEE ALSO
+\fBgpg\fR(1),
+\fBgpgsm\fR(1),
+\fBgpgconf\fR(1),
+\fBgpg-connect-agent\fR(1),
+\fBscdaemon\fR(1)
+
+The full documentation for this tool is maintained as a Texinfo manual.
+If GnuPG and the info program are properly installed at your site, the
+command
+
+.RS 2
+.nf
+info gnupg
+.fi
+.RE
+
+should give you access to the complete manual including a menu structure
+and an index.

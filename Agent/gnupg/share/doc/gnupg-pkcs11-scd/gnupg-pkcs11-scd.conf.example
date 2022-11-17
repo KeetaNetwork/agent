@@ -1,0 +1,45 @@
+# Log file.
+#log-file log1
+
+# Default is not verbose.
+#verbose
+
+# Default is no debugging.
+#debug-all
+
+# Pin cache period in seconds; default is infinite.
+#pin-cache 20
+
+# Comma-separated list of available provider names. Then set
+# attributes for each provider using the provider-[name]-attribute
+# syntax.
+providers p1
+
+# The following attributes can be set for each provider:
+#
+# library
+#	Full path to the PKCS#11 shared library (= provider).
+# allow-protected-auth
+#	Allow protected authentication for provider. This needs to be supported by
+#	the provider and you should have appropriate reader hardware.
+# cert-private
+#	Authentication is required before certificates can be accessed. Most
+#	configurations store certificates as public, so there is no need to use this
+#	option.
+# private-mask
+#	Private key mask mode. Use this only when you have problem using
+#	private key operations. The value is hex encoded mask number.
+#	0	Determine automatically.
+#	1	Force sign.
+#	2	Force sign with recovery.
+#	4	Force decrypt.
+#	8	Force decrypt with unwrap.
+provider-p1-library /usr/lib/pkcs11/p1.so
+#provider-p1-allow-protected-auth
+#provider-p1-cert-private
+#provider-p1-private-mask 0
+
+#emulate-openpgpg
+#openpgp-sign 5C661B8C07CFD957F7D98D5B9A0F31D236BFAC2A
+#openpgp-encr D2DC0BD1EDD185969748B6025B452816F97CBA57
+#openpgp-auth A7B8C1A3A8F71FCEC018886F8767927B9C8D871F

@@ -1,18 +1,26 @@
-//
-//  GPGKey.swift
-//  Agent
-//
-//  Created by Ty Schenk on 11/10/22.
-//
-
 import Foundation
 
-struct GPGUser: Codable {
-    let name: String
-    let email: String
-}
-
 struct GPGKey: Codable {
-    let key: String
-    let user: GPGUser
+    let id: String
+    let value: String
+    let fullName: String
+    let email: String
+    var isUploaded: Bool
+    
+    static let header = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
+    static let footer = "-----END PGP PUBLIC KEY BLOCK-----"
+    
+    var displayValue: String {
+        let start = Self.header
+        let end = Self.footer
+        let newLine = "\n"
+        
+        var displayValue = value
+        displayValue = displayValue.replacingOccurrences(of: start, with: "")
+        displayValue = displayValue.replacingOccurrences(of: end, with: "")
+        displayValue = displayValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        displayValue = displayValue.replacingOccurrences(of: newLine, with: "\\n")
+        
+        return [start, displayValue, end].joined(separator: newLine)
+    }
 }

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "/Users/rkeene/devel/gpg-sign-se/build/pkgs/installed/gnupg-2.3.8/bin/gpg-wks-client" "$@"

@@ -13,9 +13,8 @@ struct Email: Codable {
 }
 
 struct GithubGPG: Codable {
-    let id: String
+    let id: Int
     let name: String
-    let primaryKeyId: Int
     let keyId: String
     let publicKey: String
     let emails: [Email]
@@ -26,7 +25,6 @@ struct GithubGPG: Codable {
     enum CodingKeys: String, CodingKey {
         case id,
              name,
-             primaryKeyId = "primary_key_id",
              keyId = "key_id",
              publicKey = "public_key",
              emails,

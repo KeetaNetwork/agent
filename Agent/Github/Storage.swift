@@ -1,57 +1,40 @@
-//
-//  Storage.swift
-//  Agent
-//
-//  Created by Ty Schenk on 11/8/22.
-//
-
 import Foundation
 import keeta_secure_storage
 import KeychainSwift
 
-class Storage: ObservableObject {
+final class Storage {
     
-    static let shared = Storage()
+    private let secureStorage = SecureStorage(keychain: KeychainSwift())
+    private let kvStorage = UserDefaults(suiteName: "KeetaAgent")!
     
-    let storage = SecureStorage(keychain: KeychainSwift())
-    @Published private(set) var user: AgentUser?
-    
-    private init() {
-        // attempt to load user details from storage
-        if let user: AgentUser = try? storage.object(for: "keeta_agent_user") {
-            self.user = user
-        }
+    enum Key: String {
+        case gpgKey
+        case sshKey
+        case githubUser
     }
     
-    private func storeUser(user: AgentUser) {
-        DispatchQueue.global(qos: .userInitiated).async { [self] in
-            try? self.storage.store(user, for: "keeta_agent_user")
-            guard let user: AgentUser = try? storage.object(for: "keeta_agent_user") else { return }
-            
-            DispatchQueue.main.async {
-                self.user = user
-            }
-        }
+    var gpgKey: GPGKey? {
+        get { object(for: .gpgKey) }
+        set { store(newValue, for: .gpgKey) }
     }
     
-    func storeGithubUser(user: GithubUser, token: String) {
-        guard let currentUser = self.user else { return }
-        let updatedUser = AgentUser(token: token, github: user, gpgKey: currentUser.gpgKey, sshKey: currentUser.sshKey)
-        storeUser(user: updatedUser)
+    var sshKey: SSHKey? {
+        get { object(for: .sshKey) }
+        set { store(newValue, for: .sshKey) }
     }
     
-    func generateKeys(name: String, email: String) {
-        let TEMP_KEY = "TEST KEY ONLY"
-        let user = GPGUser(name: name, email: email)
-        let gpgKey = GPGKey(key: TEMP_KEY, user: user)
-        let sshKey = SSHKey(key: TEMP_KEY)
-        let agentUser = AgentUser(gpgKey: gpgKey, sshKey: sshKey)
-        
-//        Task {
-//            try await GithubAPI.uploadGPG(key: gpgKey)
-//            try await GithubAPI.uploadSSH(key: sshKey)
-//        }
-        
-        storeUser(user: agentUser)
+    var githubUser: GithubUser? {
+        get { object(for: .githubUser) }
+        set { store(newValue, for: .githubUser) }
+    }
+    
+    // MARK: Helper
+    
+    private func object<T: Decodable>(for key: Key) -> T? {
+        try? secureStorage.object(for: key.rawValue)
+    }
+    
+    private func store<T: Encodable>(_ object: T, for key: Key) {
+        try? secureStorage.store(object, for: key.rawValue)
     }
 }

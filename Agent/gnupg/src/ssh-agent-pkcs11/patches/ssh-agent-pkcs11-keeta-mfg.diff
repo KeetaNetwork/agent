@@ -1,0 +1,12 @@
+diff -uNr unnamed-0737d85a4a.orig/libssh-agent-pkcs11-provider.c unnamed-0737d85a4a/libssh-agent-pkcs11-provider.c
+--- unnamed-0737d85a4a.orig/libssh-agent-pkcs11-provider.c	2022-10-06 23:00:38.000000000 -0700
++++ unnamed-0737d85a4a/libssh-agent-pkcs11-provider.c	2022-11-08 02:40:04.288931200 -0800
+@@ -993,7 +993,7 @@
+ }
+ 
+ CK_DEFINE_FUNCTION(CK_RV, C_GetTokenInfo)(CK_SLOT_ID slotID, CK_TOKEN_INFO_PTR pInfo) {
+-	static CK_UTF8CHAR manufacturerID[] = "Roy Keene";
++	static CK_UTF8CHAR manufacturerID[] = "Keeta";
+ 	static CK_UTF8CHAR defaultLabel[] = "Unknown Token";
+ 	static CK_UTF8CHAR model[] = "SSH Agent Token";
+ 	struct ssh_agent_identity *identities;

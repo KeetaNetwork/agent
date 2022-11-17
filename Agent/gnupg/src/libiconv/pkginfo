@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+pkg='libiconv'
+version='1.17'
+url="https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${version}.tar.gz"
+sha256='8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313'
+require=()
+configure_extra=(--disable-shared --enable-static)

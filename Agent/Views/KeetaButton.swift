@@ -21,7 +21,7 @@ struct KeetaButton: View {
                 .frame(width: 113, height: 24)
         }
         .buttonStyle(.plain)
-        .padding(EdgeInsets(top: AgentSpacing.large, leading: AgentSpacing.zero, bottom: AgentSpacing.zero, trailing: AgentSpacing.zero))
+        .padding(.top, AgentSpacing.large)
     }
 }
 

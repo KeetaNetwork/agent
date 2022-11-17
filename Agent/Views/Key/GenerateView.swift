@@ -1,17 +1,11 @@
-//
-//  GenerateView.swift
-//  Agent
-//
-//  Created by Ty Schenk on 11/12/22.
-//
-
 import SwiftUI
 
 struct GenerateView: View {
-    @ObservedObject var storage: Storage = .shared
+    @ObservedObject var keetaAgent: KeetaAgent = Dependencies.all.keetaAgent
+    
     @State private var name: String = ""
     @State private var email: String = ""
-    @State private var showingAlert = false
+    @State private var error: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: AgentSpacing.large) {
@@ -48,10 +42,9 @@ struct GenerateView: View {
                     )
             }
             Button {
-                if !name.isEmpty && !email.isEmpty && isValidEmail(email) {
-                    storage.generateKeys(name: name, email: email)
-                } else {
-                    showingAlert.toggle()
+                Task {
+                    let error = await keetaAgent.createNewKey(for: name, email: email)
+                    DispatchQueue.main.async { self.error = error }
                 }
             } label: {
                 Text("Generate GPG Key")
@@ -60,14 +53,14 @@ struct GenerateView: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 20)
             }
-            .alert(isPresented: $showingAlert) { () -> Alert in
-                Alert(title: Text("Agent Error"), message: name.isEmpty ? Text("Please enter a name.") : Text("Please enter a valid email."), dismissButton: .default(Text("Ok")))
+            .alert(isPresented: .init(get: { error != nil }, set: { error = $0 ? error : nil })) {
+                Alert(title: Text("Agent Error"), message: Text(error ?? ""), dismissButton: .default(Text("Ok")))
             }
             .buttonStyle(.plain)
             .background(KeetaColor.red)
             .cornerRadius(40)
         }
-        .padding(EdgeInsets(top: AgentSpacing.large, leading: AgentSpacing.large, bottom: AgentSpacing.large, trailing: AgentSpacing.large))
+        .padding(AgentSpacing.large)
         .background(KeetaColor.black)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
@@ -75,17 +68,12 @@ struct GenerateView: View {
         )
         .cornerRadius(16)
     }
-    
-    private func isValidEmail(_ email: String) -> Bool {
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-        return emailPred.evaluate(with: email)
-    }
 }
 
+#if DEBUG
 struct GenerateView_Previews: PreviewProvider {
     static var previews: some View {
         GenerateView()
     }
 }
-
+#endif

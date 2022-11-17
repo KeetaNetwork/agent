@@ -1,25 +1,23 @@
-//
-//  GPGKeyHeader.swift
-//  Agent
-//
-//  Created by Ty Schenk on 11/8/22.
-//
-
 import SwiftUI
 
 struct GPGKeyHeader: View {
+    
+    let key: GPGKey
+    
     var body: some View {
         HStack {
-            GPGKeyIcon()
+            KeyIcon(keyType: .gpg, uploaded: key.isUploaded)
             Spacer()
-            GPGKeyCopy()
+            CopyButton(value: key.value)
         }
-        .padding(EdgeInsets(top: AgentSpacing.large, leading: AgentSpacing.large, bottom: AgentSpacing.large, trailing: AgentSpacing.large))
+        .padding(AgentSpacing.large)
     }
 }
 
+#if DEBUG
 struct GPGKeyHeader_Previews: PreviewProvider {
     static var previews: some View {
-        GPGKeyHeader()
+        GPGKeyHeader(key: .preview())
     }
 }
+#endif

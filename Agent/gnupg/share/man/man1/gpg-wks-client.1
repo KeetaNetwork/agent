@@ -1,0 +1,220 @@
+.\" Created from Texinfo source by yat2m 1.42
+.TH GPG-WKS-CLIENT 1 2022-10-07 "GnuPG 2.3.8" "GNU Privacy Guard 2.3"
+.SH NAME
+.B gpg-wks-client
+\- Client for the Web Key Service
+.SH SYNOPSIS
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-supported
+.I user-id
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-check
+.I user-id
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-create
+.I fingerprint
+.I user-id
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-receive
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-read
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-mirror
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-install-key
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-remove-key
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-print-wkd-hash
+.br
+.B gpg-wks-client
+.RI [ options ]
+.B \-\-print-wkd-url
+
+.SH DESCRIPTION
+The \fBgpg-wks-client\fR is used to send requests to a Web Key
+Service provider.  This is usually done to upload a key into a Web
+Key Directory.
+
+With the \fB--supported\fR command the caller can test whether a
+site supports the Web Key Service.  The argument is an arbitrary
+address in the to be tested domain. For example
+\(oq\fIfoo@example.net\fR\(cq.  The command returns success if the Web Key
+Service is supported.  The operation is silent; to get diagnostic
+output use the option \fB--verbose\fR.  See option
+\fB--with-colons\fR for a variant of this command.
+
+With the \fB--check\fR command the caller can test whether a key
+exists for a supplied mail address.  The command returns success if a
+key is available.
+
+The \fB--create\fR command is used to send a request for
+publication in the Web Key Directory.  The arguments are the
+fingerprint of the key and the user id to publish.  The output from
+the command is a properly formatted mail with all standard headers.
+This mail can be fed to \fBsendmail(8)\fR or any other tool to
+actually send that mail.  If \fBsendmail(8)\fR is installed the
+option \fB--send\fR can be used to directly send the created
+request.  If the provider request a 'mailbox-only' user id and no such
+user id is found, \fBgpg-wks-client\fR will try an additional user
+id.
+
+The \fB--receive\fR and \fB--read\fR commands are used to
+process confirmation mails as send from the service provider.  The
+former expects an encrypted MIME messages, the latter an already
+decrypted MIME message.  The result of these commands are another mail
+which can be send in the same way as the mail created with
+\fB--create\fR.
+
+The command \fB--install-key\fR manually installs a key into a
+local directory (see option \fB-C\fR) reflecting the structure of a
+WKD.  The arguments are a file with the keyblock and the user-id to
+install.  If the first argument resembles a fingerprint the key is
+taken from the current keyring; to force the use of a file, prefix the
+first argument with "./".  If no arguments are given the parameters
+are read from stdin; the expected format are lines with the
+fingerprint and the mailbox separated by a space.  The command
+\fB--remove-key\fR removes a key from that directory, its only
+argument is a user-id.
+
+The command \fB--mirror\fR is similar to \fB--install-key\fR but
+takes the keys from the the LDAP server configured for Dirmngr.  If no
+arguments are given all keys and user ids are installed.  If arguments
+are given they are taken as domain names to limit the to be installed
+keys.  The option \fB--blacklist\fR may be used to further limit
+the to be installed keys.
+
+The command \fB--print-wkd-hash\fR prints the WKD user-id identifiers
+and the corresponding mailboxes from the user-ids given on the command
+line or via stdin (one user-id per line).
+
+The command \fB--print-wkd-url\fR prints the URLs used to fetch the
+key for the given user-ids from WKD.  The meanwhile preferred format
+with sub-domains is used here.
+
+.SH OPTIONS
+
+\fBgpg-wks-client\fR understands these options:
+
+
+.TP
+.B  --send
+Directly send created mails using the \fBsendmail\fR command.
+Requires installation of that command.
+
+.TP
+.B  --with-colons
+This option has currently only an effect on the \fB--supported\fR
+command.  If it is used all arguments on the command line are taken
+as domain names and tested for WKD support.  The output format is one
+line per domain with colon delimited fields.  The currently specified
+fields are (future versions may specify additional fields):
+
+.RS
+
+.TP
+.B  1 - domain
+This is the domain name.  Although quoting is not required for valid
+domain names this field is specified to be quoted in standard C
+manner.
+
+.TP
+.B  2 - WKD
+If the value is true the domain supports the Web Key Directory.
+
+.TP
+.B  3 - WKS
+If the value is true the domain supports the Web Key Service
+protocol to upload keys to the directory.
+
+.TP
+.B  4 - error-code
+This may contain an gpg-error code to describe certain
+failures.  Use \(oqgpg-error CODE\(cq to explain the code.
+
+.TP
+.B  5 - protocol-version
+The minimum protocol version supported by the server.
+
+.TP
+.B  6 - auth-submit
+The auth-submit flag from the policy file of the server.
+
+.TP
+.B  7 - mailbox-only
+The mailbox-only flag from the policy file of the server.
+.RE
+
+
+
+.TP
+.B  --output \fIfile\fR
+.TQ
+.B  -o
+Write the created mail to \fIfile\fR instead of stdout.  Note that the
+value \fB-\fR for \fIfile\fR is the same as writing to stdout.
+
+.TP
+.B  --status-fd \fIn\fR
+Write special status strings to the file descriptor \fIn\fR.
+This program returns only the status messages SUCCESS or FAILURE which
+are helpful when the caller uses a double fork approach and can't
+easily get the return code of the process.
+
+.TP
+.B  -C \fIdir\fR
+.TQ
+.B  --directory \fIdir\fR
+Use \fIdir\fR as top level directory for the commands
+\fB--mirror\fR, \fB--install-key\fR and \fB--remove-key\fR.
+The default is \(oq\fIopenpgpkey\fR\(cq.
+
+
+.TP
+.B  --blacklist \fIfile\fR
+This option is used to exclude certain mail addresses from a mirror
+operation.  The format of \fIfile\fR is one mail address (just the
+addrspec, e.g. "postel@isi.edu") per line.  Empty lines and lines
+starting with a '#' are ignored.
+
+.TP
+.B  --verbose
+Enable extra informational output.
+
+.TP
+.B  --quiet
+Disable almost all informational output.
+
+.TP
+.B  --version
+Print version of the program and exit.
+
+.TP
+.B  --help
+Display a brief help page and exit.
+
+.P
+
+
+.SH SEE ALSO
+\fBgpg-wks-server\fR(1)
+
+
+
