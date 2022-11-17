@@ -1,115 +1,57 @@
 import Foundation
 
-enum Config {
-    case socketAuth(socketPath: String)
-    case gpg(agentPath: String)
-    case gpgAgent(pkcs11Path: String)
-    case gnupgPkcs11(libsshPath: String)
-    
-    var linePrefixToReplace: String? {
-        switch self {
-        case .socketAuth:
-            return "export SSH_AUTH_SOCK"
-        case .gpg, .gpgAgent, .gnupgPkcs11:
-            return nil
-        }
-    }
-    
-    var payload: String {
-        switch self {
-        case .socketAuth(let socketPath):
-            return "export SSH_AUTH_SOCK=\(socketPath)"
-        case .gpg(let agentPath):
-            return "agent-program \(agentPath)"
-        case .gpgAgent(let pkcs11Path):
-            return "scdaemon-program \(pkcs11Path)"
-        case .gnupgPkcs11(let libsshPath):
-            return "providers keeta" + "\n" + "provider-keeta-library \(libsshPath)"
-        }
-    }
-    
-    var folderPath: String? {
-        switch self {
-        case .socketAuth:
-            return nil
-        case .gpg, .gpgAgent, .gnupgPkcs11:
-            return configFolderName
-        }
-    }
-    
-    var isCustom: Bool {
-        switch self {
-        case .socketAuth:
-            return false
-        case .gpg, .gpgAgent, .gnupgPkcs11:
-            return true
-        }
-    }
-    
-    var filename: String {
-        switch self {
-        case .socketAuth:
-            return ".zshrc"
-        case .gpg:
-            return "gpg.conf"
-        case .gpgAgent:
-            return "gpg-agent.conf"
-        case .gnupgPkcs11:
-            return "gnupg-pkcs11-scd.conf"
-        }
-    }
-}
-
 final class ConfigWriter {
 
     static let configDirectory = "\(NSHomeDirectory())"
     
+    private static let fileManager = FileManager.default
+    
     static func add(_ config: Config) throws {
-        let fileManager = FileManager.default
-        
         var filePath = configDirectory
-        if let directory = config.folderPath {
-            filePath.append("/\(directory)")
-            
-            if !fileManager.fileExists(atPath: filePath) {
-                try fileManager.createDirectory(
-                    at: .init(fileURLWithPath: filePath),
-                    withIntermediateDirectories: true,
-                    attributes: [.posixPermissions: 448]
-                )
-            }
-        }
+        
+        try createDirectoryIfNeeded(for: config.folderPath, filePath: &filePath)
         
         let fileURL = URL(fileURLWithPath: filePath.appending("/\(config.filename)"))
-        let fileExists = fileManager.fileExists(atPath: fileURL.path)
         
         let text = config.payload + "\n"
         
-        guard fileExists else {
-            let data = text.data(using: .utf8)!
-            fileManager.createFile(atPath: fileURL.path, contents: data)
+        let write: (Data) -> Void = {
+            fileManager.createFile(atPath: fileURL.path, contents: $0)
+        }
+        
+        guard let existing = fileManager.contents(atPath: fileURL.path), !existing.isEmpty else {
+            write(text.data(using: .utf8)!)
             return
         }
         
-        guard !config.isCustom else { return }
+        guard let existingString = String(data: existing, encoding: .utf8), !existingString.isEmpty else {
+            throw NSError(domain: "Unknown config file content at '\(filePath)'", code: 500)
+        }
         
-        let handle: FileHandle
-        handle = try FileHandle(forUpdating: fileURL)
+        guard !existingString.contains(config.payload) else { return }
         
-        let existing = try handle.readToEnd() ?? .init()
-        let existingString = String(data: existing, encoding: .utf8) ?? ""
         var existingLines = existingString.split(whereSeparator: \.isNewline)
         
-        guard !existingLines.contains(where: { $0 == config.payload }) else { return }
-        
-        if let prefix = config.linePrefixToReplace,
-           let indexToReplace = existingLines.firstIndex(where: { $0.hasPrefix(prefix) }) {
+        if let indexToReplace = existingLines.firstIndex(where: { $0.hasPrefix(config.linePrefixToReplace) }) {
             existingLines.remove(at: indexToReplace)
         }
         
-        try handle.seekToEnd()
+        let startWithNewLine = existingString.isEmpty
+        let data = existingLines.joined(separator: "\n").appending("\(startWithNewLine ? "\n" : "")\(text)").data(using: .utf8)!
+        write(data)
+    }
+    
+    private static func createDirectoryIfNeeded(for folderPath: String?, filePath: inout String) throws {
+        guard let directory = folderPath else { return }
         
-        let data = "\n\(text)".data(using: .utf8)!
-        handle.write(data)
+        filePath.append("/\(directory)")
+        
+        if !fileManager.fileExists(atPath: filePath) {
+            try fileManager.createDirectory(
+                at: .init(fileURLWithPath: filePath),
+                withIntermediateDirectories: true,
+                attributes: [.posixPermissions: 448]
+            )
+        }
     }
 }

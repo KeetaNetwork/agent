@@ -55,12 +55,7 @@ final class KeetaAgent: ObservableObject {
             return "Please enter a valid email."
         }
         
-        #if !DEBUG
-        guard isInApplicationsDirectory else {
-            return "Make sure 'Keeta Agent' is located in your Applications directory."
-        }
         writeConfigs()
-        #endif
         
         do {
             /// Create ECDSA key pair
@@ -144,7 +139,7 @@ final class KeetaAgent: ObservableObject {
     private var isInApplicationsDirectory: Bool {
         let locations = FileManager.default.urls(for: .applicationDirectory, in: .userDomainMask)
         let applicationsPath = locations.first!.path
-        return gpgPath.hasPrefix(applicationsPath)
+        return gpgPath.contains(applicationsPath)
     }
     
     private func createHomeDirectory() {
@@ -154,10 +149,6 @@ final class KeetaAgent: ObservableObject {
     }
     
     private func writeConfigs() {
-        #if !DEBUG
-        guard isInApplicationsDirectory else { return }
-        #endif
-        
          do {
             try GPGUtil.writeConfigs()
         } catch let error {
