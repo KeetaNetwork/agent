@@ -167,7 +167,10 @@ final class KeetaAgent: ObservableObject {
         guard let keyId = gpgKey?.id else { return }
         
         Task {
-            if await GPGUtil.keyExists(for: keyId) == false {
+            let keyExists = await GPGUtil.keyExists(for: keyId)
+            if keyExists {
+                try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
+            } else {
                 DispatchQueue.main.async {
                     self.reset()
                 }
