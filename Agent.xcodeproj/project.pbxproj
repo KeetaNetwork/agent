@@ -41,6 +41,7 @@
 		AE9F8B652925543500918314 /* SetupTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8B622925541300918314 /* SetupTest.swift */; };
 		AE9F8B662925543900918314 /* GrabberTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8B612925541300918314 /* GrabberTests.swift */; };
 		AE9F8C9B2926AFFD00918314 /* Configs.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8C9A2926AFFD00918314 /* Configs.swift */; };
+		AE9F8CA02927F29A00918314 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = AE9F8C9F2927F29A00918314 /* LaunchAtLogin */; };
 		AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */; };
 		AEB391A329146F40006A0F88 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* App.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
@@ -138,6 +139,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE9F8CA02927F29A00918314 /* LaunchAtLogin in Frameworks */,
 				02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -345,6 +347,7 @@
 			name = Agent;
 			packageProductDependencies = (
 				02780062291A6DBF00B8BA11 /* keeta-secure-storage */,
+				AE9F8C9F2927F29A00918314 /* LaunchAtLogin */,
 			);
 			productName = "keeta-secretive";
 			productReference = AEB3919F29146F40006A0F88 /* Agent.app */;
@@ -398,6 +401,7 @@
 			mainGroup = AEB3919629146F40006A0F88;
 			packageReferences = (
 				02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */,
+				AE9F8C9E2927F29A00918314 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
 			);
 			productRefGroup = AEB391A029146F40006A0F88 /* Products */;
 			projectDirPath = "";
@@ -770,6 +774,14 @@
 				kind = branch;
 			};
 		};
+		AE9F8C9E2927F29A00918314 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -777,6 +789,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */;
 			productName = "keeta-secure-storage";
+		};
+		AE9F8C9F2927F29A00918314 /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AE9F8C9E2927F29A00918314 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
+			productName = LaunchAtLogin;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
