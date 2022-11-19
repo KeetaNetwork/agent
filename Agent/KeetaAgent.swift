@@ -1,5 +1,6 @@
 import Foundation
 import OSLog
+import LaunchAtLogin
 
 let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
 let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
@@ -44,6 +45,8 @@ final class KeetaAgent: ObservableObject {
         writeConfigs()
         
         checkIfKeyStillExists()
+        
+        addAsLaunchItem()
     }
     
     func createNewKey(for name: String, email: String) async -> String? {
@@ -55,12 +58,7 @@ final class KeetaAgent: ObservableObject {
             return "Please enter a valid email."
         }
         
-        #if !DEBUG
-        guard isInApplicationsDirectory else {
-            return "Make sure 'Keeta Agent' is located in your Applications directory."
-        }
         writeConfigs()
-        #endif
         
         do {
             /// Create ECDSA key pair
@@ -144,7 +142,7 @@ final class KeetaAgent: ObservableObject {
     private var isInApplicationsDirectory: Bool {
         let locations = FileManager.default.urls(for: .applicationDirectory, in: .userDomainMask)
         let applicationsPath = locations.first!.path
-        return gpgPath.hasPrefix(applicationsPath)
+        return gpgPath.contains(applicationsPath)
     }
     
     private func createHomeDirectory() {
@@ -154,14 +152,16 @@ final class KeetaAgent: ObservableObject {
     }
     
     private func writeConfigs() {
-        #if !DEBUG
-        guard isInApplicationsDirectory else { return }
-        #endif
-        
          do {
             try GPGUtil.writeConfigs()
         } catch let error {
             logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")
+        }
+    }
+    
+    private func addAsLaunchItem() {
+        if !LaunchAtLogin.isEnabled {
+            LaunchAtLogin.isEnabled = true
         }
     }
     
@@ -176,7 +176,10 @@ final class KeetaAgent: ObservableObject {
         guard let keyId = gpgKey?.id else { return }
         
         Task {
-            if await GPGUtil.keyExists(for: keyId) == false {
+            let keyExists = await GPGUtil.keyExists(for: keyId)
+            if keyExists {
+                try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
+            } else {
                 DispatchQueue.main.async {
                     self.reset()
                 }
