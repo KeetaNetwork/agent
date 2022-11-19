@@ -3,6 +3,8 @@ import SwiftUI
 @main
 struct KeetaAgentApp: App {
     
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     init() {
         Dependencies.all.setup()
     }
@@ -12,7 +14,6 @@ struct KeetaAgentApp: App {
             ContentView()
                 .handlesExternalEvents(preferring: ["keeta-agent"], allowing: ["keeta-agent"])
                 .onOpenURL(perform: Dependencies.all.keetaAgent.didReceive(url:))
-                .onAppear { NSWindow.allowsAutomaticWindowTabbing = false }
         }
         .commands { CommandGroup(replacing: .newItem, addition: { }) }
         .handlesExternalEvents(matching: Set(arrayLiteral: "*"))
