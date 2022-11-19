@@ -22,7 +22,7 @@ final class SigningRequestTracer {
     private static func process(from pid: Int32) -> SigningRequestProvenance.Process {
         var pidAndNameInfo = self.pidAndNameInfo(from: pid)
         let ppid = pidAndNameInfo.kp_eproc.e_ppid != 0 ? pidAndNameInfo.kp_eproc.e_ppid : nil
-        let procName = String(cString: &pidAndNameInfo.kp_proc.p_comm.0)
+        let procName = "String(cString: &pidAndNameInfo.kp_proc.p_comm.0)"
         return SigningRequestProvenance.Process(pid: pid, processName: procName, appName: appName(for: pid), iconURL: iconURL(for: pid), parentPID: ppid)
     }
     

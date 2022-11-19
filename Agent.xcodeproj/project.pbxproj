@@ -61,7 +61,6 @@
 		AEB3923A2919D2A7006A0F88 /* OpenSSHReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB392392919D2A7006A0F88 /* OpenSSHReader.swift */; };
 		AEB42B1C2928330E00DE6CB6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB42B1B2928330E00DE6CB6 /* AppDelegate.swift */; };
 		AEB42B1E2928336500DE6CB6 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB42B1D2928336500DE6CB6 /* StatusBarController.swift */; };
-		AEB42B20292853BF00DE6CB6 /* EventMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB42B1F292853BF00DE6CB6 /* EventMonitor.swift */; };
 		AEEB99BA291B188E009557BC /* Grabber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEB99B9291B188E009557BC /* Grabber.swift */; };
 		AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF00416291A1AE600EA576C /* Dependencies.swift */; };
 		AEFA7467291C78DF00066571 /* gnupg in Resources */ = {isa = PBXBuildFile; fileRef = AEFA7466291C78DF00066571 /* gnupg */; };
@@ -134,7 +133,6 @@
 		AEB392392919D2A7006A0F88 /* OpenSSHReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSSHReader.swift; sourceTree = "<group>"; };
 		AEB42B1B2928330E00DE6CB6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AEB42B1D2928336500DE6CB6 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
-		AEB42B1F292853BF00DE6CB6 /* EventMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventMonitor.swift; sourceTree = "<group>"; };
 		AEEB99B9291B188E009557BC /* Grabber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grabber.swift; sourceTree = "<group>"; };
 		AEF00416291A1AE600EA576C /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		AEFA7466291C78DF00066571 /* gnupg */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gnupg; sourceTree = "<group>"; };
@@ -179,7 +177,7 @@
 				02780040291A28F000B8BA11 /* Color.swift */,
 				02780046291A539000B8BA11 /* Link.swift */,
 				02D9C589291E139600586CEB /* AgentSpacing.swift */,
-				AEB42B1F292853BF00DE6CB6 /* EventMonitor.swift */,
+				AEB42B1D2928336500DE6CB6 /* StatusBarController.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -278,7 +276,6 @@
 				AEB391A229146F40006A0F88 /* App.swift */,
 				AEB42B1B2928330E00DE6CB6 /* AppDelegate.swift */,
 				AEB391A429146F40006A0F88 /* ContentView.swift */,
-				AEB42B1D2928336500DE6CB6 /* StatusBarController.swift */,
 				AEF00416291A1AE600EA576C /* Dependencies.swift */,
 				AE75C4ED2922083B0087A584 /* KeetaAgent.swift */,
 				AEB3922E2919B397006A0F88 /* GPG */,
@@ -485,7 +482,6 @@
 				AE8D4F16291C376000D91FAE /* Commands.swift in Sources */,
 				AE9F8C9B2926AFFD00918314 /* Configs.swift in Sources */,
 				02577371291B565E003E0889 /* Storage.swift in Sources */,
-				AEB42B20292853BF00DE6CB6 /* EventMonitor.swift in Sources */,
 				02780054291A68F500B8BA11 /* GPGKeyHeader.swift in Sources */,
 				02780054291A68F500B8BA11 /* GPGKeyHeader.swift in Sources */,
 				02780047291A539000B8BA11 /* Link.swift in Sources */,
