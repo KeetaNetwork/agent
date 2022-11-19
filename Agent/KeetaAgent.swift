@@ -1,6 +1,5 @@
 import Foundation
 import OSLog
-import LaunchAtLogin
 
 let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
 let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"

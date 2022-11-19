@@ -31,6 +31,7 @@
 		02C9FFC12920C7B6003AF470 /* SSHKeyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C9FFC02920C7B6003AF470 /* SSHKeyHeader.swift */; };
 		02D9C586291E0D4D00586CEB /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D9C585291E0D4D00586CEB /* GPGKey.swift */; };
 		02D9C58A291E139600586CEB /* AgentSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D9C589291E139600586CEB /* AgentSpacing.swift */; };
+		02FB222C292979960010B73C /* LaunchAtLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02FB222B292979960010B73C /* LaunchAtLogin.swift */; };
 		AE75C4EA292076300087A584 /* GPGUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4E9292076300087A584 /* GPGUtil.swift */; };
 		AE75C4EE2922083B0087A584 /* KeetaAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4ED2922083B0087A584 /* KeetaAgent.swift */; };
 		AE75C4F02922CDC80087A584 /* SigningRequestTracer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE75C4EF2922CDC80087A584 /* SigningRequestTracer.swift */; };
@@ -41,7 +42,6 @@
 		AE9F8B652925543500918314 /* SetupTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8B622925541300918314 /* SetupTest.swift */; };
 		AE9F8B662925543900918314 /* GrabberTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8B612925541300918314 /* GrabberTests.swift */; };
 		AE9F8C9B2926AFFD00918314 /* Configs.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9F8C9A2926AFFD00918314 /* Configs.swift */; };
-		AE9F8CA02927F29A00918314 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = AE9F8C9F2927F29A00918314 /* LaunchAtLogin */; };
 		AEA23D9B291C29F100E88E19 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA23D9A291C29F100E88E19 /* CommandExecutor.swift */; };
 		AEB391A329146F40006A0F88 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A229146F40006A0F88 /* App.swift */; };
 		AEB391A529146F40006A0F88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB391A429146F40006A0F88 /* ContentView.swift */; };
@@ -101,6 +101,7 @@
 		02C9FFC02920C7B6003AF470 /* SSHKeyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHKeyHeader.swift; sourceTree = "<group>"; };
 		02D9C585291E0D4D00586CEB /* GPGKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKey.swift; sourceTree = "<group>"; };
 		02D9C589291E139600586CEB /* AgentSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentSpacing.swift; sourceTree = "<group>"; };
+		02FB222B292979960010B73C /* LaunchAtLogin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LaunchAtLogin.swift; sourceTree = "<group>"; };
 		AE75C4E9292076300087A584 /* GPGUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGUtil.swift; sourceTree = "<group>"; };
 		AE75C4ED2922083B0087A584 /* KeetaAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeetaAgent.swift; sourceTree = "<group>"; };
 		AE75C4EF2922CDC80087A584 /* SigningRequestTracer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningRequestTracer.swift; sourceTree = "<group>"; };
@@ -143,7 +144,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AE9F8CA02927F29A00918314 /* LaunchAtLogin in Frameworks */,
 				02780063291A6DBF00B8BA11 /* keeta-secure-storage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -278,6 +278,7 @@
 				AEB391A429146F40006A0F88 /* ContentView.swift */,
 				AEF00416291A1AE600EA576C /* Dependencies.swift */,
 				AE75C4ED2922083B0087A584 /* KeetaAgent.swift */,
+				02FB222B292979960010B73C /* LaunchAtLogin.swift */,
 				AEB3922E2919B397006A0F88 /* GPG */,
 				02780042291A4D6900B8BA11 /* Github */,
 				AEB391DA2914747A006A0F88 /* Secrets */,
@@ -353,7 +354,6 @@
 			name = Agent;
 			packageProductDependencies = (
 				02780062291A6DBF00B8BA11 /* keeta-secure-storage */,
-				AE9F8C9F2927F29A00918314 /* LaunchAtLogin */,
 			);
 			productName = "keeta-secretive";
 			productReference = AEB3919F29146F40006A0F88 /* Agent.app */;
@@ -407,7 +407,6 @@
 			mainGroup = AEB3919629146F40006A0F88;
 			packageReferences = (
 				02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */,
-				AE9F8C9E2927F29A00918314 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
 			);
 			productRefGroup = AEB391A029146F40006A0F88 /* Products */;
 			projectDirPath = "";
@@ -443,6 +442,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02FB222C292979960010B73C /* LaunchAtLogin.swift in Sources */,
 				02D9C586291E0D4D00586CEB /* GPGKey.swift in Sources */,
 				AEB42B1E2928336500DE6CB6 /* StatusBarController.swift in Sources */,
 				0278004A291A615500B8BA11 /* KeyView.swift in Sources */,
@@ -786,14 +786,6 @@
 				kind = branch;
 			};
 		};
-		AE9F8C9E2927F29A00918314 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -801,11 +793,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02780061291A6DBF00B8BA11 /* XCRemoteSwiftPackageReference "keeta-storage" */;
 			productName = "keeta-secure-storage";
-		};
-		AE9F8C9F2927F29A00918314 /* LaunchAtLogin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AE9F8C9E2927F29A00918314 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
-			productName = LaunchAtLogin;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

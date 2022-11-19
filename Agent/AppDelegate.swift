@@ -1,7 +1,6 @@
 import Foundation
 import Cocoa
 import SwiftUI
-import LaunchAtLogin
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusBar: StatusBarController?
