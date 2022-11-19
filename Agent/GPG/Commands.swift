@@ -54,9 +54,9 @@ enum Command {
         case .killGPGConf, .setupGPGAgent:
             return "/usr/bin/env"
         case .restartGPGAgent:
-            return gpgAgentConnectPath
+            return gpgAgentConnectFilePath
         case .checkCardStatus, .createGPGKey, .checkGPGKeys, .listGPGKeys, .exportGPGKey, .signGPG:
-            return gpgPath
+            return gpgFilePath
         case .gitEnableGPGSigning, .gitSetSigningKey, .gitSetGPGProgram:
             return "/usr/bin/git"
         }
@@ -67,7 +67,7 @@ enum Command {
         case .killGPGConf:
             return ["zsh", "-ls", "-c", "gpgconf --kill all"]
         case .setupGPGAgent:
-            return ["bash", "-c", "\(gpgAgentPath) --server gpg-connect-agent <<<$'RELOADAGENT\nSCD LEARN'"]
+            return ["bash", "-c", "\(gpgAgentFilePath) --server gpg-connect-agent <<<$'RELOADAGENT\nSCD LEARN'"]
         case .restartGPGAgent:
             return ["reloadagent", "/bye"]
         case .checkCardStatus:

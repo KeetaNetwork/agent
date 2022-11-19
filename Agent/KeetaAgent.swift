@@ -24,7 +24,7 @@ final class KeetaAgent: ObservableObject {
     }
     
     func setup() {
-        print(gpgPath)
+        print(gpgFilePath)
         
         createHomeDirectory()
         
@@ -136,12 +136,6 @@ final class KeetaAgent: ObservableObject {
     
     // MARK: Helper
     
-    private var isInApplicationsDirectory: Bool {
-        let locations = FileManager.default.urls(for: .applicationDirectory, in: .userDomainMask)
-        let applicationsPath = locations.first!.path
-        return gpgPath.contains(applicationsPath)
-    }
-    
     private func createHomeDirectory() {
         if !FileManager.default.fileExists(atPath: homeDirectory) {
             try! FileManager.default.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
@@ -167,10 +161,7 @@ final class KeetaAgent: ObservableObject {
         guard let keyId = gpgKey?.id else { return }
         
         Task {
-            let keyExists = await GPGUtil.keyExists(for: keyId)
-            if keyExists {
-                try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
-            } else {
+            if await GPGUtil.keyExists(for: keyId) == false {
                 DispatchQueue.main.async {
                     self.reset()
                 }

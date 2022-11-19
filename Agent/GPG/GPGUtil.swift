@@ -2,20 +2,30 @@ import Foundation
 import OSLog
 
 let configFolderName = ".keeta_agent"
-let gpgAgentPath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
-let gpgPath = Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
-let gpgAgentConnectPath = Bundle.main.url(forResource: "gnupg/bin/gpg-connect-agent", withExtension: "")!.path
-let pkcs11Path = Bundle.main.url(forResource: "gnupg/bin/gnupg-pkcs11-scd", withExtension: "")!.path
-let libsshPath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-provider", withExtension: "dylib")!.path
+
+let gpgAgentSymlink = "\(configFolderName)/bin/gpg-agent"
+let gpgAgentFilePath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
+
+let gpgSymlink = "\(configFolderName)/bin/gpg"
+let gpgFilePath = Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
+
+let gpgAgentConnectSymlink = "\(configFolderName)/bin/gpg-connect-agent"
+let gpgAgentConnectFilePath = Bundle.main.url(forResource: "gnupg/bin/gpg-connect-agent", withExtension: "")!.path
+
+let pkcs11Symlink = "\(configFolderName)/bin/gnupg-pkcs11-scd"
+let pkcs11FilePath = Bundle.main.url(forResource: "gnupg/bin/gnupg-pkcs11-scd", withExtension: "")!.path
+
+let libsshSymlink = "\(configFolderName)/lib/libssh-agent-pkcs11-provider.dylib"
+let libsshFilePath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-provider", withExtension: "dylib")!.path
 
 final class GPGUtil {
     
     private static let keyCurve = "nistp256"
     
     static func writeConfigs() throws {
-        try ConfigWriter.add(.gpg(agentPath: gpgAgentPath))
-        try ConfigWriter.add(.gpgAgent(pkcs11Path: pkcs11Path))
-        try ConfigWriter.add(.gnupgPkcs11(libsshPath: libsshPath))
+        try ConfigWriter.add(.gpg)
+        try ConfigWriter.add(.gpgAgent)
+        try ConfigWriter.add(.gnupgPkcs11)
         try ConfigWriter.add(.socketAuth(socketPath: socketPath))
     }
     
@@ -92,7 +102,7 @@ final class GPGUtil {
     
     private static func conifgureGit(with keyId: String) async throws {
         try await CommandExecutor.execute(.gitEnableGPGSigning)
-        try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
+        try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgSymlink))
         try await CommandExecutor.execute(.gitSetSigningKey(keyId: keyId))
     }
 }
