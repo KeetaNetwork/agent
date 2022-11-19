@@ -19,9 +19,6 @@ enum Config {
         }
     }
     
-//    let gpgAgentPath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
-//    let gpgPath = Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
-    
     var payload: String {
         switch self {
         case .socketAuth(let socketPath):

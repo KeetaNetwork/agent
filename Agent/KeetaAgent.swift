@@ -44,6 +44,8 @@ final class KeetaAgent: ObservableObject {
         writeConfigs()
         
         checkIfKeyStillExists()
+        
+        addAsLaunchItem()
     }
     
     func createNewKey(for name: String, email: String) async -> String? {
@@ -147,6 +149,12 @@ final class KeetaAgent: ObservableObject {
             try GPGUtil.writeConfigs()
         } catch let error {
             logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")
+        }
+    }
+    
+    private func addAsLaunchItem() {
+        if !LaunchAtLogin.isEnabled {
+            LaunchAtLogin.isEnabled = true
         }
     }
     
