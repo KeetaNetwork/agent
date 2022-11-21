@@ -3,7 +3,6 @@ import OSLog
 
 let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
 let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
-let socketSymlinkPath = "\(NSHomeDirectory())/\(configFolderName)/socket.ssh"
 
 final class KeetaAgent: ObservableObject {
     

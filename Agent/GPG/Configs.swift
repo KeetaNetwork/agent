@@ -22,7 +22,7 @@ enum Config {
     var payload: String {
         switch self {
         case .socketAuth:
-            return "export SSH_AUTH_SOCK=\(socketSymlinkPath)"
+            return "export SSH_AUTH_SOCK=\(socketPath)"
         case .gpg:
             return "agent-program \(gpgAgentConnectSymlinkPath)"
         case .gpgAgent:

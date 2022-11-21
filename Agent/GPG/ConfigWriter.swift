@@ -16,7 +16,7 @@ final class ConfigWriter {
         
         let text = config.payload + newLine
         
-        guard fileManager.fileExists(atPath: filePath) else {
+        guard fileManager.fileExists(atPath: filePath) && config.isSystem else {
             fileManager.createFile(atPath: filePath, contents: text.data(using: .utf8)!)
             return
         }
@@ -28,12 +28,10 @@ final class ConfigWriter {
         
         guard !existingString.contains(config.payload) else { return }
         
-        if config.isSystem {
-            try handle.seekToEnd()
-            
-            let data = (existingString.hasSuffix(newLine) ? text : "\(newLine)\(text)").data(using: .utf8)!
-            try handle.write(contentsOf: data)
-        }
+        try handle.seekToEnd()
+        
+        let data = (existingString.hasSuffix(newLine) ? text : "\(newLine)\(text)").data(using: .utf8)!
+        try handle.write(contentsOf: data)
     }
     
     private static func createDirectoryIfNeeded(for folderPath: String?, filePath: inout String) throws {
