@@ -33,6 +33,10 @@ final class KeetaAgent: ObservableObject {
         // temporary migration
         if gpgKey == nil {
             reset()
+        } else {
+            Task {
+                try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgSymlinkPath))
+            }
         }
         
         sshKey = storage.sshKey
