@@ -24,7 +24,7 @@ final class KeetaAgent: ObservableObject {
     }
     
     func setup() {
-        print(gpgFilePath)
+        print(gpgPath)
         
         createHomeDirectory()
         
@@ -36,7 +36,7 @@ final class KeetaAgent: ObservableObject {
             writeConfigs()
             
             Task {
-                try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgSymlinkPath))
+                try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
             }
         }
         
@@ -169,6 +169,10 @@ final class KeetaAgent: ObservableObject {
     }
     
     private func addAsLaunchItem() {
+        #if DEBUG
+        return
+        #endif
+        
         if !LaunchAtLogin.isEnabled {
             LaunchAtLogin.isEnabled = true
         }

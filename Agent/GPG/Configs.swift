@@ -24,7 +24,7 @@ enum Config {
         case .socketAuth:
             return "export SSH_AUTH_SOCK=\(socketPath)"
         case .gpg:
-            return "agent-program \(gpgAgentConnectSymlinkPath)"
+            return "agent-program \(gpgAgentConnectPath)"
         case .gpgAgent:
             return "scdaemon-program \(pkcs11SymlinkPath)"
         case .gnupgPkcs11:

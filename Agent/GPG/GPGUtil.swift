@@ -2,23 +2,15 @@ import Foundation
 import OSLog
 
 let configFolderName = ".keeta_agent"
-let symlinkFolderName = "symlinks"
-let symlinkPath = "\(NSHomeDirectory())/\(configFolderName)/\(symlinkFolderName)"
 
-let gpgAgentSymlinkPath = "\(symlinkPath)/gpg-agent"
-let gpgAgentFilePath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
+let gpnupSymlinkPath = "\(NSHomeDirectory())/\(configFolderName)/gnupg"
+let gnupgFilePath = Bundle.main.url(forResource: "gnupg", withExtension: "")!.path
 
-let gpgSymlinkPath = "\(symlinkPath)/gpg"
-let gpgFilePath = Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
-
-let gpgAgentConnectSymlinkPath = "\(symlinkPath)/gpg-connect-agent"
-let gpgAgentConnectFilePath = Bundle.main.url(forResource: "gnupg/bin/gpg-connect-agent", withExtension: "")!.path
-
-let pkcs11SymlinkPath = "\(symlinkPath)/gnupg-pkcs11-scd"
-let pkcs11FilePath = Bundle.main.url(forResource: "gnupg/bin/gnupg-pkcs11-scd", withExtension: "")!.path
-
-let libsshSymlinkPath = "\(symlinkPath)/libssh-agent-pkcs11-provider.dylib"
-let libsshFilePath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-provider", withExtension: "dylib")!.path
+let gpgAgentPath = "\(gpnupSymlinkPath)/bin/gpg-agent"
+let gpgPath = "\(gpnupSymlinkPath)/bin/gpg"
+let gpgAgentConnectPath = "\(gpnupSymlinkPath)/bin/gpg-connect-agent"
+let pkcs11SymlinkPath = "\(gpnupSymlinkPath)/bin/gnupg-pkcs11-scd"
+let libsshSymlinkPath = "\(gpnupSymlinkPath)/lib/libssh-agent-pkcs11-provider.dylib"
 
 final class GPGUtil {
     
@@ -32,22 +24,9 @@ final class GPGUtil {
     }
     
     static func createSymlinks() async throws {
-        let fileManager = FileManager.default
+        try? FileManager.default.removeItem(atPath: gpnupSymlinkPath)
         
-        try? fileManager.removeItem(atPath: symlinkPath)
-        try fileManager.createDirectory(atPath: symlinkPath, withIntermediateDirectories: false)
-        
-        let files: [(String, String)] = [
-            (gpgAgentFilePath, gpgAgentSymlinkPath),
-            (gpgFilePath, gpgSymlinkPath),
-            (gpgAgentConnectFilePath, gpgAgentConnectSymlinkPath),
-            (pkcs11FilePath, pkcs11SymlinkPath),
-            (libsshFilePath, libsshSymlinkPath)
-        ]
-        
-        for (source, destination) in files {
-            try await CommandExecutor.execute(.createSymlink(source: source, destination: destination))
-        }
+        try await CommandExecutor.execute(.createSymlink(source: gnupgFilePath, destination: gpnupSymlinkPath))
     }
     
     static func createGpgKey(fullName: String, email: String) async throws -> GPGKey {
@@ -123,7 +102,7 @@ final class GPGUtil {
     
     private static func conifgureGit(with keyId: String) async throws {
         try await CommandExecutor.execute(.gitEnableGPGSigning)
-        try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgSymlinkPath))
+        try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
         try await CommandExecutor.execute(.gitSetSigningKey(keyId: keyId))
     }
 }
