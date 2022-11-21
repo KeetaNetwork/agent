@@ -5,40 +5,35 @@ final class ConfigWriter {
     static let configDirectory = "\(NSHomeDirectory())"
     
     private static let fileManager = FileManager.default
+    private static let newLine = "\n"
     
     static func add(_ config: Config) throws {
         var filePath = configDirectory
         
         try createDirectoryIfNeeded(for: config.folderPath, filePath: &filePath)
         
-        let fileURL = URL(fileURLWithPath: filePath.appending("/\(config.filename)"))
+        filePath.append("/\(config.filename)")
         
-        let text = config.payload + "\n"
+        let text = config.payload + newLine
         
-        let write: (Data) -> Void = {
-            fileManager.createFile(atPath: fileURL.path, contents: $0)
-        }
-        
-        guard let existing = fileManager.contents(atPath: fileURL.path), !existing.isEmpty else {
-            write(text.data(using: .utf8)!)
+        guard fileManager.fileExists(atPath: filePath) else {
+            fileManager.createFile(atPath: filePath, contents: text.data(using: .utf8)!)
             return
         }
         
-        guard let existingString = String(data: existing, encoding: .utf8), !existingString.isEmpty else {
-            throw NSError(domain: "Unknown config file content at '\(filePath)'", code: 500)
-        }
+        let handle = try FileHandle(forUpdating: URL(fileURLWithPath: filePath))
+        
+        let existing = try handle.readToEnd() ?? .init()
+        let existingString = String(data: existing, encoding: .utf8) ?? ""
         
         guard !existingString.contains(config.payload) else { return }
         
-        var existingLines = existingString.split(whereSeparator: \.isNewline)
-        
-        if let indexToReplace = existingLines.firstIndex(where: { $0.hasPrefix(config.linePrefixToReplace) }) {
-            existingLines.remove(at: indexToReplace)
+        if config.isSystem {
+            try handle.seekToEnd()
+            
+            let data = (existingString.hasSuffix(newLine) ? text : "\(newLine)\(text)").data(using: .utf8)!
+            try handle.write(contentsOf: data)
         }
-        
-        let startWithNewLine = existingString.isEmpty
-        let data = existingLines.joined(separator: "\n").appending("\(startWithNewLine ? "\n" : "")\(text)").data(using: .utf8)!
-        write(data)
     }
     
     private static func createDirectoryIfNeeded(for folderPath: String?, filePath: inout String) throws {

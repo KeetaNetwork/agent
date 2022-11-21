@@ -34,6 +34,8 @@ final class KeetaAgent: ObservableObject {
         if gpgKey == nil {
             reset()
         } else {
+            writeConfigs()
+            
             Task {
                 try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgSymlinkPath))
             }
@@ -47,8 +49,6 @@ final class KeetaAgent: ObservableObject {
         socket.handler = agent.handle(reader:writer:)
         
         createSymlinks()
-        
-        writeConfigs()
         
         checkIfKeyStillExists()
         

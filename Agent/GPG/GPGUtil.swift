@@ -42,7 +42,8 @@ final class GPGUtil {
             (gpgFilePath, gpgSymlinkPath),
             (gpgAgentConnectFilePath, gpgAgentConnectSymlinkPath),
             (pkcs11FilePath, pkcs11SymlinkPath),
-            (libsshFilePath, libsshSymlinkPath)
+            (libsshFilePath, libsshSymlinkPath),
+            (socketPath, socketSymlinkPath)
         ]
         
         for (source, destination) in files {

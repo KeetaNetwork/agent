@@ -32,6 +32,15 @@ enum Config {
         }
     }
     
+    var isSystem: Bool {
+        switch self {
+        case .socketAuth:
+            return true
+        case .gpg, .gpgAgent, .gnupgPkcs11:
+            return false
+        }
+    }
+    
     var folderPath: String? {
         switch self {
         case .socketAuth:
