@@ -169,6 +169,10 @@ final class KeetaAgent: ObservableObject {
     }
     
     private func addAsLaunchItem() {
+        #if DEBUG
+        return
+        #endif
+        
         if !LaunchAtLogin.isEnabled {
             LaunchAtLogin.isEnabled = true
         }
