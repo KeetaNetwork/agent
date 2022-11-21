@@ -1,8 +1,9 @@
 import Foundation
 import OSLog
 
-let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
 let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
+let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
+let socketSymlinkPath = "\(NSHomeDirectory())/\(configFolderName)/socket.ssh"
 
 final class KeetaAgent: ObservableObject {
     
@@ -40,6 +41,8 @@ final class KeetaAgent: ObservableObject {
         secureEnlave.setup()
         
         socket.handler = agent.handle(reader:writer:)
+        
+        createSymlinks()
         
         writeConfigs()
         
@@ -144,8 +147,18 @@ final class KeetaAgent: ObservableObject {
         }
     }
     
+    private func createSymlinks() {
+        Task {
+            do {
+                try await GPGUtil.createSymlinks()
+            } catch let error {
+                logger.log("Couldn't create symlinks. Error: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     private func writeConfigs() {
-         do {
+        do {
             try GPGUtil.writeConfigs()
         } catch let error {
             logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")

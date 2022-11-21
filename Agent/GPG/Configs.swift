@@ -1,7 +1,7 @@
 import Foundation
 
 enum Config {
-    case socketAuth(socketPath: String)
+    case socketAuth
     case gpg
     case gpgAgent
     case gnupgPkcs11
@@ -21,14 +21,14 @@ enum Config {
     
     var payload: String {
         switch self {
-        case .socketAuth(let socketPath):
-            return "export SSH_AUTH_SOCK=\(socketPath)"
+        case .socketAuth:
+            return "export SSH_AUTH_SOCK=\(socketSymlinkPath)"
         case .gpg:
-            return "agent-program \(configFolderName)/bin/gpg-connect-agent"
+            return "agent-program \(gpgAgentConnectSymlinkPath)"
         case .gpgAgent:
-            return "scdaemon-program \(configFolderName)/bin/gnupg-pkcs11-scd"
+            return "scdaemon-program \(pkcs11SymlinkPath)"
         case .gnupgPkcs11:
-            return "providers keeta" + "\n" + "provider-keeta-library \(configFolderName)/lib/libssh-agent-pkcs11-provider.dylib"
+            return "providers keeta" + "\n" + "provider-keeta-library \(libsshSymlinkPath)"
         }
     }
     

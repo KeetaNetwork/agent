@@ -49,9 +49,14 @@ enum Command {
     /// git config --global agent-program {gpg-agent path}
     case gitSetGPGProgram(path: String)
     
+    /// General
+    
+    /// ln -s {source} {destination}
+    case createSymlink(source: String, destination: String)
+    
     var executable: String {
         switch self {
-        case .killGPGConf, .setupGPGAgent:
+        case .killGPGConf, .setupGPGAgent, .createSymlink:
             return "/usr/bin/env"
         case .restartGPGAgent:
             return gpgAgentConnectFilePath
@@ -64,6 +69,8 @@ enum Command {
     
     var commands: [String] {
         switch self {
+        case .createSymlink(let source, let destination):
+            return ["ln", "-s", source, destination]
         case .killGPGConf:
             return ["zsh", "-ls", "-c", "gpgconf --kill all"]
         case .setupGPGAgent:
