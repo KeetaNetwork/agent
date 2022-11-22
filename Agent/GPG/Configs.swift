@@ -1,10 +1,10 @@
 import Foundation
 
 enum Config {
-    case socketAuth
-    case gpg
-    case gpgAgent
-    case gnupgPkcs11
+    case socketAuth(socketPath: String)
+    case gpg(agentPath: String)
+    case gpgAgent(pkcs11Path: String)
+    case gnupgPkcs11(libsshPath: String)
     
     var linePrefixToReplace: String {
         switch self {
@@ -21,14 +21,14 @@ enum Config {
     
     var payload: String {
         switch self {
-        case .socketAuth:
+        case .socketAuth(let socketPath):
             return "export SSH_AUTH_SOCK=\(socketPath)"
-        case .gpg:
-            return "agent-program \(gpgAgentConnectPath)"
-        case .gpgAgent:
-            return "scdaemon-program \(pkcs11SymlinkPath)"
-        case .gnupgPkcs11:
-            return "providers keeta" + "\n" + "provider-keeta-library \(libsshSymlinkPath)"
+        case .gpg(let agentPath):
+            return "agent-program \(agentPath)"
+        case .gpgAgent(let pkcs11Path):
+            return "scdaemon-program \(pkcs11Path)"
+        case .gnupgPkcs11(let libsshPath):
+            return "providers keeta" + "\n" + "provider-keeta-library \(libsshPath)"
         }
     }
     

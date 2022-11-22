@@ -9,18 +9,18 @@ let gnupgFilePath = Bundle.main.url(forResource: "gnupg", withExtension: "")!.pa
 let gpgAgentPath = "\(gpnupSymlinkPath)/bin/gpg-agent"
 let gpgPath = "\(gpnupSymlinkPath)/bin/gpg"
 let gpgAgentConnectPath = "\(gpnupSymlinkPath)/bin/gpg-connect-agent"
-let pkcs11SymlinkPath = "\(gpnupSymlinkPath)/bin/gnupg-pkcs11-scd"
-let libsshSymlinkPath = "\(gpnupSymlinkPath)/lib/libssh-agent-pkcs11-provider.dylib"
+let pkcs11Path = "\(gpnupSymlinkPath)/bin/gnupg-pkcs11-scd"
+let libsshPath = "\(gpnupSymlinkPath)/lib/libssh-agent-pkcs11-provider.dylib"
 
 final class GPGUtil {
     
     private static let keyCurve = "nistp256"
     
     static func writeConfigs() throws {
-        try ConfigWriter.add(.gpg)
-        try ConfigWriter.add(.gpgAgent)
-        try ConfigWriter.add(.gnupgPkcs11)
-        try ConfigWriter.add(.socketAuth)
+        try ConfigWriter.add(.gpg(agentPath: gpgAgentPath))
+        try ConfigWriter.add(.gpgAgent(pkcs11Path: pkcs11Path))
+        try ConfigWriter.add(.gnupgPkcs11(libsshPath: libsshPath))
+        try ConfigWriter.add(.socketAuth(socketPath: socketPath))
     }
     
     static func createSymlinks() async throws {
