@@ -41,15 +41,6 @@ enum Config {
         }
     }
     
-    var folderPath: String? {
-        switch self {
-        case .socketAuth:
-            return nil
-        case .gpg, .gpgAgent, .gnupgPkcs11:
-            return configFolderName
-        }
-    }
-    
     var filename: String {
         switch self {
         case .socketAuth:

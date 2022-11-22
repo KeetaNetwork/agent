@@ -1,9 +1,7 @@
 import Foundation
 import OSLog
 
-let configFolderName = ".keeta_agent"
-
-let gpnupSymlinkPath = "\(NSHomeDirectory())/\(configFolderName)/gnupg"
+let gpnupSymlinkPath = "\(configPath)/gnupg"
 let gnupgFilePath = Bundle.main.url(forResource: "gnupg", withExtension: "")!.path
 
 let gpgAgentPath = "\(gpnupSymlinkPath)/bin/gpg-agent"
@@ -94,7 +92,7 @@ final class GPGUtil {
     """
         let data = input.data(using: .utf8)!
         let fileName = "gpg_key_input"
-        let inputFilePath = ConfigWriter.configDirectory.appending("/\(configFolderName)/\(fileName)")
+        let inputFilePath = configPath + "/\(fileName)"
         try? FileManager.default.removeItem(atPath: inputFilePath)
         FileManager.default.createFile(atPath: inputFilePath, contents: data)
         return inputFilePath

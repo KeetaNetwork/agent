@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 
+let configPath = NSHomeDirectory() + "/.keeta_agent"
 let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
 let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
 
@@ -26,7 +27,7 @@ final class KeetaAgent: ObservableObject {
     func setup() {
         print(gpgPath)
         
-        createHomeDirectory()
+        createDirectories()
         
         gpgKey = storage.gpgKey
         // temporary migration
@@ -144,9 +145,19 @@ final class KeetaAgent: ObservableObject {
     
     // MARK: Helper
     
-    private func createHomeDirectory() {
-        if !FileManager.default.fileExists(atPath: homeDirectory) {
-            try! FileManager.default.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
+    private func createDirectories() {
+        let fileManager = FileManager.default
+        
+        if !fileManager.fileExists(atPath: homeDirectory) {
+            try! fileManager.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
+        }
+        
+        if !fileManager.fileExists(atPath: configPath) {
+            try! fileManager.createDirectory(
+                at: .init(fileURLWithPath: configPath),
+                withIntermediateDirectories: true,
+                attributes: [.posixPermissions: 448]
+            )
         }
     }
     
