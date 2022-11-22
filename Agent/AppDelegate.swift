@@ -18,6 +18,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.behavior = .transient
         popover.contentViewController = NSHostingController(rootView: ContentView())
         
-        statusBar = StatusBarController(popover)
+        statusBar = StatusBarController(popover, show: Dependencies.all.storage.gpgKey == nil)
     }
 }
