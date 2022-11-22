@@ -36,6 +36,8 @@ final class KeetaAgent: ObservableObject {
         } else {
             writeConfigs()
             
+            storage.agentUser = .init(fullName: gpgKey!.fullName, email: gpgKey!.email)
+            
             Task {
                 try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
             }
@@ -67,8 +69,7 @@ final class KeetaAgent: ObservableObject {
         writeConfigs()
         
         do {
-            /// Create ECDSA key pair
-            try secureEnlave.createKeyPairIfNeeded(with: name)
+            try createUser(with: name, email: email)
             
             guard let secret = secureEnlave.secrets.first(where: { $0.name == name }) else {
                 return "Failed to create ECDSA key pair!"
@@ -187,6 +188,15 @@ final class KeetaAgent: ObservableObject {
         if !LaunchAtLogin.isEnabled {
             LaunchAtLogin.isEnabled = true
         }
+    }
+    
+    private func createUser(with name: String, email: String) throws {
+        guard storage.agentUser == nil else { return }
+        
+        storage.agentUser = .init(fullName: name, email: email)
+        
+        /// Create ECDSA key pair
+        try secureEnlave.createKeyPairIfNeeded(with: name)
     }
     
     private func isValidEmail(_ email: String) -> Bool {

@@ -161,11 +161,8 @@
 		02577378291B571A003E0889 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				02577372291B5687003E0889 /* AgentUser.swift */,
 				02577374291B56A0003E0889 /* GithubUser.swift */,
 				02577376291B56B5003E0889 /* GithubGPG.swift */,
-				02D9C585291E0D4D00586CEB /* GPGKey.swift */,
-				028637762920C29C000D978D /* SSHKey.swift */,
 				026503332920D02000663A78 /* GithubSSH.swift */,
 			);
 			path = Models;
@@ -186,7 +183,6 @@
 			isa = PBXGroup;
 			children = (
 				02780043291A4D7A00B8BA11 /* GithubAPI.swift */,
-				02577370291B565E003E0889 /* Storage.swift */,
 				02577378291B571A003E0889 /* Models */,
 			);
 			path = Github;
@@ -283,6 +279,7 @@
 				02780042291A4D6900B8BA11 /* Github */,
 				AEB391DA2914747A006A0F88 /* Secrets */,
 				AEB391CD29147097006A0F88 /* SSH Agent */,
+				AEDE4EBC292D5E0E0003BD7D /* Data */,
 				02780048291A613400B8BA11 /* Views */,
 				0278003B291A26CD00B8BA11 /* Helpers */,
 				AEFA7466291C78DF00066571 /* gnupg */,
@@ -334,6 +331,17 @@
 				AEEB99B9291B188E009557BC /* Grabber.swift */,
 			);
 			path = GPG;
+			sourceTree = "<group>";
+		};
+		AEDE4EBC292D5E0E0003BD7D /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				02577372291B5687003E0889 /* AgentUser.swift */,
+				02D9C585291E0D4D00586CEB /* GPGKey.swift */,
+				028637762920C29C000D978D /* SSHKey.swift */,
+				02577370291B565E003E0889 /* Storage.swift */,
+			);
+			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

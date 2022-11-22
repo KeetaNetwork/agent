@@ -8,9 +8,15 @@ final class Storage {
     private let kvStorage = UserDefaults(suiteName: "KeetaAgent")!
     
     enum Key: String {
+        case agentUser
         case gpgKey
         case sshKey
         case githubUser
+    }
+    
+    var agentUser: AgentUser? {
+        get { object(for: .agentUser) }
+        set { store(newValue, for: .agentUser) }
     }
     
     var gpgKey: GPGKey? {
