@@ -1,15 +1,12 @@
 import Foundation
 
 enum Config {
-    case socketAuth(socketPath: String)
     case gpg(agentPath: String)
     case gpgAgent(pkcs11Path: String)
     case gnupgPkcs11(libsshPath: String)
     
     var linePrefixToReplace: String {
         switch self {
-        case .socketAuth:
-            return "export SSH_AUTH_SOCK"
         case .gpg:
             return "agent-program"
         case .gpgAgent:
@@ -21,8 +18,6 @@ enum Config {
     
     var payload: String {
         switch self {
-        case .socketAuth(let socketPath):
-            return "export SSH_AUTH_SOCK=\(socketPath)"
         case .gpg(let agentPath):
             return "agent-program \(agentPath)"
         case .gpgAgent(let pkcs11Path):
@@ -32,19 +27,8 @@ enum Config {
         }
     }
     
-    var isSystem: Bool {
-        switch self {
-        case .socketAuth:
-            return true
-        case .gpg, .gpgAgent, .gnupgPkcs11:
-            return false
-        }
-    }
-    
     var filename: String {
         switch self {
-        case .socketAuth:
-            return ".zshrc"
         case .gpg:
             return "gpg.conf"
         case .gpgAgent:
