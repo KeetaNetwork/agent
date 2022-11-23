@@ -8,7 +8,7 @@ final class ConfigWriter {
     static func add(_ config: Config) throws {
         print("** Attempt to write config \(config)")
         
-        let filePath = configPath + "/\(config.filename)"
+        let filePath = (config.isSystem ? NSHomeDirectory() : configPath) + "/\(config.filename)"
         
         let text = config.payload + newLine
         
