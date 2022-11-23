@@ -7,9 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var popover = NSPopover()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
-        if let window = NSApplication.shared.windows.first {
-            window.orderOut(nil)
-        }
+        hideMainWindow()
         
         NSApplication.shared.setActivationPolicy(.accessory)
         NSWindow.allowsAutomaticWindowTabbing = false
@@ -19,5 +17,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.contentViewController = NSHostingController(rootView: ContentView())
         
         statusBar = StatusBarController(popover, show: Dependencies.all.storage.gpgKey == nil)
+    }
+    
+    func handle(url: URL) {
+        Dependencies.all.keetaAgent.didReceive(url: url)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.hideMainWindow()
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.statusBar?.showPopoverIfNeeded()
+        }
+    }
+    
+    private func hideMainWindow() {
+        NSApplication.shared.windows.first?.orderOut(nil)
     }
 }

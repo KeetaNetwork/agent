@@ -11,9 +11,9 @@ struct KeetaAgentApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            EmptyView()
                 .handlesExternalEvents(preferring: ["keeta-agent"], allowing: ["keeta-agent"])
-                .onOpenURL(perform: Dependencies.all.keetaAgent.didReceive(url:))
+                .onOpenURL(perform: appDelegate.handle(url:))
         }
         .commands { CommandGroup(replacing: .newItem, addition: { }) }
         .handlesExternalEvents(matching: Set(arrayLiteral: "*"))

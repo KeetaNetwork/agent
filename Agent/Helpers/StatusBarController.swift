@@ -26,6 +26,12 @@ final class StatusBarController {
         }
     }
     
+    func showPopoverIfNeeded() {
+        if !popover.isShown {
+            showPopover()
+        }
+    }
+    
     // MARK: Helper
     
     @objc private func togglePopover(sender: AnyObject) {
