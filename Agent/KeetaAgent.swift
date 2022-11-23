@@ -48,6 +48,8 @@ final class KeetaAgent: ObservableObject {
         
         secureEnlave.setup()
         
+        setupSocketPath()
+        
         socket.handler = agent.handle(reader:writer:)
         
         createSymlinks()
@@ -159,6 +161,12 @@ final class KeetaAgent: ObservableObject {
                 withIntermediateDirectories: true,
                 attributes: [.posixPermissions: 448]
             )
+        }
+    }
+    
+    private func setupSocketPath() {
+        Task {
+            try await CommandExecutor.execute(.configureSocket(socketPath: socketPath))
         }
     }
     

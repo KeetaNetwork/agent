@@ -38,7 +38,7 @@ final class CommandExecutor {
                 
                 task.standardOutput = pipe
                 task.standardError = pipe
-                task.arguments = command.commands
+                task.arguments = command.arguments
                 task.executableURL = executableURL
                 
                 var env = ProcessInfo.processInfo.environment
