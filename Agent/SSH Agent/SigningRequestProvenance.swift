@@ -23,18 +23,11 @@ extension SigningRequestProvenance {
         
         /// The pid of the process.
         let pid: Int32
-        /// A user-facing name for the process.
-        let processName: String
         /// A user-facing name for the application, if one exists.
         let appName: String?
         /// An icon representation of the application, if one exists.
         let iconURL: URL?
         /// The pid of the process's parent.
         let parentPID: Int32?
-        
-        var displayName: String {
-            appName ?? processName
-        }
     }
-    
 }

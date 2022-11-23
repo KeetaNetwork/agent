@@ -110,7 +110,7 @@ class SSHAgent {
     /// - Parameters:
     ///   - data: The data to sign.
     /// - Returns: An OpenSSH formatted Data payload containing the signed data response.
-    private func sign(data: Data, processName: String) throws -> Data {
+    private func sign(data: Data, processName: String?) throws -> Data {
         let reader = OpenSSHReader(data: data)
         let hash = reader.readNextChunk()
         guard let secret = secret(matching: hash) else {
