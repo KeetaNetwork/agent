@@ -56,7 +56,7 @@ class SecureEnclaveStore: SecretStore {
         reloadSecrets()
     }
     
-    func sign(data: Data, with secret: Secret, for processName: String, isRaw: Bool) throws -> Data {
+    func sign(data: Data, with secret: Secret, for applicationName: String?, isRaw: Bool) throws -> Data {
         let context: LAContext
         if let existing = persistedAuthenticationContexts[secret.id], existing.valid {
             context = existing.context
@@ -68,7 +68,12 @@ class SecureEnclaveStore: SecretStore {
             let secret = secret as! SecureEnclaveSecret
             persistedAuthenticationContexts[secret.id] = .init(secret: secret, context: newContext, duration: 5)
         }
-        context.localizedReason = "sign a request from \"\(processName)\" using secret \"\(secret.name)\""
+        if let processName = applicationName {
+            context.localizedReason = "sign a request from \"\(processName)\" using secret \"\(secret.name)\""
+        } else {
+            context.localizedReason = "sign a request using secret \"\(secret.name)\""
+        }
+        
         let attributes = [
             kSecClass: kSecClassKey,
             kSecAttrKeyClass: kSecAttrKeyClassPrivate,

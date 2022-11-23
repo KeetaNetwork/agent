@@ -4,14 +4,14 @@ import Security
 
 final class SigningRequestTracer {
     
-    static func processName(from fileHandleReader: FileHandleReader) -> String {
+    static func processName(from fileHandleReader: FileHandleReader) -> String? {
         let firstInfo = process(from: fileHandleReader.pidOfConnectedProcess)
 
         var provenance = SigningRequestProvenance(root: firstInfo)
         while NSRunningApplication(processIdentifier: provenance.origin.pid) == nil && provenance.origin.parentPID != nil {
             provenance.chain.append(process(from: provenance.origin.parentPID!))
         }
-        return provenance.origin.displayName
+        return provenance.origin.appName
     }
     
     // MARK: - Helper
@@ -20,10 +20,9 @@ final class SigningRequestTracer {
     /// - Parameter pid: The process ID to look up.
     /// - Returns: A ``SecretKit.SigningRequestProvenance.Process`` describing the process.
     private static func process(from pid: Int32) -> SigningRequestProvenance.Process {
-        var pidAndNameInfo = self.pidAndNameInfo(from: pid)
+        let pidAndNameInfo = self.pidAndNameInfo(from: pid)
         let ppid = pidAndNameInfo.kp_eproc.e_ppid != 0 ? pidAndNameInfo.kp_eproc.e_ppid : nil
-        let procName = "String(cString: &pidAndNameInfo.kp_proc.p_comm.0)"
-        return SigningRequestProvenance.Process(pid: pid, processName: procName, appName: appName(for: pid), iconURL: iconURL(for: pid), parentPID: ppid)
+        return SigningRequestProvenance.Process(pid: pid, appName: appName(for: pid), iconURL: iconURL(for: pid), parentPID: ppid)
     }
     
     /// Generates a `kinfo_proc` representation of the provided process ID.

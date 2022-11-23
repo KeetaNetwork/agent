@@ -1,12 +1,14 @@
 import Foundation
 import OSLog
 
-let configFolderName = ".keeta_agent"
-let gpgAgentPath = Bundle.main.url(forResource: "gnupg/bin/gpg-agent", withExtension: "")!.path
-let gpgPath = Bundle.main.url(forResource: "gnupg/bin/gpg", withExtension: "")!.path
-let gpgAgentConnectPath = Bundle.main.url(forResource: "gnupg/bin/gpg-connect-agent", withExtension: "")!.path
-let pkcs11Path = Bundle.main.url(forResource: "gnupg/bin/gnupg-pkcs11-scd", withExtension: "")!.path
-let libsshPath = Bundle.main.url(forResource: "gnupg/lib/libssh-agent-pkcs11-provider", withExtension: "dylib")!.path
+let gpnupSymlinkPath = "\(configPath)/gnupg"
+let gnupgFilePath = Bundle.main.url(forResource: "gnupg", withExtension: "")!.path
+
+let gpgAgentPath = "\(gpnupSymlinkPath)/bin/gpg-agent"
+let gpgPath = "\(gpnupSymlinkPath)/bin/gpg"
+let gpgAgentConnectPath = "\(gpnupSymlinkPath)/bin/gpg-connect-agent"
+let pkcs11Path = "\(gpnupSymlinkPath)/bin/gnupg-pkcs11-scd"
+let libsshPath = "\(gpnupSymlinkPath)/lib/libssh-agent-pkcs11-provider.dylib"
 
 final class GPGUtil {
     
@@ -17,6 +19,12 @@ final class GPGUtil {
         try ConfigWriter.add(.gpgAgent(pkcs11Path: pkcs11Path))
         try ConfigWriter.add(.gnupgPkcs11(libsshPath: libsshPath))
         try ConfigWriter.add(.socketAuth(socketPath: socketPath))
+    }
+    
+    static func createSymlinks() async throws {
+        try? FileManager.default.removeItem(atPath: gpnupSymlinkPath)
+        
+        try await CommandExecutor.execute(.createSymlink(source: gnupgFilePath, destination: gpnupSymlinkPath))
     }
     
     static func createGpgKey(fullName: String, email: String) async throws -> GPGKey {
@@ -84,7 +92,7 @@ final class GPGUtil {
     """
         let data = input.data(using: .utf8)!
         let fileName = "gpg_key_input"
-        let inputFilePath = ConfigWriter.configDirectory.appending("/\(configFolderName)/\(fileName)")
+        let inputFilePath = configPath + "/\(fileName)"
         try? FileManager.default.removeItem(atPath: inputFilePath)
         FileManager.default.createFile(atPath: inputFilePath, contents: data)
         return inputFilePath

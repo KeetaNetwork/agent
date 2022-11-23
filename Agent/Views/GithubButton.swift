@@ -15,7 +15,7 @@ struct GithubButton: View {
                 showLogoutConfirmation = true
             }
         }) {
-            HStack {
+            HStack(spacing: 0) {
                 if let user = user {
                     AsyncImage(url: URL(string: user.avatarUrl)) { image in
                         image.resizable()
@@ -36,7 +36,8 @@ struct GithubButton: View {
                     Text("Sync with Github")
                 }
             }
-            .padding(20)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 15)
             .background(KeetaColor.black)
             .foregroundColor(KeetaColor.yellow)
             .cornerRadius(25)

@@ -5,7 +5,7 @@ final class StatusBarController {
     private let popover: NSPopover
     private let mainItem: NSStatusItem
     
-    init(_ popover: NSPopover) {
+    init(_ popover: NSPopover, show: Bool) {
         self.popover = popover
         
         mainItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -17,6 +17,18 @@ final class StatusBarController {
             
             mainItemButton.action = #selector(togglePopover(sender:))
             mainItemButton.target = self
+        }
+        
+        if show {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.showPopover()
+            }
+        }
+    }
+    
+    func showPopoverIfNeeded() {
+        if !popover.isShown {
+            showPopover()
         }
     }
     

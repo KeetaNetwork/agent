@@ -10,18 +10,20 @@ struct GenerateView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: AgentSpacing.large) {
             VStack(alignment: .leading, spacing: AgentSpacing.small) {
-                Text("Generate your GPG Key")
+                Text("Agent Setup")
                     .foregroundColor(KeetaColor.yellow)
                     .font(.title)
                 Text("Please enter the following information, which will be associated with your GPG key.")
                     .font(.title3)
                     .foregroundColor(KeetaColor.gray40)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             VStack(alignment: .leading, spacing: AgentSpacing.medium) {
                 Text("Full Name")
                     .foregroundColor(KeetaColor.yellow)
                     .font(.title3)
                 TextField("", text: $name)
+                    .foregroundColor(KeetaColor.yellow)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
@@ -33,6 +35,7 @@ struct GenerateView: View {
                     .foregroundColor(KeetaColor.yellow)
                     .font(.title3)
                 TextField("", text: $email)
+                    .foregroundColor(KeetaColor.yellow)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 10)
                     .frame(height: 40)

@@ -32,12 +32,12 @@ enum Config {
         }
     }
     
-    var folderPath: String? {
+    var isSystem: Bool {
         switch self {
         case .socketAuth:
-            return nil
+            return true
         case .gpg, .gpgAgent, .gnupgPkcs11:
-            return configFolderName
+            return false
         }
     }
     
