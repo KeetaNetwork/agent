@@ -71,20 +71,16 @@ final class GPGUtil {
         return .init(id: keyId, value: publicKey, fullName: fullName, email: email, isUploaded: false)
     }
 
-    static func keyExists(for keyId: String) async -> Bool {
-        do {
-            try await CommandExecutor.execute(.killGPGConf)
-            
-            try await CommandExecutor.execute(.restartGPGAgent)
-            
-            try await CommandExecutor.execute(.checkCardStatus).expectFalse(Grabber.hasBadSignatures)
-            
-            let existingKeys = try await CommandExecutor.execute(.listGPGKeys).value
-            
-            return existingKeys.contains(keyId)
-        } catch {
-            return false
-        }
+    static func keyExists(for keyId: String) async throws -> Bool {
+        try await CommandExecutor.execute(.killGPGConf)
+        
+        try await CommandExecutor.execute(.restartGPGAgent)
+        
+        try await CommandExecutor.execute(.checkCardStatus).expectFalse(Grabber.hasBadSignatures)
+        
+        let existingKeys = try await CommandExecutor.execute(.listGPGKeys).value
+        
+        return existingKeys.contains(keyId)
     }
     
     static func sign(message: String, keyId: String) async throws -> String {

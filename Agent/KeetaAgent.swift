@@ -231,9 +231,8 @@ final class KeetaAgent: ObservableObject {
             return
         }
         
-        guard let keyId = gpgKey?.id else { return }
-        
-        if await GPGUtil.keyExists(for: keyId) == false {
+        if let keyId = gpgKey?.id,
+           (try? await GPGUtil.keyExists(for: keyId)) != true {
             storage.gpgKey = nil
             storage.githubUser = nil
             
