@@ -1,10 +1,7 @@
-Index: asn1-x509.c
-==================================================================
---- a/asn1-x509.c
-+++ b/asn1-x509.c
-@@ -24,19 +24,10 @@
- #endif
- 
+diff -uNr unnamed-0737d85a4a.orig/asn1-x509.c unnamed-0737d85a4a/asn1-x509.c
+--- unnamed-0737d85a4a.orig/asn1-x509.c	2022-10-06 23:00:38.000000000 -0700
++++ unnamed-0737d85a4a/asn1-x509.c	2022-11-23 13:44:16.383292382 -0800
+@@ -26,15 +26,6 @@
  #include "debug.h"
  #include "asn1-x509.h"
  
@@ -20,11 +17,7 @@ Index: asn1-x509.c
  struct x509_object {
  	struct asn1_object wholething;
  		struct asn1_object certificate;
- 			struct asn1_object version;
- 			struct asn1_object serial_number;
-@@ -451,5 +442,235 @@
- 		}
- 	}
+@@ -453,3 +444,233 @@
  
  	return(retval);
  }
@@ -258,18 +251,13 @@ Index: asn1-x509.c
 +
 +	return(asn1_x509_new_asn1_object(1, 0x03, tmp_buffer, size + 1));
 +}
-
-Index: asn1-x509.h
-==================================================================
---- a/asn1-x509.h
-+++ b/asn1-x509.h
-@@ -7,10 +7,19 @@
- #    include <unistd.h>
- #  endif
- #else
+diff -uNr unnamed-0737d85a4a.orig/asn1-x509.h unnamed-0737d85a4a/asn1-x509.h
+--- unnamed-0737d85a4a.orig/asn1-x509.h	2022-10-06 23:00:38.000000000 -0700
++++ unnamed-0737d85a4a/asn1-x509.h	2022-11-23 13:44:16.383953919 -0800
+@@ -10,6 +10,15 @@
  #  include <unistd.h>
  #endif
-+
+ 
 +struct asn1_object {
 +	unsigned long tag;
 +	unsigned long size;
@@ -278,14 +266,11 @@ Index: asn1-x509.h
 +	unsigned long asn1rep_len;
 +	void *asn1rep;
 +};
- 
++
  ssize_t x509_to_subject(void *x509_der_buf, size_t x509_der_buf_len, void **outbuf);
  
  ssize_t x509_to_issuer(void *x509_der_buf, size_t x509_der_buf_len, void **outbuf);
- 
-@@ -24,6 +33,17 @@
- 
- ssize_t x509_to_keysize(void *x509_der_buf, size_t x509_der_buf_len);
+@@ -26,4 +35,15 @@
  
  ssize_t x509_dn_to_string(void *asn1_der_buf, size_t asn1_der_buf_len, char *outbuf, size_t outbuf_len, char *matchlabel);
  
@@ -301,14 +286,10 @@ Index: asn1-x509.h
 +struct asn1_object *asn1_x509_write_asn1_bitstring(int free_contents, unsigned char *value, unsigned long size);
 +
  #endif
-
-Index: configure.ac
-==================================================================
---- a/configure.ac
-+++ b/configure.ac
-@@ -21,11 +21,11 @@
- dnl Determine how to create static archives on this platform
- AC_CHECK_TOOL(AR, ar)
+diff -uNr unnamed-0737d85a4a.orig/configure.ac unnamed-0737d85a4a/configure.ac
+--- unnamed-0737d85a4a.orig/configure.ac	2022-10-06 23:00:38.000000000 -0700
++++ unnamed-0737d85a4a/configure.ac	2022-11-23 13:44:16.384391208 -0800
+@@ -23,7 +23,7 @@
  AC_CHECK_TOOL(RANLIB, ranlib)
  
  dnl Check for all required headers
@@ -317,11 +298,7 @@ Index: configure.ac
  	AC_MSG_WARN([Required header missing, compilation will likely fail.])
  ], [
  #ifdef HAVE_ARPA_INET_H
- #  include <arpa/inet.h>
- #endif
-@@ -60,17 +60,23 @@
- #  include <unistd.h>
- #endif
+@@ -62,6 +62,9 @@
  #ifdef HAVE_PTHREAD_H
  #  include <pthread.h>
  #endif
@@ -331,24 +308,20 @@ Index: configure.ac
  ])
  
  dnl Determine what libraries are required to get BSD socket functions
- AC_SEARCH_LIBS(socket, [socket nsl])
- AC_SEARCH_LIBS(connect, [socket nsl])
+@@ -70,6 +73,9 @@
  AC_SEARCH_LIBS(send, [socket nsl])
  AC_SEARCH_LIBS(recv, [socket nsl])
-+
+ 
 +dnl Look for methods we need
 +AC_CHECK_FUNCS([sigaction])
- 
++
  dnl Upate LDFLAGS to include setting the run-time linker path to the same as our compile-time linker
  DC_SYNC_RPATH
  
- dnl If we updated LIBOBJS, update SHLIBOBJS -- must be last.
-
-Index: debug.h
-==================================================================
---- a/debug.h
-+++ b/debug.h
-@@ -1,24 +1,35 @@
+diff -uNr unnamed-0737d85a4a.orig/debug.h unnamed-0737d85a4a/debug.h
+--- unnamed-0737d85a4a.orig/debug.h	2022-10-06 23:00:38.000000000 -0700
++++ unnamed-0737d85a4a/debug.h	2022-11-23 13:44:16.384852205 -0800
+@@ -1,22 +1,33 @@
  #ifndef DEBUG_H_45D5B4D29FDD9360A50683AAECE02B20F52AAE02
 +#define DEBUG_H_45D5B4D29FDD9360A50683AAECE02B20F52AAE02 1
  #ifdef LIBSSH_AGENT_CLIENT_DEBUG
@@ -363,7 +336,7 @@ Index: debug.h
 +#  define LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF(f, x, y) { unsigned char *DEBUG_PRINT_BUF; unsigned long DEBUG_PRINT_IDX; DEBUG_PRINT_BUF = (unsigned char *) (x); fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "%s(): %s  (%s/%lu = {%02x", __func__, f, #x, (unsigned long) (y), DEBUG_PRINT_BUF[0]); for (DEBUG_PRINT_IDX = 1; DEBUG_PRINT_IDX < (y); DEBUG_PRINT_IDX++) { fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), ", %02x", DEBUG_PRINT_BUF[DEBUG_PRINT_IDX]); }; fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "})\n"); fflush(LIBSSH_AGENT_CLIENT_DEBUG_FD()); }
 +#  define LIBSSH_AGENT_CLIENT_DEBUG_PERROR(x) { fprintf(LIBSSH_AGENT_CLIENT_DEBUG_FD(), "%s(): ", __func__); perror(x); }
  #  define free(x) { LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("FREE(%p) (%s)", x, #x); free(x); }
-+
+ 
 +static FILE *_LIBSSH_AGENT_CLIENT_DEBUG_FD = NULL;
 +static FILE *LIBSSH_AGENT_CLIENT_DEBUG_FD(void) {
 +	return(stderr);
@@ -374,7 +347,7 @@ Index: debug.h
 +
 +	return(_LIBSSH_AGENT_CLIENT_DEBUG_FD);
 +}
- 
++
  static void *LIBSSH_AGENT_CLIENT_DEBUG_FUNC_MALLOC(size_t size, const char *func) {
  	void *retval;
  
@@ -388,11 +361,7 @@ Index: debug.h
  
  	return(retval);
  }
- 
- static void *LIBSSH_AGENT_CLIENT_DEBUG_FUNC_REALLOC(void *ptr, size_t size, const char *func) {
-@@ -25,13 +36,12 @@
- 	void *retval;
- 
+@@ -27,9 +38,8 @@
  	retval = realloc(ptr, size);
  
  	if (retval != ptr) {
@@ -404,16 +373,10 @@ Index: debug.h
  	}
  
  	return(retval);
- }
- 
-
-Index: libssh-agent-client.c
-==================================================================
---- a/libssh-agent-client.c
-+++ b/libssh-agent-client.c
-@@ -20,10 +20,13 @@
- #  include <stdlib.h>
- #endif
+diff -uNr unnamed-0737d85a4a.orig/libssh-agent-client.c unnamed-0737d85a4a/libssh-agent-client.c
+--- unnamed-0737d85a4a.orig/libssh-agent-client.c	2022-10-06 23:00:38.000000000 -0700
++++ unnamed-0737d85a4a/libssh-agent-client.c	2022-11-23 13:44:16.386527528 -0800
+@@ -22,6 +22,9 @@
  #ifdef HAVE_STDIO_H
  #  include <string.h>
  #endif
@@ -423,11 +386,7 @@ Index: libssh-agent-client.c
  #include <stdbool.h>
  #include <stdio.h>
  #include "libssh-agent-client.h"
- 
- #include "debug.h"
-@@ -79,11 +83,21 @@
- 	}
- 
+@@ -81,7 +84,17 @@
  	return(authsock);
  }
  
@@ -446,11 +405,7 @@ Index: libssh-agent-client.c
  	struct sockaddr_un addr;
  	int fd;
  	int conn_ret;
- 
- 	if (!path) {
-@@ -137,17 +151,22 @@
- 			fakebuflen = buflen;
- 		}
+@@ -139,6 +152,9 @@
  
  		sendsize = htonl(fakebuflen);
  
@@ -460,20 +415,16 @@ Index: libssh-agent-client.c
  		send_ret = send(fd, &sendsize, sizeof(sendsize), 0);
  		if (send_ret != sizeof(sendsize)) {
  			LIBSSH_AGENT_CLIENT_DEBUG_PERROR("send");
- 
- 			return(-1);
+@@ -147,6 +163,8 @@
  		}
  	}
-+
-+	LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Sending Data", buf, buflen);
  
++	LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Sending Data", buf, buflen);
++
  	send_ret = send(fd, buf, buflen, 0);
  	if (send_ret != -1 && (size_t) send_ret != buflen) {
  		LIBSSH_AGENT_CLIENT_DEBUG_PERROR("send");
- 
-@@ -425,11 +444,183 @@
- 	}
- 
+@@ -427,7 +445,179 @@
  	return(-1);
  }
  
@@ -654,15 +605,10 @@ Index: libssh-agent-client.c
  	unsigned char *buf, *buf_p;
  	uint32_t len;
  	unsigned char *tmp_buf, *key_type;
- 	ssize_t tmp_buf_len, key_type_len;
- 
-@@ -457,18 +648,34 @@
- 		keyInfo = &identity->keyInfo.ecdsaNISTP256Key;
- 
- 		ec_curve_type_len = ssh_agent_buffer_getstr(buf, len, &buf_p, &ec_curve_type, 0, 1);
+@@ -460,13 +650,29 @@
  		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Setting up identity for EcDSA with NIST P-256, Curve: %s", ec_curve_type);
  		free(ec_curve_type);
-+
+ 
 +		key_len = ssh_agent_buffer_getstr(buf, len, &buf_p, &key, 0, 2);
 +
 +		if (key_len < 0) {
@@ -676,7 +622,7 @@ Index: libssh-agent-client.c
 +
 +			return;
 +		}
- 
++
  		identity->idType = KEY_ID_TYPE;
  		identity->keyType = ECDSA_NIST_P_256_KEY_TYPE;
  
@@ -690,27 +636,22 @@ Index: libssh-agent-client.c
  
  		/*
  		 * OID: 1.2.840.10045.3.1.7 is NIST P-256
- 		 *
- 		 * echo -ne '\x06\x08\x2a\x86\x48\xce\x3d\x03\x01\x07' | openssl asn1parse -inform der
-@@ -614,19 +821,27 @@
- 		/*
- 		 * Filter out items that do not contain valid information
- 		 */
+@@ -617,14 +823,22 @@
  		bufInternalTmp = identity->blob;
  		bufInternalLen = ssh_agent_buffer_getstr(identity->blob, identity->bloblen, &bufInternalTmp, &bufInternal, 0, 2);
-+
+ 
+-		validIdentity = true;
+-		if (bufInternalLen <= 0 || bufInternalLen >= 65536) {
+-			LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Ignored:", bufInternal, bufInternalLen);
 +		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Key Type: %.*s", (int) bufInternalLen, bufInternal);
-+
+ 
 +		if (bufInternalLen >= 7 && memcmp(bufInternal, "x509v3-", 7) == 0) {
 +			ssh_agent_set_cert_info(identity, fd);
 +		} else {
 +			ssh_agent_set_key_info(identity, fd);
 +		}
- 
- 		validIdentity = true;
--		if (bufInternalLen <= 0 || bufInternalLen >= 65536) {
--			LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Ignored:", bufInternal, bufInternalLen);
--
++
++		validIdentity = true;
 +		if (!(identity->idType == KEY_ID_TYPE || identity->idType == CERT_ID_TYPE)) {
  			validIdentity = false;
  		}
@@ -721,11 +662,7 @@ Index: libssh-agent-client.c
  			free(identity->blob);
  			free(identity->comment);
  			identity->blob = NULL;
- 			identity->comment = NULL;
- 			identity->idType = INVALID_ID_TYPE;
-@@ -634,19 +849,10 @@
- 			currId--;
- 			numIds--;
+@@ -636,15 +850,6 @@
  			continue;
  		}
  
@@ -741,11 +678,7 @@ Index: libssh-agent-client.c
  		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("ID#%i: %s", currId, identity->comment);
  	}
  
- 	if (numIds == 0) {
- 		goto ssh_agent_getidentities_failure;
-@@ -670,11 +876,11 @@
- 	}
- 
+@@ -672,7 +877,7 @@
  	return(NULL);
  }
  
@@ -754,11 +687,7 @@ Index: libssh-agent-client.c
  	struct ssh_agent_identity *currid;
  
  	if (identities) {
- 		for (currid = identities; currid->blob != NULL && currid->comment != NULL; currid++) {
- 			if (currid->blob) {
-@@ -691,17 +897,18 @@
- 
- 	return;
+@@ -693,13 +898,14 @@
  }
  
  /* Returns: Size of signed (encrypted) data written to "retbuf", or -1 on error */
@@ -774,11 +703,7 @@ Index: libssh-agent-client.c
  	if (!databuf) {
  		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("databuf is NULL");
  
- 		return(-1);
- 	}
-@@ -716,18 +923,23 @@
- 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("identity is NULL");
- 
+@@ -718,6 +924,7 @@
  		return(-1);
  	}
  
@@ -786,23 +711,18 @@ Index: libssh-agent-client.c
  	if ((1 + sizeof(bloblen) + sizeof(datalen) + sizeof(flags) + identity->bloblen + databuflen) > sizeof(buf)) {
  		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Buffer too small to hold outgoing data (need atleast %lli, have only %lli)",
  			(long long) (1 + sizeof(bloblen) + sizeof(datalen) + sizeof(flags) + identity->bloblen + databuflen),
- 			(long long) sizeof(buf)
- 		);
- 
+@@ -727,6 +934,10 @@
  		return(-1);
  	}
-+
+ 
 +	if (doHash == 1) {
 +		flags = SSH2_AGENT_SIGNFLAGS_RSA_SHA2_256;
 +	}
- 
++
  	if (identity->idType == KEY_ID_TYPE) {
  		if (identity->keyType == RSA_KEY_TYPE) {
  			/* XXX: HACK -- THIS READS A WRAPPED ASN.1 SHA512 DIGEST */
- 			if (databuflen == 83 && memcmp(databuf, "\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x03\x05\x00\x04\x40", 19) == 0) {
-@@ -737,10 +949,11 @@
- 				flags = SSH2_AGENT_SIGNFLAGS_RSA_SHA2_512;
- 			}
+@@ -739,6 +950,7 @@
  		}
  	}
  
@@ -810,11 +730,7 @@ Index: libssh-agent-client.c
  	if (doHash == 0) {
  		flags |= SSH2_AGENT_SIGNFLAGS_RSA_RAW; 
  	}
- 
- 	buf_p = buf;
-@@ -754,14 +967,16 @@
- 
- 	memcpy(buf_p, identity->blob, identity->bloblen);
+@@ -756,10 +968,12 @@
  	buf_p += identity->bloblen;
  
  	LIBSSH_AGENT_CLIENT_DEBUG_PRINTBUF("Asking to sign:", databuf, databuflen);
@@ -827,11 +743,7 @@ Index: libssh-agent-client.c
  	memcpy(buf_p, databuf, databuflen);
  	buf_p += databuflen;
  
- 	flags = htonl(flags);
- 	memcpy(buf_p, &flags, sizeof(flags));
-@@ -770,10 +985,11 @@
- 	send_ret = ssh_agent_send(fd, buf, buf_p - buf, 0);
- 	if (send_ret != (buf_p - buf)) {
+@@ -772,6 +986,7 @@
  		return(-1);
  	}
  
@@ -839,11 +751,7 @@ Index: libssh-agent-client.c
  	recv_ret = ssh_agent_recv(fd, buf, sizeof(buf));
  	if (recv_ret < 1) {
  		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Received too little data. Got %lli, expected atleast 1", (long long) recv_ret);
- 
- 		return(-1);
-@@ -833,11 +1049,11 @@
- 			return(-1);
- 	}
+@@ -835,7 +1050,7 @@
  }
  
  /* Returns: Size of decrypted data written to "retbuf", or -1 on error */
@@ -852,11 +760,7 @@ Index: libssh-agent-client.c
  	unsigned char buf[4096], *buf_p;
  	uint32_t flags = 0, bloblen, datalen;
  	ssize_t recv_ret, send_ret, msglen;
- 
- 	if (!databuf) {
-@@ -929,161 +1145,5 @@
- 
- 	msglen = ssh_agent_buffer_getstr(buf, sizeof(buf), &buf_p, &retbuf, msglen, 0);
+@@ -931,159 +1146,3 @@
  
  	return(msglen);
  }
@@ -1016,14 +920,10 @@ Index: libssh-agent-client.c
 -	return(certLen);
 -}
 -
-
-Index: libssh-agent-client.h
-==================================================================
---- a/libssh-agent-client.h
-+++ b/libssh-agent-client.h
-@@ -35,24 +35,31 @@
- 	RSA_KEY_TYPE,
- 	ECDSA_NIST_P_256_KEY_TYPE
+diff -uNr unnamed-0737d85a4a.orig/libssh-agent-client.h unnamed-0737d85a4a/libssh-agent-client.h
+--- unnamed-0737d85a4a.orig/libssh-agent-client.h	2022-10-06 23:00:38.000000000 -0700
++++ unnamed-0737d85a4a/libssh-agent-client.h	2022-11-23 13:44:16.387225732 -0800
+@@ -37,11 +37,13 @@
  } sshAgentKeyType;
  
  struct ecdsaNISTP256KeyInfo {
@@ -1040,25 +940,19 @@ Index: libssh-agent-client.h
  	ssize_t keyLen;
  };
  
- struct rsaKeyInfo {
- 	void *modulus;
- 	ssize_t modulusLen;
- 	void *exponent;
+@@ -52,6 +54,11 @@
  	ssize_t exponentLen;
  };
-+
+ 
 +struct certInfo {
 +	unsigned char cert[16384];
 +	ssize_t certLen;
 +};
- 
++
  struct ssh_agent_identity {
  	uint32_t bloblen;
  	unsigned char *blob;
- 	sshAgentIdType idType;
-@@ -62,33 +69,39 @@
- 		/** If keyType == ECDSA_NIST_P_256_KEY_TYPE */
- 		struct ecdsaNISTP256KeyInfo ecdsaNISTP256Key;
+@@ -64,31 +71,37 @@
  
  		/** If keyType == RSA_KEY_TYPE */
  		struct rsaKeyInfo rsaKey;
@@ -1069,10 +963,10 @@ Index: libssh-agent-client.h
  
  	char *comment;
  };
-+
+ 
 +/* Register a signal handler to deal with SIGPIPE */
 +static void ssh_agent_register_sighandler(void);
- 
++
  /* Returns: File descriptor refering to connection to SSH Agent socket */
  /* PATH -- if NULL, defaults to determining it from the environment */
 -int ssh_agent_connect_socket(const char *path);
@@ -1103,14 +997,18 @@ Index: libssh-agent-client.h
 +static ssize_t ssh_agent_getcert(int fd, unsigned char *retbuf, size_t retbuflen, struct ssh_agent_identity *identity);
  
  #endif
-
-Index: libssh-agent-pkcs11-provider.c
-==================================================================
---- a/libssh-agent-pkcs11-provider.c
-+++ b/libssh-agent-pkcs11-provider.c
-@@ -22,11 +22,11 @@
- #ifndef NULL_PTR
- #  define NULL_PTR 0
+diff -uNr unnamed-0737d85a4a.orig/libssh-agent-pkcs11-provider.c unnamed-0737d85a4a/libssh-agent-pkcs11-provider.c
+--- unnamed-0737d85a4a.orig/libssh-agent-pkcs11-provider.c	2022-10-06 23:00:38.000000000 -0700
++++ unnamed-0737d85a4a/libssh-agent-pkcs11-provider.c	2022-11-23 14:19:37.517600896 -0800
+@@ -13,6 +13,7 @@
+ #ifdef HAVE_PTHREAD_H
+ #  include <pthread.h>
+ #endif
++#include <pwd.h>
+ 
+ #define CK_PTR *
+ #define CK_DEFINE_FUNCTION(returnType, name) returnType name
+@@ -24,7 +25,7 @@
  #endif
  
  #include "pkcs11.h"
@@ -1119,15 +1017,10 @@ Index: libssh-agent-pkcs11-provider.c
  #include "asn1-x509.h"
  #include "debug.h"
  
- #ifndef SSH_AGENT_PKCS11_PROVIDER_CRYPTOKI_VERSION_CODE
- #  define SSH_AGENT_PKCS11_PROVIDER_CRYPTOKI_VERSION_CODE 0x021e00
-@@ -88,10 +88,357 @@
- static void *libssh_agent_pkcs11_biglock = NULL;
- static struct libssh_agent_pkcs11_session libssh_agent_pkcs11_sessions[8];
- static int libssh_agent_pkcs11_initialized = 0;
+@@ -91,6 +92,429 @@
  static int libssh_agent_pkcs11_biglock_init = 0;
  CK_C_INITIALIZE_ARGS libssh_agent_pkcs11_args;
-+
+ 
 +static struct asn1_object *libssh_agent_pkcs11_get_cert_tbs(sshAgentKeyType keyType, unsigned char *publicKey, unsigned long publicKeyLen) {
 +	struct asn1_object *tbs, *signatureAlgo = NULL, *pubKeyInfo = NULL;
 +
@@ -1383,14 +1276,86 @@ Index: libssh-agent-pkcs11-provider.c
 +	return(retval);
 +}
 +
++static char *libssh_agent_pkcs11_key_alphabet = "0123456789abcdef";
++static char *libssh_agent_pkcs11_key_printable(struct ssh_agent_identity *identity, char *out, size_t outlen) {
++	const char *key = identity->blob;
++	int key_len = identity->bloblen;
++	int idx;
++
++	for (idx = 0; idx < key_len; idx++) {
++		if (((idx * 2) + 1) >= outlen) {
++			return(NULL);
++		}
++
++		out[(idx * 2) + 0] = libssh_agent_pkcs11_key_alphabet[(key[idx] >> 4) & 0x0f];
++		out[(idx * 2) + 1] = libssh_agent_pkcs11_key_alphabet[key[idx]        & 0x0f];
++	}
++
++	return(out);
++}
++
++FILE *libssh_agent_pkcs11_open_id_cache(struct ssh_agent_identity *identity, const char *mode) {
++	char cache_file_buf[8192], *cache_file;
++	char key_hex_buf[8192], *key_hex;
++	char *homedir;
++	FILE *cache_fp;
++	struct passwd *user_info;
++	uid_t uid;
++	int snprintf_ret;
++
++	uid = getuid();
++	user_info = getpwuid(uid);
++	if (user_info == NULL) {
++		return(NULL);
++	}
++
++	homedir = user_info->pw_dir;
++	if (homedir == NULL) {
++		return(NULL);
++	}
++
++	key_hex = libssh_agent_pkcs11_key_printable(identity, key_hex_buf, sizeof(key_hex_buf));
++	if (key_hex == NULL) {
++		return(NULL);
++	}
++
++	snprintf_ret = snprintf(cache_file_buf, sizeof(cache_file_buf), "%s/.keeta_agent/cache-%s.cert", homedir, key_hex);
++	if (snprintf_ret >= sizeof(cache_file_buf)) {
++		return(NULL);
++	}
++
++	cache_file = cache_file_buf;
++
++	cache_fp = fopen(cache_file, mode);
++
++	return(cache_fp);
++}
++
 +static void *libssh_agent_pkcs11_create_cert_ecdsa(struct ssh_agent_identity *identity, ssize_t *certLen) {
 +	struct asn1_object *tbs_object, *cert_object, *signature_object;
 +	unsigned char raw_signature_buffer[1024], signature_buffer[1024], *r, *s;
++	unsigned char *certificate;
 +	unsigned char *signature;
 +	unsigned long r_len, s_len;
-+	ssize_t raw_signature_len, signature_len;
++	ssize_t raw_signature_len, signature_len, certificate_len;
 +	void *retval;
++	FILE *cache_fp;
 +	int fd;
++	int snprintf_ret;
++
++	cache_fp = libssh_agent_pkcs11_open_id_cache(identity, "rb");
++	if (cache_fp) {
++		certificate_len = 8192;
++		certificate = malloc(certificate_len);
++		certificate_len = fread(certificate, 1, certificate_len, cache_fp);
++
++		if (certificate_len > 0 && certificate_len < 8192) {
++			*certLen = certificate_len;
++			return(certificate);
++		}
++
++		fclose(cache_fp);
++	}
 +
 +	fd = ssh_agent_connect_socket(NULL);
 +	if (fd < 0) {
@@ -1438,6 +1403,10 @@ Index: libssh-agent-pkcs11-provider.c
 +	free(tbs_object);
 +	free(cert_object);
 +
++	cache_fp = libssh_agent_pkcs11_open_id_cache(identity, "wb");
++	fwrite(retval, 1, *certLen, cache_fp);
++	fclose(cache_fp);
++
 +	return(retval);
 +}
 +
@@ -1474,14 +1443,11 @@ Index: libssh-agent-pkcs11-provider.c
 +	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("We do not support handling this kind of identity: %i", identity->idType);
 +	return(NULL);
 +}
- 
++
  static unsigned long libssh_agent_pkcs11_getversion(void) {
  	static unsigned long retval = 255;
  	unsigned long major = 0;
- 	unsigned long minor = 0;
-@@ -245,11 +592,11 @@
- 	CK_ULONG ulValueLen;
- 	CK_OBJECT_CLASS ck_object_class;
+@@ -247,7 +671,7 @@
  	CK_CERTIFICATE_TYPE ck_certificate_type;
  	CK_KEY_TYPE ck_key_type;
  	CK_UTF8CHAR ucTmpBuf[4096];
@@ -1490,11 +1456,7 @@ Index: libssh-agent-pkcs11-provider.c
  	ssize_t getcert_ret, getkey_ret, certificate_len = -1, key_len = -1, x509_read_ret;
  	int fd;
  	int pValue_free;
- 	sshAgentIdType idType = INVALID_ID_TYPE;
- 
-@@ -294,11 +641,34 @@
- 	if (fd >= 0) {
- 		close(fd);
+@@ -296,7 +720,30 @@
  		fd = -1;
  	}
  
@@ -1526,11 +1488,7 @@ Index: libssh-agent-pkcs11-provider.c
  		return(NULL);
  	}
  
- 	for (curr_attr_type = 0; curr_attr_type < 0xce53635f; curr_attr_type++) {
- 		if (curr_attr_type == 0x800) {
-@@ -462,11 +832,10 @@
- 					case CKO_CERTIFICATE:
- 						if (certificate_len > 0) {
+@@ -464,7 +911,6 @@
  							pValue = certificate;
  							ulValueLen = certificate_len;
  						}
@@ -1538,15 +1496,10 @@ Index: libssh-agent-pkcs11-provider.c
  						break;
  				}
  
- 				LIBSSH_AGENT_CLIENT_DEBUG_PRINTF(" ... returning %p/%lu", pValue, (unsigned long) ulValueLen);
- 
-@@ -715,10 +1084,22 @@
- 						break;
- 					default:
- 						LIBSSH_AGENT_CLIENT_DEBUG_PRINTF(" ... but not getting it because the key type isn't an EcDSA Key we know how to lookup (keyType = %i).", identity->keyType);
+@@ -718,6 +1164,18 @@
  						break;
  				}
-+				break;
+ 				break;
 +			case 0x202 /* CKA_ALWAYS_AUTHENTICATE */:
 +			case CKA_SIGN_RECOVER:
 +			case CKA_UNWRAP:
@@ -1558,14 +1511,11 @@ Index: libssh-agent-pkcs11-provider.c
 +				LIBSSH_AGENT_CLIENT_DEBUG_PRINTF(" ... returning %lu (%p/%lu)", (unsigned long) *((CK_BBOOL *) pValue), pValue, (unsigned long) ulValueLen);
 +
 +				break;
- 				break;
++				break;
  			default:
  				pValue = NULL;
  				ulValueLen = (CK_LONG) -1;
- 				break;
-@@ -766,16 +1147,18 @@
- 	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Returning %lu objects (%p).", numattrs, retval);
- 
+@@ -768,13 +1226,15 @@
  	return(retval);
  }
  
@@ -1576,16 +1526,13 @@ Index: libssh-agent-pkcs11-provider.c
  	int mutex_init_ret;
  
  	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Called.");
-+
-+	ssh_agent_register_sighandler();
  
++	ssh_agent_register_sighandler();
++
  	if (pInitArgs != NULL) {
  		args = pInitArgs;
  		memcpy(&libssh_agent_pkcs11_args, args, sizeof(libssh_agent_pkcs11_args));
- 
-@@ -1274,23 +1657,11 @@
- 	/* Verify that the card is actually in the slot. */
- 	fd = ssh_agent_connect_socket(NULL);
+@@ -1276,19 +1736,7 @@
  	if (fd >= 0) {
  		ssh_identities = ssh_agent_getidentities(fd);
  
@@ -1605,11 +1552,7 @@ Index: libssh-agent-pkcs11-provider.c
  	}
  
  	mutex_retval = libssh_agent_pkcs11_mutex_lock(libssh_agent_pkcs11_biglock);
- 	if (mutex_retval != 0) {
- 		LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Error.  Locking failed.");
-@@ -1337,14 +1708,10 @@
- 
- 				id_idx = 0;
+@@ -1339,10 +1787,6 @@
  				curr_ssh_id_idx = 0;
  				for (curr_ssh_id = ssh_identities; curr_ssh_id && curr_ssh_id->comment; curr_ssh_id++) {
  					for (curr_id_type = CKO_CERTIFICATE; curr_id_type <= CKO_PRIVATE_KEY; curr_id_type++) {
@@ -1620,11 +1563,7 @@ Index: libssh-agent-pkcs11-provider.c
  						identities[id_idx].ssh_identity = curr_ssh_id;
  
  						identities[id_idx].attributes = libssh_agent_pkcs11_get_attributes(curr_id_type, curr_ssh_id, curr_ssh_id_idx, &identities[id_idx].attributes_count);
- 
- 						if (identities[id_idx].attributes == NULL) {
-@@ -2943,11 +3310,10 @@
- 				retval = CKR_OK;
- 			}
+@@ -2945,7 +3389,6 @@
  
  			break;
  		case CKM_SHA1_RSA_PKCS:
@@ -1632,11 +1571,7 @@ Index: libssh-agent-pkcs11-provider.c
  			libssh_agent_pkcs11_mutex_unlock(libssh_agent_pkcs11_biglock);
  
  			LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Returning CKR_FUNCTION_NOT_SUPPORTED (%i)", CKR_FUNCTION_NOT_SUPPORTED);
- 
- 			return(CKR_FUNCTION_NOT_SUPPORTED);
-@@ -3260,11 +3626,11 @@
- 	return(CKR_FUNCTION_NOT_PARALLEL);
- 
+@@ -3262,7 +3705,7 @@
  	hSession = hSession; /* Supress unused variable warning */
  }
  
@@ -1645,6 +1580,3 @@ Index: libssh-agent-pkcs11-provider.c
  	CK_FUNCTION_LIST_PTR pFunctionList;
  
  	LIBSSH_AGENT_CLIENT_DEBUG_PRINTF("Called.");
- 
- 	if (ppFunctionList == NULL) {
-

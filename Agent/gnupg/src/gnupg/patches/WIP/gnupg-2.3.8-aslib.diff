@@ -1,0 +1,61 @@
+diff -uNr gnupg-2.3.8.orig/g10/Makefile.am gnupg-2.3.8/g10/Makefile.am
+--- gnupg-2.3.8.orig/g10/Makefile.am	2022-09-05 01:23:23.000000000 -0700
++++ gnupg-2.3.8/g10/Makefile.am	2022-11-23 09:27:31.164445823 -0800
+@@ -161,11 +161,11 @@
+               key-clean.c key-clean.h \
+ 	      key-check.c key-check.h
+ 
+-gpg_SOURCES  = gpg.c \
++gpg_SOURCES  = gpg_wrapper.c gpg.c \
+ 	keyedit.c keyedit.h	\
+ 	$(gpg_sources)
+ 
+-gpgv_SOURCES = gpgv.c           \
++gpgv_SOURCES = gpgv_wrapper.c gpgv.c   \
+ 	      $(common_source)  \
+ 	      verify.c
+ 
+diff -uNr gnupg-2.3.8.orig/g10/gpg.c gnupg-2.3.8/g10/gpg.c
+--- gnupg-2.3.8.orig/g10/gpg.c	2022-09-05 01:23:23.000000000 -0700
++++ gnupg-2.3.8/g10/gpg.c	2022-11-23 09:25:15.146147164 -0800
+@@ -2350,7 +2350,7 @@
+ 
+ 
+ int
+-main (int argc, char **argv)
++lib_gnupg_gpg_main (int argc, char **argv)
+ {
+     gpgrt_argparse_t pargs;
+     IOBUF a;
+diff -uNr gnupg-2.3.8.orig/g10/gpg_wrapper.c gnupg-2.3.8/g10/gpg_wrapper.c
+--- gnupg-2.3.8.orig/g10/gpg_wrapper.c	1969-12-31 16:00:00.000000000 -0800
++++ gnupg-2.3.8/g10/gpg_wrapper.c	2022-11-23 09:26:48.550039014 -0800
+@@ -0,0 +1,5 @@
++#include "./gpg.c"
++
++int main(int argc, char **argv) {
++	return(lib_gnupg_gpg_main(argc, argv));
++}
+diff -uNr gnupg-2.3.8.orig/g10/gpgv.c gnupg-2.3.8/g10/gpgv.c
+--- gnupg-2.3.8.orig/g10/gpgv.c	2022-09-05 01:23:23.000000000 -0700
++++ gnupg-2.3.8/g10/gpgv.c	2022-11-23 09:26:29.779544705 -0800
+@@ -168,9 +168,8 @@
+ }
+ 
+ 
+-
+ int
+-main( int argc, char **argv )
++lib_gnupg_gpgv_main( int argc, char **argv )
+ {
+   gpgrt_argparse_t pargs;
+   int rc=0;
+diff -uNr gnupg-2.3.8.orig/g10/gpgv_wrapper.c gnupg-2.3.8/g10/gpgv_wrapper.c
+--- gnupg-2.3.8.orig/g10/gpgv_wrapper.c	1969-12-31 16:00:00.000000000 -0800
++++ gnupg-2.3.8/g10/gpgv_wrapper.c	2022-11-23 09:26:33.991956775 -0800
+@@ -0,0 +1,5 @@
++#include "./gpgv.c"
++
++int main(int argc, char **argv) {
++	return(lib_gnupg_gpgv_main(argc, argv));
++}
