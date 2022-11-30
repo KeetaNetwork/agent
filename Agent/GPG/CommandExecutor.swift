@@ -38,11 +38,11 @@ final class CommandExecutor {
                 
                 task.standardOutput = pipe
                 task.standardError = pipe
-                task.arguments = command.commands
+                task.arguments = command.arguments
                 task.executableURL = executableURL
                 
                 var env = ProcessInfo.processInfo.environment
-                env["SSH_AUTH_SOCK"] = socketPath
+                command.environment.forEach { env[$0] = $1 }
                 task.environment = env
                 
                 print("** Run command \(command)")

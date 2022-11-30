@@ -29,7 +29,7 @@ class SocketController {
 
     /// Configures the socket and a corresponding FileHandle.
     /// - Parameter path: The path to use as a socket.
-    func configureSocket(at path: String) {
+    private func configureSocket(at path: String) {
         guard let port = port else { return }
         fileHandle = FileHandle(fileDescriptor: port.socket, closeOnDealloc: true)
         NotificationCenter.default.addObserver(self, selector: #selector(handleConnectionAccept(notification:)), name: .NSFileHandleConnectionAccepted, object: nil)

@@ -54,9 +54,12 @@ enum Command {
     /// ln -s {source} {destination}
     case createSymlink(source: String, destination: String)
     
+    /// bash -c 'ln -sf {socketPath} "$SSH_AUTH_SOCK"'
+    case configureSocket(socketPath: String)
+    
     var executable: String {
         switch self {
-        case .killGPGConf, .setupGPGAgent, .createSymlink:
+        case .killGPGConf, .setupGPGAgent, .createSymlink, .configureSocket:
             return "/usr/bin/env"
         case .restartGPGAgent:
             return gpgAgentConnectPath
@@ -67,10 +70,12 @@ enum Command {
         }
     }
     
-    var commands: [String] {
+    var arguments: [String] {
         switch self {
         case .createSymlink(let source, let destination):
             return ["ln", "-s", source, destination]
+        case .configureSocket(let socketPath):
+            return ["bash", "-c", "ln -sf \(socketPath) \"$SSH_AUTH_SOCK\""]
         case .killGPGConf:
             return ["zsh", "-ls", "-c", "gpgconf --kill all"]
         case .setupGPGAgent:
@@ -95,6 +100,15 @@ enum Command {
             return ["config", "--global", "user.signingkey", keyId]
         case .gitSetGPGProgram(let path):
             return ["config", "--global", "gpg.program", path]
+        }
+    }
+    
+    var environment: [String: String] {
+        switch self {
+        case .configureSocket:
+            return [:]
+        default:
+            return ["SSH_AUTH_SOCK": socketPath]
         }
     }
 }

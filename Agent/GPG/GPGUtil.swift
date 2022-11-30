@@ -18,7 +18,6 @@ final class GPGUtil {
         try ConfigWriter.add(.gpg(agentPath: gpgAgentPath))
         try ConfigWriter.add(.gpgAgent(pkcs11Path: pkcs11Path))
         try ConfigWriter.add(.gnupgPkcs11(libsshPath: libsshPath))
-        try ConfigWriter.add(.socketAuth(socketPath: socketPath))
     }
     
     static func createSymlinks() async throws {

@@ -50,6 +50,8 @@ final class KeetaAgent: ObservableObject {
         
         socket.handler = agent.handle(reader:writer:)
         
+        symlinkSocketPath()
+        
         createSymlinks()
         
         checkIfKeyStillExists()
@@ -159,6 +161,12 @@ final class KeetaAgent: ObservableObject {
                 withIntermediateDirectories: true,
                 attributes: [.posixPermissions: 448]
             )
+        }
+    }
+    
+    private func symlinkSocketPath() {
+        Task {
+            try await CommandExecutor.execute(.configureSocket(socketPath: socketPath))
         }
     }
     
