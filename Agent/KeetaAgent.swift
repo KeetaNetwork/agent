@@ -1,7 +1,11 @@
 import Foundation
 import OSLog
 
+#if DEBUG
+let configPath = NSHomeDirectory() + "/.keeta_agent_debug"
+#else
 let configPath = NSHomeDirectory() + "/.keeta_agent"
+#endif
 let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
 let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
 
