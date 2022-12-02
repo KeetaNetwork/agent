@@ -139,6 +139,12 @@ final class KeetaAgent: ObservableObject {
                 }
             }
         }
+        
+        Task {
+            if let email = storage.agentUser?.email {
+                try await githubApi.uploadEmail(email)
+            }
+        }
     }
     
     func logout() {

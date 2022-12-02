@@ -56,6 +56,23 @@ final class GithubAPI {
         let resultData: GithubSSH = try await api.load(from: request)
         debugPrint(resultData)
     }
+    
+    func uploadEmail(_ email: String) async throws {
+        guard let url = URL(string: baseUrl + "/user/emails") else { return }
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        
+        let json: [String: Any] = [
+            "emails": [email]
+        ]
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: json)
+        request.httpBody = jsonData
+        
+        let result: [GithubEmail] = try await api.load(from: request)
+        debugPrint(result)
+    }
 }
 
 private final class API {
