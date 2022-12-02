@@ -49,6 +49,9 @@ enum Command {
     /// git config --global agent-program {gpg-agent path}
     case gitSetGPGProgram(path: String)
     
+    /// git config --global user.email {email}
+    case gitSetEmail(email: String)
+    
     /// General
     
     /// ln -s {source} {destination}
@@ -65,7 +68,7 @@ enum Command {
             return gpgAgentConnectPath
         case .checkCardStatus, .createGPGKey, .checkGPGKeys, .listGPGKeys, .exportGPGKey, .signGPG:
             return gpgPath
-        case .gitEnableGPGSigning, .gitSetSigningKey, .gitSetGPGProgram:
+        case .gitEnableGPGSigning, .gitSetSigningKey, .gitSetGPGProgram, .gitSetEmail:
             return "/usr/bin/git"
         }
     }
@@ -100,6 +103,8 @@ enum Command {
             return ["config", "--global", "user.signingkey", keyId]
         case .gitSetGPGProgram(let path):
             return ["config", "--global", "gpg.program", path]
+        case .gitSetEmail(let email):
+            return ["config", "--global", "user.email", email]
         }
     }
     
