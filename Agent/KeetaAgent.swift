@@ -1,7 +1,11 @@
 import Foundation
 import OSLog
 
+#if DEBUG
+let configPath = NSHomeDirectory() + "/.keeta_agent_debug"
+#else
 let configPath = NSHomeDirectory() + "/.keeta_agent"
+#endif
 let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
 let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
 
@@ -133,6 +137,12 @@ final class KeetaAgent: ObservableObject {
                 DispatchQueue.main.async {
                     self.sshKey = self.storage.sshKey
                 }
+            }
+        }
+        
+        Task {
+            if let email = storage.agentUser?.email {
+                try await githubApi.uploadEmail(email)
             }
         }
     }

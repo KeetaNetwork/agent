@@ -10,7 +10,7 @@ final class GithubAPI {
         self.token = token
     }
     
-    static let githubButtonUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:public_key,write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback"
+    static let githubButtonUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=user,write:public_key,write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback"
     )!
     
     func pullUser() async -> GithubUser? {
@@ -55,6 +55,23 @@ final class GithubAPI {
         
         let resultData: GithubSSH = try await api.load(from: request)
         debugPrint(resultData)
+    }
+    
+    func uploadEmail(_ email: String) async throws {
+        guard let url = URL(string: baseUrl + "/user/emails") else { return }
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        
+        let json: [String: Any] = [
+            "emails": [email]
+        ]
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: json)
+        request.httpBody = jsonData
+        
+        let result: [GithubEmail] = try await api.load(from: request)
+        debugPrint(result)
     }
 }
 

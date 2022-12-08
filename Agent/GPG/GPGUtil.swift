@@ -50,7 +50,7 @@ final class GPGUtil {
             keyId = try await CommandExecutor.execute(.listGPGKeys).grap { Grabber.shortKeyId(from: $0, for: email, keyCurve: keyCurve) }
         }
         
-        try await conifgureGit(with: keyId)
+        try await conifgureGit(with: keyId, email: email)
         
         let publicKey = try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
         
@@ -97,9 +97,10 @@ final class GPGUtil {
         return inputFilePath
     }
     
-    private static func conifgureGit(with keyId: String) async throws {
+    private static func conifgureGit(with keyId: String, email: String) async throws {
         try await CommandExecutor.execute(.gitEnableGPGSigning)
         try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
         try await CommandExecutor.execute(.gitSetSigningKey(keyId: keyId))
+        try await CommandExecutor.execute(.gitSetEmail(email: email))
     }
 }
