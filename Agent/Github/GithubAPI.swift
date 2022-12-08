@@ -10,7 +10,7 @@ final class GithubAPI {
         self.token = token
     }
     
-    static let githubButtonUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=write:public_key,write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback"
+    static let githubButtonUrl = URL(string: "https://agent.keeta.com/api/github/oauth/login?scopes=user,write:public_key,write:gpg_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback"
     )!
     
     func pullUser() async -> GithubUser? {
