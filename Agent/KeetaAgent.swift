@@ -209,9 +209,11 @@ final class KeetaAgent: ObservableObject {
     }
     
     private func createUser(with name: String, email: String) throws {
-        guard storage.agentUser == nil else { return }
+        let newUser = AgentUser(fullName: name, email: email)
         
-        storage.agentUser = .init(fullName: name, email: email)
+        if storage.agentUser != newUser {
+            storage.agentUser = newUser
+        }
         
         /// Create ECDSA key pair
         try secureEnlave.createKeyPairIfNeeded(with: name)
