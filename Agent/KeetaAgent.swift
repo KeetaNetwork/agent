@@ -28,24 +28,13 @@ final class KeetaAgent: ObservableObject {
         self.storage = storage
     }
     
-    func setup() {
+    func setup() async throws {
         print(gpgPath)
         
-        createDirectories()
+        try createDirectories()
         
         gpgKey = storage.gpgKey
-        // temporary migration
-        if gpgKey == nil {
-            reset()
-        } else {
-            writeConfigs()
-            
-            storage.agentUser = .init(fullName: gpgKey!.fullName, email: gpgKey!.email)
-            
-            Task {
-                try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
-            }
-        }
+        await checkIfGPGKeyExists()
         
         sshKey = storage.sshKey
         githubUser = storage.githubUser
@@ -54,11 +43,9 @@ final class KeetaAgent: ObservableObject {
         
         socket.handler = agent.handle(reader:writer:)
         
-        symlinkSocketPath()
+        try await symlinkSocketPath()
         
-        createSymlinks()
-        
-        checkIfKeyStillExists()
+        try await createSymlinks()
         
         addAsLaunchItem()
     }
@@ -72,9 +59,9 @@ final class KeetaAgent: ObservableObject {
             return "Please enter a valid email."
         }
         
-        writeConfigs()
-        
         do {
+            try writeConfigs()
+            
             try createUser(with: name, email: email)
             
             guard let secret = secureEnlave.secrets.first(where: { $0.name == name }) else {
@@ -158,15 +145,15 @@ final class KeetaAgent: ObservableObject {
     
     // MARK: Helper
     
-    private func createDirectories() {
+    private func createDirectories() throws {
         let fileManager = FileManager.default
         
         if !fileManager.fileExists(atPath: homeDirectory) {
-            try! fileManager.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
+            try fileManager.createDirectory(at: .init(fileURLWithPath: homeDirectory), withIntermediateDirectories: true)
         }
         
         if !fileManager.fileExists(atPath: configPath) {
-            try! fileManager.createDirectory(
+            try fileManager.createDirectory(
                 at: .init(fileURLWithPath: configPath),
                 withIntermediateDirectories: true,
                 attributes: [.posixPermissions: 448]
@@ -174,27 +161,30 @@ final class KeetaAgent: ObservableObject {
         }
     }
     
-    private func symlinkSocketPath() {
-        Task {
+    private func symlinkSocketPath() async throws {
+        do {
             try await CommandExecutor.execute(.configureSocket(socketPath: socketPath))
+        } catch let error {
+            logger.log("Couldn't create symlink socket path. Error: \(error.localizedDescription)")
+            throw error
         }
     }
     
-    private func createSymlinks() {
-        Task {
-            do {
-                try await GPGUtil.createSymlinks()
-            } catch let error {
-                logger.log("Couldn't create symlinks. Error: \(error.localizedDescription)")
-            }
+    private func createSymlinks() async throws {
+        do {
+            try await GPGUtil.createSymlinks()
+        } catch let error {
+            logger.log("Couldn't create symlinks. Error: \(error.localizedDescription)")
+            throw error
         }
     }
     
-    private func writeConfigs() {
+    private func writeConfigs() throws {
         do {
             try GPGUtil.writeConfigs()
         } catch let error {
             logger.log("Couldn't write GPG configs. Error: \(error.localizedDescription)")
+            throw error
         }
     }
     
@@ -209,9 +199,11 @@ final class KeetaAgent: ObservableObject {
     }
     
     private func createUser(with name: String, email: String) throws {
-        guard storage.agentUser == nil else { return }
+        let newUser = AgentUser(fullName: name, email: email)
         
-        storage.agentUser = .init(fullName: name, email: email)
+        if storage.agentUser != newUser {
+            storage.agentUser = newUser
+        }
         
         /// Create ECDSA key pair
         try secureEnlave.createKeyPairIfNeeded(with: name)
@@ -224,24 +216,19 @@ final class KeetaAgent: ObservableObject {
         return emailPred.evaluate(with: email)
     }
     
-    private func checkIfKeyStillExists() {
+    private func checkIfGPGKeyExists() async {
         guard let keyId = gpgKey?.id else { return }
         
-        Task {
-            if await GPGUtil.keyExists(for: keyId) == false {
-                DispatchQueue.main.async {
-                    self.reset()
-                }
+        if await GPGUtil.keyExists(for: keyId) == false {
+            storage.gpgKey = nil
+            storage.githubUser = nil
+            
+            // @Published values consumed by the UI
+            DispatchQueue.main.async {
+                self.gpgKey = nil
+                self.githubUser = nil
             }
         }
-    }
-    
-    private func reset() {
-        storage.gpgKey = nil
-        gpgKey = nil
-        
-        githubUser = nil
-        storage.githubUser = nil
     }
     
     private func createSSHKeyIfNeeded(for secret: Secret) {

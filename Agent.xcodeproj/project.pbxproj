@@ -62,6 +62,7 @@
 		AEB42B1C2928330E00DE6CB6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB42B1B2928330E00DE6CB6 /* AppDelegate.swift */; };
 		AEB42B1E2928336500DE6CB6 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB42B1D2928336500DE6CB6 /* StatusBarController.swift */; };
 		AED53178293AA5AD00BFA899 /* GithubEmail.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED53177293AA5AD00BFA899 /* GithubEmail.swift */; };
+		AEDA2DA02A8ED82700562674 /* SerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDA2D9F2A8ED82700562674 /* SerialNumber.swift */; };
 		AEEB99BA291B188E009557BC /* Grabber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEB99B9291B188E009557BC /* Grabber.swift */; };
 		AEF00417291A1AE600EA576C /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF00416291A1AE600EA576C /* Dependencies.swift */; };
 		AEFA7467291C78DF00066571 /* gnupg in Resources */ = {isa = PBXBuildFile; fileRef = AEFA7466291C78DF00066571 /* gnupg */; };
@@ -136,6 +137,7 @@
 		AEB42B1B2928330E00DE6CB6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AEB42B1D2928336500DE6CB6 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		AED53177293AA5AD00BFA899 /* GithubEmail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GithubEmail.swift; sourceTree = "<group>"; };
+		AEDA2D9F2A8ED82700562674 /* SerialNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerialNumber.swift; sourceTree = "<group>"; };
 		AEEB99B9291B188E009557BC /* Grabber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grabber.swift; sourceTree = "<group>"; };
 		AEF00416291A1AE600EA576C /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		AEFA7466291C78DF00066571 /* gnupg */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gnupg; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 				02780046291A539000B8BA11 /* Link.swift */,
 				02D9C589291E139600586CEB /* AgentSpacing.swift */,
 				AEB42B1D2928336500DE6CB6 /* StatusBarController.swift */,
+				AEDA2D9F2A8ED82700562674 /* SerialNumber.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -495,6 +498,7 @@
 				AE9F8C9B2926AFFD00918314 /* Configs.swift in Sources */,
 				02577371291B565E003E0889 /* Storage.swift in Sources */,
 				02780054291A68F500B8BA11 /* GPGKeyHeader.swift in Sources */,
+				AEDA2DA02A8ED82700562674 /* SerialNumber.swift in Sources */,
 				02780054291A68F500B8BA11 /* GPGKeyHeader.swift in Sources */,
 				02780047291A539000B8BA11 /* Link.swift in Sources */,
 				AE75C4F02922CDC80087A584 /* SigningRequestTracer.swift in Sources */,

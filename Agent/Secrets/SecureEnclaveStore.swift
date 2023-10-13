@@ -21,7 +21,7 @@ class SecureEnclaveStore: SecretStore {
         }
     }
     
-    func create(name: String) throws {
+    private func create(name: String) throws {
         var accessError: SecurityError?
         let flags: SecAccessControlCreateFlags = [.privateKeyUsage, .userPresence]
         let access =
