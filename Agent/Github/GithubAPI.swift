@@ -4,7 +4,7 @@ final class GithubAPI {
         
     private let token: String
     private let api = API()
-    private let keyTitle = "Keeta Agent " + (serialNumber() ?? "")
+    private let keyTitle = "Keeta Agent " + (serialNumber() ?? "Unknown Device")
     private let baseUrl = "https://api.github.com"
     init(token: String) {
         self.token = token
