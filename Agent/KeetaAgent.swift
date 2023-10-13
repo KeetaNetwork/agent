@@ -34,18 +34,6 @@ final class KeetaAgent: ObservableObject {
         createDirectories()
         
         gpgKey = storage.gpgKey
-        // temporary migration
-        if gpgKey == nil {
-            reset()
-        } else {
-            writeConfigs()
-            
-            storage.agentUser = .init(fullName: gpgKey!.fullName, email: gpgKey!.email)
-            
-            Task {
-                try await CommandExecutor.execute(.gitSetGPGProgram(path: gpgPath))
-            }
-        }
         
         sshKey = storage.sshKey
         githubUser = storage.githubUser
