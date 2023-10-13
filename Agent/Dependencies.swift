@@ -8,6 +8,8 @@ class Dependencies {
     private(set) lazy var storage = Storage()
     
     func setup() {
-        keetaAgent.setup()
+        Task {
+            try await keetaAgent.setup()
+        }
     }
 }
