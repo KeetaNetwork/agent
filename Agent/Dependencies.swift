@@ -8,7 +8,7 @@ class Dependencies {
     private(set) lazy var storage = Storage(prefix: serialNumber())
     // TODO: remove with next major version bump
     private lazy var legacyStorage = Storage()
-    
+
     func setup() {
         Task {
             migrate(from: legacyStorage, to: storage)
