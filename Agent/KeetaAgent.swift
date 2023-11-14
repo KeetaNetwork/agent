@@ -41,11 +41,11 @@ final class KeetaAgent: ObservableObject {
         
         secureEnlave.setup()
         
-        socket.handler = agent.handle(reader:writer:)
-        
         try await symlinkSocketPath()
         
         try await createSymlinks()
+        
+        socket.handler = agent.handle(reader:writer:)
         
         addAsLaunchItem()
     }
