@@ -10,24 +10,24 @@ class Dependencies {
     private(set) lazy var legacyStorage = Storage()
 
     func setup() {
-        migrate(from: legacyStorage, to: storage)
-        
         Task {
+            migrate(from: legacyStorage, to: storage)
+            
             try await keetaAgent.setup()
         }
     }
     
     func migrate(from legacyStorage: Storage, to newStorage: Storage) {
-        if let agentUser = legacyStorage.agentUser {
+        if let agentUser = legacyStorage.agentUser, newStorage.agentUser == nil {
             newStorage.agentUser = agentUser
         }
-        if let gpgKey = legacyStorage.gpgKey {
+        if let gpgKey = legacyStorage.gpgKey, newStorage.gpgKey == nil {
             newStorage.gpgKey = gpgKey
         }
-        if let sshKey = legacyStorage.sshKey {
+        if let sshKey = legacyStorage.sshKey, newStorage.sshKey == nil {
             newStorage.sshKey = sshKey
         }
-        if let githubUser = legacyStorage.githubUser {
+        if let githubUser = legacyStorage.githubUser, newStorage.githubUser == nil {
             newStorage.githubUser = githubUser
         }
     }
