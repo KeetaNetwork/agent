@@ -37,7 +37,7 @@ final class GPGUtil {
         
         try writeConfigs()
         
-        return .init(id: keyInformation.keyId, value: publicKey, fullName: keyInformation.name, email: keyInformation.email, isUploaded: false)
+        return .init(id: keyInformation.keyId, value: publicKey, fullName: keyInformation.name, email: keyInformation.email, isUploaded: true)
     }
     
     static func createGpgKey(fullName: String, email: String) async throws -> GPGKey {

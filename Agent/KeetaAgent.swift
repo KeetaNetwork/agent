@@ -225,7 +225,8 @@ final class KeetaAgent: ObservableObject {
         if gpgKey == nil,
            let restoredKey = try? await GPGUtil.restoreLocalGpgKey(in: agentDirectory) {
             storage.gpgKey = restoredKey
-            storage.githubUser = nil
+            // TODO: consider GPG key as uploaded until API supports key already exists scenario
+//            storage.githubUser = nil
             try! createUser(with: restoredKey.fullName, email: restoredKey.email, createKeyPair: false)
             await MainActor.run { gpgKey = restoredKey }
             return
