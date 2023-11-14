@@ -29,23 +29,23 @@ final class KeetaAgent: ObservableObject {
     }
     
     func setup() async throws {
-        print(gpgPath)
-        
         try createDirectories()
         
-        gpgKey = storage.gpgKey
+        await MainActor.run { gpgKey = storage.gpgKey }
         await checkIfGPGKeyExists()
         
-        sshKey = storage.sshKey
-        githubUser = storage.githubUser
+        await MainActor.run { sshKey = storage.sshKey }
+        // TODO: check if the ssh key exists locally
+        
+        await MainActor.run { githubUser = storage.githubUser }
         
         secureEnlave.setup()
-        
-        socket.handler = agent.handle(reader:writer:)
         
         try await symlinkSocketPath()
         
         try await createSymlinks()
+        
+        socket.handler = agent.handle(reader:writer:)
         
         addAsLaunchItem()
     }
@@ -60,7 +60,7 @@ final class KeetaAgent: ObservableObject {
         }
         
         do {
-            try writeConfigs()
+            try writeGPGConfigs()
             
             try createUser(with: name, email: email)
             
@@ -179,7 +179,7 @@ final class KeetaAgent: ObservableObject {
         }
     }
     
-    private func writeConfigs() throws {
+    private func writeGPGConfigs() throws {
         do {
             try GPGUtil.writeConfigs()
         } catch let error {

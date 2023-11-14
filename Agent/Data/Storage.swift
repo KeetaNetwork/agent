@@ -6,6 +6,11 @@ final class Storage {
     
     private let secureStorage = SecureStorage(keychain: KeychainSwift())
     private let kvStorage = UserDefaults(suiteName: "KeetaAgent")!
+    private let prefix: String?
+    
+    init(prefix: String? = nil) {
+        self.prefix = prefix
+    }
     
     enum Key: String {
         case agentUser
@@ -37,10 +42,18 @@ final class Storage {
     // MARK: Helper
     
     private func object<T: Decodable>(for key: Key) -> T? {
-        try? secureStorage.object(for: key.rawValue)
+        try? secureStorage.object(for: wrap(key))
     }
     
     private func store<T: Encodable>(_ object: T, for key: Key) {
-        try? secureStorage.store(object, for: key.rawValue)
+        try? secureStorage.store(object, for: wrap(key))
+    }
+    
+    private func wrap(_ key: Key) -> String {
+        if let prefix {
+            return "\(prefix)_\(key.rawValue)"
+        } else {
+            return key.rawValue
+        }
     }
 }
