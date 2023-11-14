@@ -155,7 +155,7 @@ class SecureEnclaveStore: SecretStore {
             let id = next[kSecAttrApplicationLabel] as! Data
             partialResult[id] = next
         }
-        
+
         let wrapped: [Secret] = publicTyped.map {
             let name = $0[kSecAttrLabel] as? String ?? "Unnamed"
             let id = $0[kSecAttrApplicationLabel] as! Data

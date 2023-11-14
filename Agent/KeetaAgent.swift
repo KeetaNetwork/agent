@@ -71,7 +71,7 @@ final class KeetaAgent: ObservableObject {
             }
             
             if let existingGPGKey = gpgKey, existingGPGKey.email == email {
-                createSSHKeyIfNeeded(for: secret)
+                loadSSHKeyIfNeeded(for: secret)
                 
                 logger.log("GPG creatiom skipped, key with email '\(email)' already exists.")
                 return nil
@@ -83,7 +83,7 @@ final class KeetaAgent: ObservableObject {
             DispatchQueue.main.async { self.gpgKey = gpgKey }
             
             /// Create SSH key
-            createSSHKeyIfNeeded(for: secret)
+            loadSSHKeyIfNeeded(for: secret)
             
             return nil
         } catch let error {
@@ -248,7 +248,7 @@ final class KeetaAgent: ObservableObject {
         }
     }
     
-    private func createSSHKeyIfNeeded(for secret: Secret) {
+    private func loadSSHKeyIfNeeded(for secret: Secret) {
         if sshKey == nil {
             let sshKeyValue = OpenSSHKeyWriter().openSSHString(secret: secret)
             let sshKey = SSHKey(value: sshKeyValue, isUploaded: false)

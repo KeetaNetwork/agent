@@ -1,4 +1,5 @@
 {
+  "originHash" : "1a59579412f3e0ebc438664bd21419286d96e49991440a17ee5dac1066d4f9f2",
   "pins" : [
     {
       "identity" : "keeta-storage",
@@ -19,5 +20,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
