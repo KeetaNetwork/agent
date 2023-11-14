@@ -231,16 +231,19 @@ final class KeetaAgent: ObservableObject {
             return
         }
         
-        if let keyId = gpgKey?.id,
-           (try? await GPGUtil.keyExists(for: keyId)) != true {
-            storage.gpgKey = nil
-            storage.githubUser = nil
-            
-            // @Published values consumed by the UI
-            DispatchQueue.main.async {
-                self.gpgKey = nil
-                self.githubUser = nil
-            }
+        if let keyId = gpgKey?.id {
+            do {
+                if try await GPGUtil.keyExists(for: keyId) == false {
+                    storage.gpgKey = nil
+                    storage.githubUser = nil
+                    
+                    // @Published values consumed by the UI
+                    DispatchQueue.main.async {
+                        self.gpgKey = nil
+                        self.githubUser = nil
+                    }
+                }
+            } catch {}
         }
     }
     
