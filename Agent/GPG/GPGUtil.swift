@@ -50,9 +50,9 @@ final class GPGUtil {
             keyId = try await CommandExecutor.execute(.listGPGKeys).grap { Grabber.shortKeyId(from: $0, for: email, keyCurve: keyCurve) }
         }
         
-        try await conifgureGit(with: keyId, email: email)
-        
         let publicKey = try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
+        
+        try await conifgureGit(with: keyId, email: email)
         
         return .init(id: keyId, value: publicKey, fullName: fullName, email: email, isUploaded: false)
     }
