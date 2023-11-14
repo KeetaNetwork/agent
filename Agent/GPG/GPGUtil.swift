@@ -26,6 +26,20 @@ final class GPGUtil {
         try await CommandExecutor.execute(.createSymlink(source: gnupgFilePath, destination: gpnupSymlinkPath))
     }
     
+    static func restoreLocalGpgKey(in keyBoxDirectory: String) async throws -> GPGKey? {
+        let existingKeys = try await CommandExecutor.execute(.listGPGKeys).value
+        
+        guard let keyInformation = Grabber.keyInformation(from: existingKeys, in: keyBoxDirectory, keyCurve: keyCurve) else { return nil }
+        
+        let publicKey = try await CommandExecutor.execute(.exportGPGKey(keyId: keyInformation.keyId)).grap(Grabber.gpgKey)
+        
+        try await conifgureGit(with: keyInformation.keyId, email: keyInformation.email)
+        
+        try writeConfigs()
+        
+        return .init(id: keyInformation.keyId, value: publicKey, fullName: keyInformation.name, email: keyInformation.email, isUploaded: false)
+    }
+    
     static func createGpgKey(fullName: String, email: String) async throws -> GPGKey {
         try await CommandExecutor.execute(.killGPGConf)
         
