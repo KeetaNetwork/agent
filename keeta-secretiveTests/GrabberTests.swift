@@ -83,12 +83,45 @@ gpg: 654 signatures not checked due to missing keys
         XCTAssertFalse(Grabber.hasBadSignatures(from: validSignaturesInput))
     }
     
-    // List keys output
-    /*
-     /Users/dscheutz/.keeta_agent/pubring.kbx
-     ----------------------------------------
-     pub   nistp256 2022-11-11 [SC]
-           1C7E7D7B8D8CD1217919A7CB9C913CF83D6996DF
-     uid           [ultimate] Keeta Test <test@keeta.com>
-     */
+    let singleKeysList =
+"""
+/Users/dscheutz/.keeta_agent/pubring.kbx
+----------------------------------------
+pub   nistp256/0F7095395BA8CD85 2022-11-14 [SCA]
+      E20728F57570B55FA49A7C640F7095395BA8CD85
+uid                 [ultimate] David Scheutz <dscheutz@keeta.com>
+
+
+/Users/dscheutz/.keeta_agent/pubring.kbx
+----------------------------------------
+pub   nistp256/0F7095395BA8CD85 2022-11-14 [SCA]
+      E20728F57570B55FA49A7C640F7095395BA8CD85
+uid                 [ultimate] David Scheutz <dscheutz@keeta.com>
+"""
+
+    let multipleKeysList =
+"""
+/Users/dscheutz/.keeta_agent/pubring.kbx
+----------------------------------------
+pub   nistp256/0F7095395BA8CD85 2022-11-14 [SCA]
+      E20728F57570B55FA49A7C640F7095395BA8CD85
+uid                 [ultimate] David Scheutz <dscheutz@keeta.com>
+
+/Users/dscheutz/.keeta_agent/pubring.kbx
+----------------------------------------
+pub   nistp256/9C913CF83D6996DF 2022-11-11 [SC]
+1C7E7D7B8D8CD1217919A7CB9C913CF83D6996DF
+uid           [ultimate] Keeta Test <test@keeta.com>
+"""
+
+    func test_grap_keyInformation() {
+        let keyBoxDirectory = "/.keeta_agent"
+        let keyCurve = "nistp256"
+        let expected = Grabber.KeyInformation(email: "dscheutz@keeta.com", name: "David Scheutz", keyId: "0F7095395BA8CD85")
+        
+        XCTAssertEqual(expected, Grabber.keyInformation(from: singleKeysList, in: keyBoxDirectory, keyCurve: keyCurve))
+        XCTAssertNil(Grabber.keyInformation(from: singleKeysList, in: keyBoxDirectory, keyCurve: "invalid_curve"))
+        XCTAssertNil(Grabber.keyInformation(from: singleKeysList, in: "invalid_directory", keyCurve: keyCurve))
+        XCTAssertNil(Grabber.keyInformation(from: multipleKeysList, in: keyBoxDirectory, keyCurve: keyCurve))
+    }
 }

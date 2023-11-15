@@ -2,9 +2,11 @@ import Foundation
 import OSLog
 
 #if DEBUG
-let configPath = NSHomeDirectory() + "/.keeta_agent_debug"
+let agentDirectory = "/.keeta_agent_debug"
+let configPath = NSHomeDirectory() + agentDirectory
 #else
-let configPath = NSHomeDirectory() + "/.keeta_agent"
+let agentDirectory = "/.keeta_agent"
+let configPath = NSHomeDirectory() + agentDirectory
 #endif
 let homeDirectory = NSHomeDirectory() + "/Library/KeetaAgent/Data"
 let socketPath = (homeDirectory as NSString).appendingPathComponent("socket.ssh")
@@ -198,15 +200,17 @@ final class KeetaAgent: ObservableObject {
         }
     }
     
-    private func createUser(with name: String, email: String) throws {
+    private func createUser(with name: String, email: String, createKeyPair: Bool = true) throws {
         let newUser = AgentUser(fullName: name, email: email)
         
         if storage.agentUser != newUser {
             storage.agentUser = newUser
         }
         
-        /// Create ECDSA key pair
-        try secureEnlave.createKeyPairIfNeeded(with: name)
+        if createKeyPair {
+            /// Create ECDSA key pair
+            try secureEnlave.createKeyPairIfNeeded(with: name)
+        }
     }
     
     private func isValidEmail(_ email: String) -> Bool {
@@ -217,17 +221,30 @@ final class KeetaAgent: ObservableObject {
     }
     
     private func checkIfGPGKeyExists() async {
-        guard let keyId = gpgKey?.id else { return }
+        // Attempt to restore GPG key
+        if gpgKey == nil,
+           let restoredKey = try? await GPGUtil.restoreLocalGpgKey(in: agentDirectory) {
+            storage.gpgKey = restoredKey
+            // TODO: consider GPG key as uploaded until API supports key already exists scenario
+//            storage.githubUser = nil
+            try! createUser(with: restoredKey.fullName, email: restoredKey.email, createKeyPair: false)
+            await MainActor.run { gpgKey = restoredKey }
+            return
+        }
         
-        if await GPGUtil.keyExists(for: keyId) == false {
-            storage.gpgKey = nil
-            storage.githubUser = nil
-            
-            // @Published values consumed by the UI
-            DispatchQueue.main.async {
-                self.gpgKey = nil
-                self.githubUser = nil
-            }
+        if let keyId = gpgKey?.id {
+            do {
+                if try await GPGUtil.keyExists(for: keyId) == false {
+                    storage.gpgKey = nil
+                    storage.githubUser = nil
+                    
+                    // @Published values consumed by the UI
+                    DispatchQueue.main.async {
+                        self.gpgKey = nil
+                        self.githubUser = nil
+                    }
+                }
+            } catch {}
         }
     }
     

@@ -6,6 +6,7 @@ final class GithubAPI {
     private let api = API()
     private let keyTitle = "Keeta Agent " + (serialNumber() ?? "Unknown Device")
     private let baseUrl = "https://api.github.com"
+    
     init(token: String) {
         self.token = token
     }
@@ -18,7 +19,7 @@ final class GithubAPI {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
-        return try? await api.load(from: request)
+        return try? await api.load(from: request).success()
     }
     
     func uploadGPG(key: String) async throws {
@@ -35,8 +36,7 @@ final class GithubAPI {
         let jsonData = try JSONSerialization.data(withJSONObject: json)
         request.httpBody = jsonData
         
-        let resultData: GithubGPG = try await api.load(from: request)
-        debugPrint(resultData)
+        let _: GithubGPG = try await api.load(from: request).success()
     }
     
     func uploadSSH(key: String) async throws {
@@ -53,8 +53,7 @@ final class GithubAPI {
         let jsonData = try JSONSerialization.data(withJSONObject: json)
         request.httpBody = jsonData
         
-        let resultData: GithubSSH = try await api.load(from: request)
-        debugPrint(resultData)
+        let _: GithubSSH = try await api.load(from: request).success()
     }
     
     func uploadEmail(_ email: String) async throws {
@@ -70,8 +69,7 @@ final class GithubAPI {
         let jsonData = try JSONSerialization.data(withJSONObject: json)
         request.httpBody = jsonData
         
-        let result: [GithubEmail] = try await api.load(from: request)
-        debugPrint(result)
+        let _: [GithubEmail] = try await api.load(from: request).success()
     }
 }
 
@@ -79,10 +77,37 @@ private final class API {
     var session = URLSession.shared
     let decoder = JSONDecoder()
 
-    func load<T: Decodable>(from request: URLRequest) async throws -> T {
+    enum Result<T: Decodable> {
+        case success(T)
+        case error(GithubErrorResponse)
+        
+        func success() throws -> T {
+            switch self {
+            case .success(let success):
+                return success
+            case .error(let error):
+                throw NSError(domain: "Result contains an error: \(error)", code: 500)
+            }
+        }
+    }
+    
+    func load<T: Decodable>(from request: URLRequest) async throws -> Result<T> {
         let (data, response) = try await session.data(for: request)
         guard let statusCode = (response as? HTTPURLResponse)?.statusCode else { throw NSError(domain: "Invalid response", code: 500) }
-        guard (200...300).contains(statusCode) else { throw NSError(domain: "Invalid HTTP status code", code: statusCode) }
-        return try decoder.decode(T.self, from: data)
+        guard (200..<300).contains(statusCode) else {
+            return .error(try decoder.decode(GithubErrorResponse.self, from: data))
+        }
+        return .success(try decoder.decode(T.self, from: data))
     }
+}
+
+private struct GithubErrorResponse: Decodable {
+    let message: String
+    let errors: [GithubError]
+}
+
+private struct GithubError: Decodable {
+    let resource: String
+    let field: String
+    let code: String
 }
