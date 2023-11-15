@@ -9,4 +9,6 @@ Keeta Agent is a helper app that lives in your toolbar for automated key managem
 
 The Keeta Agent is specifically designed for Macs with Apple Silicon, featuring a built-in Secure Enclave that provides advanced security features such as Touch ID or authentication with Apple Watch. The Keeta Agent ensures that all requested actions are securely processed by automatically requiring Touch ID authentication before proceeding.
 
-<img src="/.github/readme/touchid.png" alt="Screenshot of Keeta Agent authenticating with Touch ID" width="250">
+<p align="center" width="250">
+    <img src="/.github/readme/touchid.png" alt="Screenshot of Keeta Agent authenticating with Touch ID">
+</p>
