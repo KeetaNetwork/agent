@@ -659,7 +659,7 @@
 				CODE_SIGN_ENTITLEMENTS = Agent/keeta_secretive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 2BG69HN56W;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -679,7 +679,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Agent/gnupg/lib",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keeta.agent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -695,7 +695,7 @@
 				CODE_SIGN_ENTITLEMENTS = Agent/keeta_secretive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 2BG69HN56W;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -715,7 +715,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Agent/gnupg/lib",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keeta.agent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
