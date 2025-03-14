@@ -139,22 +139,6 @@ class SecureEnclaveStore: SecretStore {
         var publicUntyped: CFTypeRef?
         SecItemCopyMatching(publicAttributes, &publicUntyped)
         guard let publicTyped = publicUntyped as? [[CFString: Any]] else { return }
-        let privateAttributes = [
-            kSecClass: kSecClassKey,
-            kSecAttrKeyType: keyType,
-            kSecAttrApplicationTag: keyTag,
-            kSecAttrKeyClass: kSecAttrKeyClassPrivate,
-            kSecReturnRef: true,
-            kSecMatchLimit: kSecMatchLimitAll,
-            kSecReturnAttributes: true
-            ] as CFDictionary
-        var privateUntyped: CFTypeRef?
-        SecItemCopyMatching(privateAttributes, &privateUntyped)
-        guard let privateTyped = privateUntyped as? [[CFString: Any]] else { return }
-        let privateMapped = privateTyped.reduce(into: [:] as [Data: [CFString: Any]]) { partialResult, next in
-            let id = next[kSecAttrApplicationLabel] as! Data
-            partialResult[id] = next
-        }
 
         let wrapped: [Secret] = publicTyped.map {
             let name = $0[kSecAttrLabel] as? String ?? "Unnamed"
