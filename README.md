@@ -1,5 +1,4 @@
 <p>
-  <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-macOS-lightgrey.svg" alt="Platform: macOS">
   <img src="https://img.shields.io/badge/GPG-Supported-blue.svg" alt="GPG Support">
   <img src="https://img.shields.io/badge/SSH-Supported-green.svg" alt="SSH Support">
@@ -11,9 +10,9 @@
     <img src="/.github/readme/preview.png" alt="Keeta Agent App Preview">
 </p>
 
-Keeta Agent is a macOS toolbar app for automated key management of **GPG** and **SSH** keys using the Secure Enclave. It uniquely links `git` commits signed on your physical device to your connected GitHub account, increasing developer security beyond existing tools.
+Keeta Agent is a macOS toolbar app for automated key management of **GPG** and **SSH** keys using the Secure Enclave. It uniquely links `git` commits signed on your physical device to your connected GitHub account, increasing developer security.
 
-It comes bundled with a GnuPG distribution and an SSH Agent that bridges to Apple's native support for NIST P-256 elliptic curve (ECC) keys. 
+It comes bundled with GnuPG distribution and an SSH Agent that bridges to Apple's native support for NIST P-256 elliptic curve (ECC) keys. 
 
 ## Why Keeta Agent?
 
@@ -40,7 +39,6 @@ Seamlessly connect Keeta Agent to your GitHub account via Single Sign-On (SSO). 
 Previously, secure key storage required a separate device, such as a YubiKey or smart card, adding complexity to the setup and introducing additional risks.
 
 Keeta Agent eliminates the hassle of managing external devices, each with its own lifecycle and risk of being lost/stolen, by securely handling keys within your Mac.
-
 
 ## Getting Started
 
@@ -72,8 +70,8 @@ As part of the automated management process, the Keeta Agent will use the SSH ke
 
 ## License
 
-Keeta Agent is licensed under the [GNU General Public License v3.0](LICENSE).
+Keeta Agent is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International Public License](LICENSE).
 
 ## Credit
 
-[Secretive](https://github.com/maxgoedjen/secretive) and [Sekey](https://github.com/sekey/sekey) inspired our work on Keeta Agent but were rewritten and expanded to support unique key types such as GPG.
+[Secretive](https://github.com/maxgoedjen/secretive) and [Sekey](https://github.com/sekey/sekey) inspired our work on Keeta Agent but were rewritten and expanded to support unique use case and GPG key type.
