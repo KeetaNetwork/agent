@@ -70,7 +70,7 @@ As part of the automated management process, the Keeta Agent will use the SSH ke
 
 ## License
 
-Keeta Agent is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International Public License](LICENSE).
+Keeta Agent is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International Public License](LICENSE.md).
 
 ## Credit
 
