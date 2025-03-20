@@ -1,36 +1,77 @@
-# Keeta Agent
-Keeta Agent is a helper app that lives in your toolbar for automated key management of SSH and GPG keys in the macOS Secure Enclave. Keeta Agent uniquely links `git` commits signed on your physical device to your connected GitHub account, increasing developer security beyond existing tools. The [secretive project](https://github.com/maxgoedjen/secretive) and [sekey project](https://github.com/sekey/sekey) inspired our work on Keeta Agent but were rewritten and expanded to support unique key types such as GPG.
-
-<p align="center" width="800">
-    <img src="/.github/readme/app.png" alt="Screenshot of Keeta Agent">
+<p>
+  <img src="https://img.shields.io/badge/Platform-macOS-lightgrey.svg" alt="Platform: macOS">
+  <img src="https://img.shields.io/badge/GPG-Supported-blue.svg" alt="GPG Support">
+  <img src="https://img.shields.io/badge/SSH-Supported-green.svg" alt="SSH Support">
 </p>
 
-## Keeta Agent Benefits
+# Keeta Agent
 
-### More Secure Storage
+<p align="center" width="800">
+    <img src="/.github/readme/preview.png" alt="Keeta Agent App Preview">
+</p>
 
-When it comes to setting up GPG or SSH keys, most people simply save them on their computer's hard drive while ensuring that they are protected by proper permissions. Although this method works in most cases, it is not completely secure as it's possible for malicious users or malware to copy your private key. However, if you store your keys in the Secure Enclave, it becomes nearly impossible to export them, thanks to the design of the Secure Enclave.
+Keeta Agent is a macOS toolbar app for automated key management of **GPG** and **SSH** keys using the Secure Enclave. It uniquely links `git` commits signed on your physical device to your connected GitHub account, increasing developer security.
+
+It comes bundled with GnuPG distribution and an SSH Agent that bridges to Apple's native support for NIST P-256 elliptic curve (ECC) keys. 
+
+## Why Keeta Agent?
+
+### Secure Key Storage
+
+Most people save GPG or SSH keys on their computer’s hard drive, protected by file permissions. While this is common, it's not completely secure - malicious users or malware could potentially copy these keys.
+
+Keeta Agent stores keys in the Secure Enclave, Apple's Hardware Security Module (HSM), ensuring they are physically bound to your hardware and it becomes nearly impossible to export them.
 
 ### Access Control
 
-The Keeta Agent is specifically designed for Macs with Apple Silicon, featuring a built-in Secure Enclave that provides advanced security features such as Touch ID or authentication with Apple Watch. The Keeta Agent ensures that all requested actions are securely processed by automatically requiring Touch ID authentication before proceeding.
+Specifically designed for Apple Silicon Macs, Keeta Agent leverages advanced security features like Touch ID and Apple Watch authentication. It ensures that all requested actions are securely processed, requiring Touch ID authentication before proceeding.
 
-<p align="center" width="250">
-    <img src="/.github/readme/touchid.png" alt="Screenshot of Keeta Agent authenticating with Touch ID">
-</p>
+### Automated Setup
+
+Setting up GPG to sign git commits is typically a tedious [18-steps process](https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e#file-2-using-gpg-md). Keeta Agent simplifies this by automatically configuring the user’s `git` to use the bundled GnuPG distribution, using the generated keys.
+
+### Github Integration
+
+Seamlessly connect Keeta Agent to your GitHub account via Single Sign-On (SSO). All generated keys are automatically uploaded and linked to your account.
+
+### No Additional Hardware
+
+Previously, secure key storage required a separate device, such as a YubiKey or smart card, adding complexity to the setup and introducing additional risks.
+
+Keeta Agent eliminates the hassle of managing external devices, each with its own lifecycle and risk of being lost/stolen, by securely handling keys within your Mac.
 
 ## Getting Started
 
 ### Installation
 
-#### Direct Download
+#### 1. Direct Download
 
-You can download the latest release on the [Releases Page](https://github.com/KeetaPay/agent/releases)
+Download the latest release from the [Releases Page](https://github.com/KeetaPay/agent/releases)
+
+#### 2. Setup
+
+Provide the name and email you'd like to associate with your keys and GitHub commits.
+
+<img src="/.github/readme/setup.png" alt="Keeta Agent Connect Github" width="400">
+
+#### 3. Connect Github
+
+<img src="/.github/readme/sync.png" alt="Keeta Agent Connect Github" width="400">
+
+Link your GitHub account, and you're ready to go! ✅
 
 ### Backups and Transfers to New Devices
 
-When you get a new Mac, you should create a new set of secrets specific to that Mac since secrets in the Secure Enclave are not exportable and cannot be backed up or transferred to a new machine.
+The Secure Enclave does not allow key export or transfer. If you switch to a new Mac, you'll need to generate new secrets specific to that machine.
 
 ### Control over SSH
 
-As part of the automated management process of Keeta Agent, it will automatically use the SSH key generated by your Secure Enclave instead of the default SSH handling within macOS, impacting existing SSH key usage.
+As part of the automated management process, the Keeta Agent will use the SSH key generated by the Secure Enclave instead of the default SSH handling within macOS, which may impact existing SSH configurations.
+
+## License
+
+Keeta Agent is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International Public License](LICENSE.md).
+
+## Credit
+
+[Secretive](https://github.com/maxgoedjen/secretive) and [Sekey](https://github.com/sekey/sekey) inspired our work on Keeta Agent but were rewritten and expanded to support unique use case and GPG key type.
