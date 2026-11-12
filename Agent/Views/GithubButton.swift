@@ -1,3 +1,4 @@
+import SignetKit
 import SwiftUI
 
 struct GithubButton: View {
@@ -10,7 +11,7 @@ struct GithubButton: View {
     var body: some View {
         Button(action: {
             if user == nil {
-                openURL(GithubAPI.githubButtonUrl)
+                openURL(GitHubKeys.signInURL)
             } else {
                 showLogoutConfirmation = true
             }

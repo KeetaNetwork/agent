@@ -1,0 +1,60 @@
+name: Signet
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Everything but the Secure Enclave, against the real OpenSSH and git tools.
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container: swift:6.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get update && apt-get install -y --no-install-recommends openssh-client git
+      - run: swift test --parallel
+
+  # The same tests on a Mac, and the Secure Enclave key compiled. SignetKit's tests are Swift
+  # Testing, so XCTest is skipped; a run that takes over five minutes is stuck, so the job prints
+  # where each thread of the test process is waiting, and fails.
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift build --build-tests
+      - name: swift test
+        run: |
+          swift test --skip-build --disable-xctest > test.log 2>&1 &
+          pid=$!
+          for _ in $(seq 300); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
+          if kill -0 "$pid" 2>/dev/null; then
+            cat test.log
+            ps -axo pid,ppid,stat,etime,command | grep -v ' ps -axo'
+            tests=$(pgrep -f SignetKitPackageTests | head -1)
+            descendants() { for c in $(pgrep -P "$1"); do echo "$c"; descendants "$c"; done; }
+            for c in $(descendants "$tests"); do
+              echo "::group::process $c"
+              ps -o pid,stat,command -p "$c" || true
+              lsof -p "$c" || true
+              sample "$c" 1 -mayDie -file /dev/stdout | sed -n '/^Call graph/,/^Total number/p' || true
+              echo "::endgroup::"
+            done
+            sample "$tests" 2 -mayDie -file /dev/stdout | sed -n '/^Call graph/,/^Total number/p' || true
+            exit 1
+          fi
+          cat test.log
+          wait "$pid"
+
+  # The Signet app builds on SignetKit (unsigned: signing needs the team's certificate).
+  app:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: xcodebuild -project Agent.xcodeproj -scheme Agent -configuration Release -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build

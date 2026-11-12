@@ -1,4 +1,5 @@
 import Foundation
+import SignetKit
 import SwiftUI
 
 struct ContentView: View {
@@ -11,6 +12,13 @@ struct ContentView: View {
             
             HeaderView(user: keetaAgent.githubUser, isReady: isReady, logout: keetaAgent.logout)
                 .padding(.bottom, AgentSpacing.large)
+            
+            if keetaAgent.socketState == .standingBy {
+                Text("Served by Workspace for Mac. Signet takes over if it quits.")
+                    .font(.callout)
+                    .foregroundColor(KeetaColor.gray40)
+                    .padding(.bottom, AgentSpacing.medium)
+            }
             
             if let gpgKey = keetaAgent.gpgKey, let sshKey = keetaAgent.sshKey {
                 KeyView(gpgKey: gpgKey, sshKey: sshKey)

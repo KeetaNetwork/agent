@@ -8,7 +8,7 @@ struct HeaderView: View {
     
     var body: some View {
         HStack {
-            Text("Secure Enclave")
+            Text("Signet")
                 .foregroundColor(KeetaColor.yellow)
                 .font(.largeTitle)
             

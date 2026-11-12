@@ -30,6 +30,10 @@ enum Command {
     /// - output:  existing GPG keys
     case listGPGKeys
     
+    /// ./gpg --with-colons --list-keys
+    /// - output: existing GPG keys, machine-readable
+    case listGPGKeysWithColons
+    
     /// ./gpg --export --armor  {keyId}
     /// - output: public GPG key
     case exportGPGKey(keyId: String)
@@ -66,7 +70,7 @@ enum Command {
             return "/usr/bin/env"
         case .restartGPGAgent:
             return gpgAgentConnectPath
-        case .checkCardStatus, .createGPGKey, .checkGPGKeys, .listGPGKeys, .exportGPGKey, .signGPG:
+        case .checkCardStatus, .createGPGKey, .checkGPGKeys, .listGPGKeys, .listGPGKeysWithColons, .exportGPGKey, .signGPG:
             return gpgPath
         case .gitEnableGPGSigning, .gitSetSigningKey, .gitSetGPGProgram, .gitSetEmail:
             return "/usr/bin/git"
@@ -93,6 +97,8 @@ enum Command {
             return ["--check-signatures"]
         case .listGPGKeys:
             return ["--list-keys", "--keyid-format=long"]
+        case .listGPGKeysWithColons:
+            return ["--with-colons", "--list-keys"]
         case .exportGPGKey(let keyId):
             return ["--export", "--armor", keyId]
         case .signGPG(let message, let keyId):
