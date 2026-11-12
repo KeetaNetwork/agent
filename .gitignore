@@ -4,3 +4,5 @@ Agent.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
 Agent.xcodeproj/project.xcworkspace/xcuserdata/
 Agent.xcodeproj/xcuserdata/
 .xcuserstate
+.build/
+.swiftpm/

@@ -1,0 +1,26 @@
+name: SignetKit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Everything but the Secure Enclave, against the real OpenSSH and git tools.
+  linux:
+    runs-on: ubuntu-24.04
+    container: swift:6.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get update && apt-get install -y --no-install-recommends openssh-client git
+      - run: swift test --parallel
+
+  # The same tests on a Mac, and the Secure Enclave key compiled.
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift test --parallel
