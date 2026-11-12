@@ -19,6 +19,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusBar = StatusBarController(popover, show: Dependencies.all.storage.gpgKey == nil)
     }
     
+    func applicationWillTerminate(_ notification: Notification) {
+        Dependencies.all.keetaAgent.stop()
+    }
+    
     func handle(url: URL) {
         Dependencies.all.keetaAgent.didReceive(url: url)
         

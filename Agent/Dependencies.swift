@@ -3,8 +3,9 @@ import Foundation
 class Dependencies {
     static let all = Dependencies()
     
-    private(set) lazy var keetaAgent = KeetaAgent(secureEnlave: secureEnlave, storage: storage)
-    private(set) lazy var secureEnlave = SecureEnclaveStore()
+    private(set) lazy var keetaAgent = KeetaAgent(secureEnclave: secureEnclave, storage: storage)
+    /// Keeta Agent's keychain group is this app's default one, so no group is named.
+    private(set) lazy var secureEnclave = SecureEnclaveKeyStore(accessGroup: nil)
     private(set) lazy var storage = Storage(prefix: serialNumber())
     // TODO: remove with next major version bump
     private lazy var legacyStorage = Storage()

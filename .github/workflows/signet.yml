@@ -1,4 +1,4 @@
-name: SignetKit
+name: Signet
 
 on:
   pull_request:
@@ -24,3 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: swift test --parallel
+
+  # The Signet app builds on SignetKit (unsigned: signing needs the team's certificate).
+  app:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: xcodebuild -project Agent.xcodeproj -scheme Agent -configuration Release -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build

@@ -10,10 +10,10 @@ struct GenerateView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: AgentSpacing.large) {
             VStack(alignment: .leading, spacing: AgentSpacing.small) {
-                Text("Agent Setup")
+                Text("Set up Signet")
                     .foregroundColor(KeetaColor.yellow)
                     .font(.title)
-                Text("Please enter the following information, which will be associated with your GPG key.")
+                Text("Your name and email go on the keys Signet makes in your Mac's Secure Enclave.")
                     .font(.title3)
                     .foregroundColor(KeetaColor.gray40)
                     .fixedSize(horizontal: false, vertical: true)
@@ -50,14 +50,14 @@ struct GenerateView: View {
                     DispatchQueue.main.async { self.error = error }
                 }
             } label: {
-                Text("Generate GPG Key")
+                Text("Make My Keys")
                     .font(.title3)
                     .foregroundColor(KeetaColor.black)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 20)
             }
             .alert(isPresented: .init(get: { error != nil }, set: { error = $0 ? error : nil })) {
-                Alert(title: Text("Agent Error"), message: Text(error ?? ""), dismissButton: .default(Text("Ok")))
+                Alert(title: Text("Signet couldn't finish"), message: Text(error ?? ""), dismissButton: .default(Text("Ok")))
             }
             .buttonStyle(.plain)
             .background(KeetaColor.red)

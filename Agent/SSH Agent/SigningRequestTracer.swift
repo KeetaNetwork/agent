@@ -4,8 +4,9 @@ import Security
 
 final class SigningRequestTracer {
     
-    static func processName(from fileHandleReader: FileHandleReader) -> String? {
-        let firstInfo = process(from: fileHandleReader.pidOfConnectedProcess)
+    /// The app behind the process that connected to Signet's socket, for the Touch ID prompt.
+    static func processName(pid: Int32) -> String? {
+        let firstInfo = process(from: pid)
 
         var provenance = SigningRequestProvenance(root: firstInfo)
         while NSRunningApplication(processIdentifier: provenance.origin.pid) == nil && provenance.origin.parentPID != nil {

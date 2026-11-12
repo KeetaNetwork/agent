@@ -40,7 +40,8 @@ final class GPGUtil {
         return .init(id: keyInformation.keyId, value: publicKey, fullName: keyInformation.name, email: keyInformation.email, isUploaded: true)
     }
     
-    static func createGpgKey(fullName: String, email: String) async throws -> GPGKey {
+    /// - Parameter signCommits: Whether git signs commits with this key; a new setup signs in SSH's format instead.
+    static func createGpgKey(fullName: String, email: String, signCommits: Bool) async throws -> GPGKey {
         try await CommandExecutor.execute(.killGPGConf)
         
         let keyGrip = try await CommandExecutor.execute(.setupGPGAgent).grap(Grabber.keyGrip)
@@ -66,7 +67,11 @@ final class GPGUtil {
         
         let publicKey = try await CommandExecutor.execute(.exportGPGKey(keyId: keyId)).grap(Grabber.gpgKey)
         
-        try await conifgureGit(with: keyId, email: email)
+        if signCommits {
+            try await conifgureGit(with: keyId, email: email)
+        } else {
+            try await CommandExecutor.execute(.gitSetEmail(email: email))
+        }
         
         return .init(id: keyId, value: publicKey, fullName: fullName, email: email, isUploaded: false)
     }
