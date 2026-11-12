@@ -1,4 +1,3 @@
-import SignetKit
 import SwiftUI
 
 struct GithubButton: View {
@@ -6,12 +5,14 @@ struct GithubButton: View {
     @State private var showLogoutConfirmation = false
     
     let user: GithubUser?
+    /// Starts a sign-in and gives the page to open.
+    let signIn: () -> URL
     let logout: () -> Void
     
     var body: some View {
         Button(action: {
             if user == nil {
-                openURL(GitHubKeys.signInURL)
+                openURL(signIn())
             } else {
                 showLogoutConfirmation = true
             }
@@ -55,8 +56,8 @@ struct GithubButton: View {
 struct GithubButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            GithubButton(user: nil) {}
-            GithubButton(user: .preview) {}
+            GithubButton(user: nil, signIn: { URL(string: "https://example.com")! }) {}
+            GithubButton(user: .preview, signIn: { URL(string: "https://example.com")! }) {}
         }
     }
 }
