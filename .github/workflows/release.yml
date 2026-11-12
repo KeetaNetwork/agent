@@ -101,6 +101,8 @@ jobs:
           printf '%s' "$MAC_DEVELOPER_ID_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/developer-id.p12"
           security import "$RUNNER_TEMP/developer-id.p12" -k "$keychain" -P "$MAC_DEVELOPER_ID_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           rm -f "$RUNNER_TEMP/developer-id.p12"
+          # What the .p12 held, before Apple's intermediates join the keychain below.
+          p12_certs=$(security find-certificate -a "$keychain" | awk -F'"' '/"labl"/ { print $4 }')
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" > /dev/null
           security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
           # Apple's Developer ID intermediates, which GitHub's runners may lack: without the one a
@@ -114,9 +116,7 @@ jobs:
           if [ -z "$identity" ]; then
             # Names and the reason each is refused (expired, not trusted), never the key.
             security find-identity -p codesigning "$keychain" || true
-            for cn in $(security find-certificate -a "$keychain" | awk -F'"' '/"labl"/ { gsub(/ /, "_", $4); print $4 }'); do
-              echo "Certificate in the .p12: ${cn//_/ }"
-            done
+            while IFS= read -r cn; do echo "Certificate in the .p12: $cn"; done <<< "$p12_certs"
             echo "::error::MAC_DEVELOPER_ID_CERTIFICATE holds no valid Developer ID Application identity for team 2BG69HN56W (the lines above say why)"
             exit 1
           fi
