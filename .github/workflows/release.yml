@@ -42,6 +42,7 @@ jobs:
         env:
           HAS_CERTIFICATE: ${{ secrets.MAC_DEVELOPER_ID_CERTIFICATE != '' && secrets.MAC_DEVELOPER_ID_CERTIFICATE_PASSWORD != '' }}
           HAS_PROFILE: ${{ secrets.SIGNET_PROVISIONING_PROFILE != '' }}
+          NOTARY_ISSUER_ID: ${{ secrets.MAC_NOTARY_ISSUER_ID || vars.MAC_NOTARY_ISSUER_ID }}
           HAS_NOTARY: ${{ secrets.MAC_NOTARY_KEY != '' && (secrets.MAC_NOTARY_KEY_ID != '' || vars.MAC_NOTARY_KEY_ID != '') && (secrets.MAC_NOTARY_ISSUER_ID != '' || vars.MAC_NOTARY_ISSUER_ID != '') }}
         run: |
           missing=()
@@ -50,6 +51,12 @@ jobs:
           [ "$HAS_NOTARY" = true ] || missing+=("MAC_NOTARY_KEY, MAC_NOTARY_KEY_ID and MAC_NOTARY_ISSUER_ID")
           if [ ${#missing[@]} -gt 0 ]; then
             for m in "${missing[@]}"; do echo "::error::The release environment has no $m (RELEASING.md)"; done
+            exit 1
+          fi
+          # notarytool takes the Issuer ID only as a UUID; say so before the build, not after it.
+          issuer=$(printf '%s' "$NOTARY_ISSUER_ID" | tr -d '[:space:]')
+          if ! [[ "$issuer" =~ ^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$ ]]; then
+            echo "::error::MAC_NOTARY_ISSUER_ID isn't the Issuer ID: that is a UUID such as 57246542-96fe-1a63-e053-0824d011072a, shown above the keys in App Store Connect"
             exit 1
           fi
           if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -133,6 +140,9 @@ jobs:
           MAC_NOTARY_ISSUER_ID: ${{ secrets.MAC_NOTARY_ISSUER_ID || vars.MAC_NOTARY_ISSUER_ID }}
         run: |
           umask 077
+          # A pasted ID often brings a space or a line break with it.
+          MAC_NOTARY_KEY_ID=$(printf '%s' "$MAC_NOTARY_KEY_ID" | tr -d '[:space:]')
+          MAC_NOTARY_ISSUER_ID=$(printf '%s' "$MAC_NOTARY_ISSUER_ID" | tr -d '[:space:]')
           printf '%s' "$MAC_NOTARY_KEY" > "$RUNNER_TEMP/notary.p8"
           notarize() {
             xcrun notarytool submit "$1" --key "$RUNNER_TEMP/notary.p8" --key-id "$MAC_NOTARY_KEY_ID" \
