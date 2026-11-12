@@ -7,13 +7,8 @@ import Foundation
 /// The device's keys on the person's GitHub account. GitHub verifies SSH-signed commits only against
 /// an account's signing keys, a list apart from the keys that authenticate, so the SSH key goes on
 /// both (signet-update-brief.md step 5).
+/// The token comes from `GitHubSignIn`.
 public struct GitHubKeys: Sendable {
-  /// Signing in to GitHub through Keeta's OAuth app, with the scopes the calls below need.
-  public static let signInURL = URL(
-    string:
-      "https://agent.keeta.com/api/github/oauth/login?scopes=user,write:public_key,write:gpg_key,write:ssh_signing_key&redirectUrl=https://agent.keeta.com/api/github/oauth/callback"
-  )!
-
   public struct User: Codable, Sendable, Equatable {
     public let username: String
     public let avatarUrl: String

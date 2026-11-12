@@ -4,6 +4,7 @@ struct HeaderView: View {
     
     let user: GithubUser?
     let isReady: Bool
+    let signIn: () -> URL
     let logout: () -> Void
     
     var body: some View {
@@ -15,7 +16,7 @@ struct HeaderView: View {
             Spacer()
             
             if isReady {
-                GithubButton(user: user, logout: logout)
+                GithubButton(user: user, signIn: signIn, logout: logout)
             }
         }
     }
@@ -25,8 +26,8 @@ struct HeaderView: View {
 struct HeaderView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            HeaderView(user: .preview, isReady: false) {}
-            HeaderView(user: .preview, isReady: true) {}
+            HeaderView(user: .preview, isReady: false, signIn: { URL(string: "https://example.com")! }) {}
+            HeaderView(user: .preview, isReady: true, signIn: { URL(string: "https://example.com")! }) {}
         }
     }
 }

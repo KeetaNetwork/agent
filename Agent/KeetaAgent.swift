@@ -22,6 +22,10 @@ final class KeetaAgent: ObservableObject {
     @Published private(set) var githubUser: GithubUser?
     /// Whether this app serves the socket, or stands by while another Signet (Workspace for Mac) does.
     @Published private(set) var socketState: SignetSocket.State = .stopped
+    /// Why the last GitHub sign-in didn't sign in, until the person has read it.
+    @Published var githubRefusal: String?
+    /// The GitHub sign-in this app started, whose link back it is waiting for.
+    private var githubSignIn: GitHubSignIn?
     
     let secureEnclave: SecureEnclaveKeyStore
     let storage: Storage
@@ -113,8 +117,27 @@ final class KeetaAgent: ObservableObject {
         }
     }
     
+    /// Starts a GitHub sign-in, through Workspace at app.keeta.ai; the page to open in the browser.
+    func startGitHubSignIn() -> URL {
+        let signIn = GitHubSignIn()
+        githubSignIn = signIn
+        return signIn.url
+    }
+    
     func didReceive(url: URL) {
-        guard let githubToken = url.description.githubToken?.value else { return }
+        guard let outcome = githubSignIn?.outcome(of: url) else {
+            logger.log("Ignored a link that isn't this app's GitHub sign-in.")
+            return
+        }
+        githubSignIn = nil
+        let githubToken: String
+        switch outcome {
+        case .signedIn(let token):
+            githubToken = token
+        case .refused(let words):
+            githubRefusal = words
+            return
+        }
         
         let github = GitHubKeys(token: githubToken)
         let keyTitle = "Signet " + (serialNumber() ?? "Unknown Device")

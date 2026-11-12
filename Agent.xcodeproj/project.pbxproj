@@ -13,7 +13,6 @@
 		02577375291B56A0003E0889 /* GithubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02577374291B56A0003E0889 /* GithubUser.swift */; };
 		026503322920CA4600663A78 /* GenerateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026503312920CA4600663A78 /* GenerateView.swift */; };
 		02780041291A28F000B8BA11 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780040291A28F000B8BA11 /* Color.swift */; };
-		02780047291A539000B8BA11 /* Link.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780046291A539000B8BA11 /* Link.swift */; };
 		0278004A291A615500B8BA11 /* KeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02780049291A615500B8BA11 /* KeyView.swift */; };
 		0278004C291A658B00B8BA11 /* KeetaButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278004B291A658B00B8BA11 /* KeetaButton.swift */; };
 		0278004E291A65F000B8BA11 /* GithubButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0278004D291A65F000B8BA11 /* GithubButton.swift */; };
@@ -69,7 +68,6 @@
 		026503312920CA4600663A78 /* GenerateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateView.swift; sourceTree = "<group>"; };
 		02780040291A28F000B8BA11 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		02780045291A4FB200B8BA11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		02780046291A539000B8BA11 /* Link.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Link.swift; sourceTree = "<group>"; };
 		02780049291A615500B8BA11 /* KeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyView.swift; sourceTree = "<group>"; };
 		0278004B291A658B00B8BA11 /* KeetaButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeetaButton.swift; sourceTree = "<group>"; };
 		0278004D291A65F000B8BA11 /* GithubButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GithubButton.swift; sourceTree = "<group>"; };
@@ -142,7 +140,6 @@
 			isa = PBXGroup;
 			children = (
 				02780040291A28F000B8BA11 /* Color.swift */,
-				02780046291A539000B8BA11 /* Link.swift */,
 				02D9C589291E139600586CEB /* AgentSpacing.swift */,
 				AEB42B1D2928336500DE6CB6 /* StatusBarController.swift */,
 				AEDA2D9F2A8ED82700562674 /* SerialNumber.swift */,
@@ -441,7 +438,6 @@
 				02780054291A68F500B8BA11 /* GPGKeyHeader.swift in Sources */,
 				AEDA2DA02A8ED82700562674 /* SerialNumber.swift in Sources */,
 				02780054291A68F500B8BA11 /* GPGKeyHeader.swift in Sources */,
-				02780047291A539000B8BA11 /* Link.swift in Sources */,
 				AE75C4F02922CDC80087A584 /* SigningRequestTracer.swift in Sources */,
 				02577373291B5687003E0889 /* AgentUser.swift in Sources */,
 				0278004C291A658B00B8BA11 /* KeetaButton.swift in Sources */,
