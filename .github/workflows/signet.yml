@@ -19,15 +19,27 @@ jobs:
       - run: apt-get update && apt-get install -y --no-install-recommends openssh-client git
       - run: swift test --parallel
 
-  # The same tests on a Mac, and the Secure Enclave key compiled.
-  # Without --parallel, which only spreads XCTest cases over processes (SignetKit's tests are
-  # Swift Testing, parallel anyway) and prints nothing until the end.
+  # The same tests on a Mac, and the Secure Enclave key compiled. SignetKit's tests are Swift
+  # Testing, so XCTest is skipped; a run that takes over five minutes is stuck, so the job prints
+  # where each thread of the test process is waiting, and fails.
   macos:
     runs-on: macos-15
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - run: swift test
+      - run: swift build --build-tests
+      - name: swift test
+        run: |
+          swift test --skip-build --disable-xctest > test.log 2>&1 &
+          pid=$!
+          for _ in $(seq 300); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
+          if kill -0 "$pid" 2>/dev/null; then
+            cat test.log
+            for p in $(pgrep -f SignetKitPackageTests); do sample "$p" 2 -mayDie -file /dev/stdout || true; done
+            exit 1
+          fi
+          cat test.log
+          wait "$pid"
 
   # The Signet app builds on SignetKit (unsigned: signing needs the team's certificate).
   app:
