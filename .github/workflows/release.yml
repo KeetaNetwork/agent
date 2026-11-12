@@ -103,9 +103,21 @@ jobs:
           rm -f "$RUNNER_TEMP/developer-id.p12"
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" > /dev/null
           security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          # Apple's Developer ID intermediates, which GitHub's runners may lack: without the one a
+          # certificate was issued through (G2 for certificates made since 2019), its chain doesn't
+          # reach Apple's root and codesign won't use it. A copy that isn't Apple's chains nowhere.
+          for ca in DeveloperIDCA DeveloperIDG2CA; do
+            curl -fsSL -o "$RUNNER_TEMP/$ca.cer" "https://www.apple.com/certificateauthority/$ca.cer"
+            security import "$RUNNER_TEMP/$ca.cer" -k "$keychain" > /dev/null 2>&1 || true
+          done
           identity=$(security find-identity -v -p codesigning "$keychain" | awk '/"Developer ID Application: .*\(2BG69HN56W\)"/ { print $2; exit }')
           if [ -z "$identity" ]; then
-            echo "::error::MAC_DEVELOPER_ID_CERTIFICATE holds no Developer ID Application identity for team 2BG69HN56W"
+            # Names and the reason each is refused (expired, not trusted), never the key.
+            security find-identity -p codesigning "$keychain" || true
+            for cn in $(security find-certificate -a "$keychain" | awk -F'"' '/"labl"/ { gsub(/ /, "_", $4); print $4 }'); do
+              echo "Certificate in the .p12: ${cn//_/ }"
+            done
+            echo "::error::MAC_DEVELOPER_ID_CERTIFICATE holds no valid Developer ID Application identity for team 2BG69HN56W (the lines above say why)"
             exit 1
           fi
           echo "IDENTITY=$identity" >> "$GITHUB_ENV"
