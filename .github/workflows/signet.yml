@@ -76,5 +76,5 @@ jobs:
           done < <(find "$app" -type f -print0)
           [ "$unsigned" = 0 ]
           codesign -d --entitlements - --xml "$app" > "$RUNNER_TEMP/entitlements.plist"
-          plutil -extract keychain-access-groups.0 raw "$RUNNER_TEMP/entitlements.plist" | grep -qx '2BG69HN56W.com.keeta.agent'
-          plutil -extract com.apple.application-identifier raw "$RUNNER_TEMP/entitlements.plist" | grep -qx '2BG69HN56W.com.keeta.agent'
+          /usr/libexec/PlistBuddy -c 'Print :keychain-access-groups:0' "$RUNNER_TEMP/entitlements.plist" | grep -qx '2BG69HN56W.com.keeta.agent'
+          /usr/libexec/PlistBuddy -c 'Print :com.apple.application-identifier' "$RUNNER_TEMP/entitlements.plist" | grep -qx '2BG69HN56W.com.keeta.agent'

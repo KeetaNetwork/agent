@@ -1,0 +1,168 @@
+name: Release
+
+# Signet, built from main on GitHub's macOS runner, signed with Keeta, Inc's Developer ID, notarized
+# by Apple, tagged and published as a GitHub Release with its disk image (RELEASING.md). Run by hand
+# with the version people will see. It waits for approval in the `release` environment, where the
+# certificate, the provisioning profile and the notary key live; they are never repository secrets,
+# so no other branch's run can read them.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version people see, such as 2.0.0
+        required: true
+
+permissions:
+  contents: read
+
+# One release at a time.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    environment: release
+    runs-on: macos-15
+    # Two notarizations take a few minutes each, sometimes longer when Apple is busy.
+    timeout-minutes: 90
+    permissions:
+      # The tag and the GitHub Release.
+      contents: write
+    env:
+      VERSION: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      # The commit that was dispatched, and so approved: never one that landed while it waited.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check the environment
+        env:
+          HAS_CERTIFICATE: ${{ secrets.MAC_DEVELOPER_ID_CERTIFICATE != '' && secrets.MAC_DEVELOPER_ID_CERTIFICATE_PASSWORD != '' }}
+          HAS_PROFILE: ${{ secrets.SIGNET_PROVISIONING_PROFILE != '' }}
+          HAS_NOTARY: ${{ secrets.MAC_NOTARY_KEY != '' && vars.MAC_NOTARY_KEY_ID != '' && vars.MAC_NOTARY_ISSUER_ID != '' }}
+        run: |
+          missing=()
+          [ "$HAS_CERTIFICATE" = true ] || missing+=("MAC_DEVELOPER_ID_CERTIFICATE and its password")
+          [ "$HAS_PROFILE" = true ] || missing+=("SIGNET_PROVISIONING_PROFILE")
+          [ "$HAS_NOTARY" = true ] || missing+=("MAC_NOTARY_KEY, MAC_NOTARY_KEY_ID and MAC_NOTARY_ISSUER_ID")
+          if [ ${#missing[@]} -gt 0 ]; then
+            for m in "${missing[@]}"; do echo "::error::The release environment has no $m (RELEASING.md)"; done
+            exit 1
+          fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::The version must look like 2.0.0, not $VERSION"
+            exit 1
+          fi
+          # A version is released once.
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" > /dev/null 2>&1; then
+            echo "::error::v$VERSION is already tagged: run it again with a later version"
+            exit 1
+          fi
+          echo "APP=$RUNNER_TEMP/Signet.app" >> "$GITHUB_ENV"
+          # macOS compares builds: after Keeta Agent's last (9), and only up from there.
+          echo "BUILD=$((9 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+      # Built unsigned, then signed below with the Developer ID: scripts/sign-app.sh, which CI checks
+      # on every pull request.
+      - name: Build
+        run: |
+          xcodebuild -project Agent.xcodeproj -scheme Agent -configuration Release -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/build" CODE_SIGNING_ALLOWED=NO \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" build
+          rm -rf "$APP"
+          ditto "$RUNNER_TEMP/build/Build/Products/Release/Agent.app" "$APP"
+      # The Developer ID profile lets the app use its keychain group, where the Secure Enclave key is.
+      - name: Add the provisioning profile
+        env:
+          SIGNET_PROVISIONING_PROFILE: ${{ secrets.SIGNET_PROVISIONING_PROFILE }}
+        run: |
+          printf '%s' "$SIGNET_PROVISIONING_PROFILE" | base64 --decode > "$APP/Contents/embedded.provisionprofile"
+          security cms -D -i "$APP/Contents/embedded.provisionprofile" > "$RUNNER_TEMP/profile.plist"
+          id=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.application-identifier' "$RUNNER_TEMP/profile.plist")
+          if [ "$id" != 2BG69HN56W.com.keeta.agent ]; then
+            echo "::error::SIGNET_PROVISIONING_PROFILE is for $id, not 2BG69HN56W.com.keeta.agent"
+            exit 1
+          fi
+      # A keychain of the run's own, deleted at the end, holds the certificate while codesign uses it.
+      - name: Sign
+        env:
+          MAC_DEVELOPER_ID_CERTIFICATE: ${{ secrets.MAC_DEVELOPER_ID_CERTIFICATE }}
+          MAC_DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.MAC_DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+        run: |
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          password=$(uuidgen)
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 5400 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          echo "KEYCHAIN=$keychain" >> "$GITHUB_ENV"
+          umask 077
+          printf '%s' "$MAC_DEVELOPER_ID_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/developer-id.p12"
+          security import "$RUNNER_TEMP/developer-id.p12" -k "$keychain" -P "$MAC_DEVELOPER_ID_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          rm -f "$RUNNER_TEMP/developer-id.p12"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" > /dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          identity=$(security find-identity -v -p codesigning "$keychain" | awk '/"Developer ID Application: .*\(2BG69HN56W\)"/ { print $2; exit }')
+          if [ -z "$identity" ]; then
+            echo "::error::MAC_DEVELOPER_ID_CERTIFICATE holds no Developer ID Application identity for team 2BG69HN56W"
+            exit 1
+          fi
+          echo "IDENTITY=$identity" >> "$GITHUB_ENV"
+          scripts/sign-app.sh "$APP" "$identity" "$keychain"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+      # Apple checks the app and returns a ticket that is stapled to it, so Gatekeeper opens it without
+      # asking Apple again; the disk image people download is notarized the same way.
+      - name: Notarize
+        env:
+          MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
+          MAC_NOTARY_KEY_ID: ${{ vars.MAC_NOTARY_KEY_ID }}
+          MAC_NOTARY_ISSUER_ID: ${{ vars.MAC_NOTARY_ISSUER_ID }}
+        run: |
+          umask 077
+          printf '%s' "$MAC_NOTARY_KEY" > "$RUNNER_TEMP/notary.p8"
+          notarize() {
+            xcrun notarytool submit "$1" --key "$RUNNER_TEMP/notary.p8" --key-id "$MAC_NOTARY_KEY_ID" \
+              --issuer "$MAC_NOTARY_ISSUER_ID" --wait --timeout 40m --output-format json > "$RUNNER_TEMP/notary.json" || true
+            status=$(node -p 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).status' "$RUNNER_TEMP/notary.json" 2> /dev/null || echo unknown)
+            if [ "$status" != Accepted ]; then
+              cat "$RUNNER_TEMP/notary.json"
+              id=$(node -p 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).id' "$RUNNER_TEMP/notary.json" 2> /dev/null || true)
+              if [ -n "$id" ]; then
+                xcrun notarytool log "$id" --key "$RUNNER_TEMP/notary.p8" --key-id "$MAC_NOTARY_KEY_ID" --issuer "$MAC_NOTARY_ISSUER_ID" || true
+              fi
+              echo "::error::Apple didn't notarize $(basename "$1"): $status"
+              exit 1
+            fi
+          }
+          out="$RUNNER_TEMP/release"
+          rm -rf "$out" && mkdir -p "$out"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "$RUNNER_TEMP/notarize.zip"
+          notarize "$RUNNER_TEMP/notarize.zip"
+          xcrun stapler staple "$APP"
+          spctl --assess --type execute --verbose=2 "$APP"
+          # What people download: the app beside a link to Applications.
+          dmg="$RUNNER_TEMP/dmg"
+          rm -rf "$dmg" && mkdir -p "$dmg"
+          ditto "$APP" "$dmg/Signet.app"
+          ln -s /Applications "$dmg/Applications"
+          hdiutil create -volname Signet -srcfolder "$dmg" -fs HFS+ -format UDZO "$out/Signet-$VERSION.dmg"
+          codesign --timestamp --keychain "$KEYCHAIN" --sign "$IDENTITY" "$out/Signet-$VERSION.dmg"
+          notarize "$out/Signet-$VERSION.dmg"
+          xcrun stapler staple "$out/Signet-$VERSION.dmg"
+          (cd "$out" && shasum -a 256 "Signet-$VERSION.dmg" > "Signet-$VERSION.dmg.sha256")
+          rm -f "$RUNNER_TEMP/notary.p8"
+      # The tag names the commit that was built; the notes are RELEASE_NOTES.md's newest section.
+      - name: Publish
+        run: |
+          awk '/^## /{ n++ } n == 1' RELEASE_NOTES.md > "$RUNNER_TEMP/notes.md"
+          gh release create "v$VERSION" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Signet $VERSION" --notes-file "$RUNNER_TEMP/notes.md" \
+            "$RUNNER_TEMP/release/Signet-$VERSION.dmg" "$RUNNER_TEMP/release/Signet-$VERSION.dmg.sha256"
+          url=$(gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" --json url --jq .url)
+          echo "Signet $VERSION ($BUILD) is out: $url" >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove the keychain and keys
+        if: always()
+        run: |
+          if [ -n "${KEYCHAIN:-}" ]; then security delete-keychain "$KEYCHAIN" || true; fi
+          rm -f "$RUNNER_TEMP/developer-id.p12" "$RUNNER_TEMP/notary.p8"
