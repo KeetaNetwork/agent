@@ -35,7 +35,17 @@ jobs:
           for _ in $(seq 300); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
           if kill -0 "$pid" 2>/dev/null; then
             cat test.log
-            for p in $(pgrep -f SignetKitPackageTests); do sample "$p" 2 -mayDie -file /dev/stdout || true; done
+            ps -axo pid,ppid,stat,etime,command | grep -v ' ps -axo'
+            tests=$(pgrep -f SignetKitPackageTests | head -1)
+            descendants() { for c in $(pgrep -P "$1"); do echo "$c"; descendants "$c"; done; }
+            for c in $(descendants "$tests"); do
+              echo "::group::process $c"
+              ps -o pid,stat,command -p "$c" || true
+              lsof -p "$c" || true
+              sample "$c" 1 -mayDie -file /dev/stdout | sed -n '/^Call graph/,/^Total number/p' || true
+              echo "::endgroup::"
+            done
+            sample "$tests" 2 -mayDie -file /dev/stdout | sed -n '/^Call graph/,/^Total number/p' || true
             exit 1
           fi
           cat test.log
