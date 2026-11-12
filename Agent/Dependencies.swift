@@ -1,4 +1,5 @@
 import Foundation
+import SignetKit
 
 class Dependencies {
     static let all = Dependencies()
