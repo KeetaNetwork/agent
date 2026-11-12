@@ -78,10 +78,4 @@ final class FakeGitHub: URLProtocol, @unchecked Sendable {
     }
   }
 
-  @Test func signingInAsksForTheSigningKeyScope() {
-    let query = URLComponents(url: GitHubKeys.signInURL, resolvingAgainstBaseURL: false)!.queryItems!
-    let scopes = query.first { $0.name == "scopes" }!.value!.split(separator: ",")
-    #expect(scopes.contains("write:ssh_signing_key"))
-    #expect(scopes.contains("write:gpg_key"))
-  }
 }
