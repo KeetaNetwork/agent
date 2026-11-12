@@ -29,6 +29,7 @@ public final class SignetSocket: @unchecked Sendable {
   private var watcher: DispatchSourceTimer?
   private var _state = State.stopped
   private var _onChange: (@Sendable (State) -> Void)?
+  private let notifications = DispatchQueue(label: "signet.socket.state")
 
   public init(path: String, agent: SSHAgent) {
     self.path = path
@@ -172,7 +173,7 @@ public final class SignetSocket: @unchecked Sendable {
       _state = s
       return _onChange
     }
-    if let notify { DispatchQueue.global().async { notify(s) } }
+    if let notify { notifications.async { notify(s) } }
     return s
   }
 
@@ -218,7 +219,7 @@ public final class SignetSocket: @unchecked Sendable {
   }
 }
 
-/// Accepts connections on a listening socket until stopped, answering each on its own queue, so a
+/// Accepts connections on a listening socket until stopped, answering each on its own thread, so a
 /// request waiting on Touch ID holds up no other.
 final class SocketLoop: @unchecked Sendable {
   private let listener: Int32
@@ -247,7 +248,12 @@ final class SocketLoop: @unchecked Sendable {
           var on: Int32 = 1
           setsockopt(c, SOL_SOCKET, SO_NOSIGPIPE, &on, socklen_t(MemoryLayout<Int32>.size))
         #endif
-        DispatchQueue.global().async { [agent] in Self.serve(c, agent: agent) }
+        // A thread of its own, not a global queue: on macOS, GCD adds no thread to a global
+        // queue while the process's other threads look busy (Swift concurrency's, blocked on
+        // I/O), and the request would wait, unanswered, behind them.
+        let connection = Thread { [agent] in Self.serve(c, agent: agent) }
+        connection.name = "signet.connection"
+        connection.start()
       }
       done.signal()
     }
