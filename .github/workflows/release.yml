@@ -42,7 +42,7 @@ jobs:
         env:
           HAS_CERTIFICATE: ${{ secrets.MAC_DEVELOPER_ID_CERTIFICATE != '' && secrets.MAC_DEVELOPER_ID_CERTIFICATE_PASSWORD != '' }}
           HAS_PROFILE: ${{ secrets.SIGNET_PROVISIONING_PROFILE != '' }}
-          HAS_NOTARY: ${{ secrets.MAC_NOTARY_KEY != '' && vars.MAC_NOTARY_KEY_ID != '' && vars.MAC_NOTARY_ISSUER_ID != '' }}
+          HAS_NOTARY: ${{ secrets.MAC_NOTARY_KEY != '' && (secrets.MAC_NOTARY_KEY_ID != '' || vars.MAC_NOTARY_KEY_ID != '') && (secrets.MAC_NOTARY_ISSUER_ID != '' || vars.MAC_NOTARY_ISSUER_ID != '') }}
         run: |
           missing=()
           [ "$HAS_CERTIFICATE" = true ] || missing+=("MAC_DEVELOPER_ID_CERTIFICATE and its password")
@@ -116,8 +116,9 @@ jobs:
       - name: Notarize
         env:
           MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
-          MAC_NOTARY_KEY_ID: ${{ vars.MAC_NOTARY_KEY_ID }}
-          MAC_NOTARY_ISSUER_ID: ${{ vars.MAC_NOTARY_ISSUER_ID }}
+          # Either a secret or a variable: they are identifiers, not keys.
+          MAC_NOTARY_KEY_ID: ${{ secrets.MAC_NOTARY_KEY_ID || vars.MAC_NOTARY_KEY_ID }}
+          MAC_NOTARY_ISSUER_ID: ${{ secrets.MAC_NOTARY_ISSUER_ID || vars.MAC_NOTARY_ISSUER_ID }}
         run: |
           umask 077
           printf '%s' "$MAC_NOTARY_KEY" > "$RUNNER_TEMP/notary.p8"
