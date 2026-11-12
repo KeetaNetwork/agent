@@ -191,6 +191,7 @@ public final class SignetSocket: @unchecked Sendable {
       let fd = socket(AF_UNIX, SOCK_STREAM, 0)
     #endif
     guard fd >= 0 else { throw SignetError.system("socket", errno) }
+    closeOnExec(fd)
     #if canImport(Darwin)
       var on: Int32 = 1
       setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, socklen_t(MemoryLayout<Int32>.size))
@@ -241,6 +242,7 @@ final class SocketLoop: @unchecked Sendable {
         guard poll(&p, 1, 100) > 0 else { continue }
         let c = accept(listener, nil, nil)
         guard c >= 0 else { continue }
+        closeOnExec(c)
         #if canImport(Darwin)
           var on: Int32 = 1
           setsockopt(c, SOL_SOCKET, SO_NOSIGPIPE, &on, socklen_t(MemoryLayout<Int32>.size))
@@ -322,4 +324,11 @@ private func Glibc_or_Darwin_send(_ fd: Int32, _ p: UnsafeRawPointer, _ n: Int, 
   #else
     Darwin.send(fd, p, n, flags)
   #endif
+}
+
+/// Keeps `fd` out of processes started later (git, ssh-keygen, GnuPG and its agent). On macOS a
+/// child otherwise inherits every descriptor: one holding the socket keeps it answering after
+/// Signet quits, and one holding a pipe's end keeps its reader from ever seeing the end.
+func closeOnExec(_ fd: Int32) {
+  _ = fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC)
 }

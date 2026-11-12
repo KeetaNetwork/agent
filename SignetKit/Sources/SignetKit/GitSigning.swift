@@ -96,6 +96,9 @@ public struct GitSigning: Sendable {
     env["PATH"] = env["PATH"] ?? "/usr/bin:/bin"
     p.environment = env
     let out = Pipe()
+    // A git started meanwhile by another thread must not hold this pipe open (see closeOnExec).
+    closeOnExec(out.fileHandleForReading.fileDescriptor)
+    closeOnExec(out.fileHandleForWriting.fileDescriptor)
     p.standardOutput = out
     p.standardError = FileHandle.nullDevice
     try p.run()

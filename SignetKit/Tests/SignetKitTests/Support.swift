@@ -69,6 +69,13 @@ func run(
   p.environment = env
   if let folder { p.currentDirectoryURL = URL(fileURLWithPath: folder) }
   let out = Pipe(), err = Pipe(), inp = Pipe()
+  // Tests run in parallel, and on macOS a process started by one would otherwise inherit another's
+  // pipes and hold them open, so neither reader ever sees the end.
+  for pipe in [out, err, inp] {
+    for fd in [pipe.fileHandleForReading.fileDescriptor, pipe.fileHandleForWriting.fileDescriptor] {
+      _ = fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC)
+    }
+  }
   p.standardOutput = out
   p.standardError = err
   p.standardInput = inp
