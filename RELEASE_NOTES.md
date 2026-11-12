@@ -2,7 +2,7 @@
 
 ## 2.1: GitHub sign-in through Workspace
 
-- **Signing in to GitHub goes through Workspace** at app.keeta.ai, because agent.keeta.com has been retired. Copies of Signet older than 2.1 can no longer connect GitHub, so update before you connect again. Keys you already added stay on your GitHub account.
+- **Signing in to GitHub goes through Workspace** at app.keeta.ai, because agent.keeta.com has been retired. Signet now has its own GitHub App, which can reach only your email addresses and your SSH, GPG and SSH signing keys, so GitHub asks you to approve Signet once more. Copies of Signet older than 2.1 can no longer connect GitHub. Keys you already added stay on your GitHub account.
 - **A refused sign-in says why.** For example, it tells you when you didn't allow Signet on GitHub, or when GitHub couldn't finish the sign-in.
 - **Only the sign-in this Mac started connects GitHub**, so a link someone else sends you can't add your keys to their account.
 
