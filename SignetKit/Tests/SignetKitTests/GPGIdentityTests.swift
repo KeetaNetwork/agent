@@ -15,6 +15,14 @@ import Testing
     #expect(id.userIDs == ["Signet Test <signet-test@example.com>"])
   }
 
+  /// Keeta Agent may have kept the short id; it names the same key.
+  @Test func theShortKeyIDFindsTheKeyToo() throws {
+    let listing = String(decoding: try fixture("gpg-list-keys.txt"), as: UTF8.self)
+    let id = try GPGIdentity(listing: listing, keyID: "481016dc", armoredPublicKey: "")
+    #expect(id.keyID == "78A10AF1481016DC")
+    #expect(id.fingerprint == "B4A41EC0AA59F17DD78EF28078A10AF1481016DC")
+  }
+
   @Test func aKeyNotInTheListingIsAnError() throws {
     let listing = String(decoding: try fixture("gpg-list-keys.txt"), as: UTF8.self)
     #expect(throws: (any Error).self) { try GPGIdentity(listing: listing, keyID: "0000000000000000", armoredPublicKey: "") }

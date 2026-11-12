@@ -10,9 +10,9 @@ public struct GPGIdentity: Codable, Sendable, Equatable {
   public let userIDs: [String]
   public let armoredPublicKey: String
 
-  /// Reads the key `keyID` (long id) from `gpg --with-colons --list-keys` output.
+  /// Reads the key `keyID` (its long id, or the short one it ends with) from `gpg --with-colons --list-keys` output.
   public init(listing: String, keyID: String, armoredPublicKey: String) throws {
-    var found: (created: Date, fingerprint: String?, uids: [String])?
+    var found: (id: String, created: Date, fingerprint: String?, uids: [String])?
     var inKey = false
     for line in listing.split(separator: "\n") {
       let f = line.split(separator: ":", omittingEmptySubsequences: false).map(String.init)
@@ -22,8 +22,8 @@ public struct GPGIdentity: Codable, Sendable, Equatable {
           inKey = false
           continue
         }
-        inKey = f.count > 5 && f[4].uppercased() == keyID.uppercased()
-        if inKey, let t = TimeInterval(f[5]) { found = (Date(timeIntervalSince1970: t), nil, []) }
+        inKey = f.count > 5 && !keyID.isEmpty && f[4].uppercased().hasSuffix(keyID.uppercased())
+        if inKey, let t = TimeInterval(f[5]) { found = (f[4].uppercased(), Date(timeIntervalSince1970: t), nil, []) }
       case "fpr" where inKey && found?.fingerprint == nil:
         if f.count > 9 { found?.fingerprint = f[9] }
       case "uid" where inKey:
@@ -35,7 +35,7 @@ public struct GPGIdentity: Codable, Sendable, Equatable {
       }
     }
     guard let found, let fingerprint = found.fingerprint else { throw SignetError.malformed }
-    self.keyID = keyID.uppercased()
+    self.keyID = found.id
     self.fingerprint = fingerprint
     self.created = found.created
     self.userIDs = found.uids
