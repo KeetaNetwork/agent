@@ -14,7 +14,8 @@ import Testing
     let dir = try shortTemporaryFolder()
     defer { try? FileManager.default.removeItem(atPath: dir) }
     let path = dir + "/agent.sock"
-    let first = SignetSocket(path: path, agent: SSHAgent(keys: { [MemoryKey()] }))
+    let firstKey = MemoryKey()
+    let first = SignetSocket(path: path, agent: SSHAgent(keys: { [firstKey] }))
     let key = MemoryKey()
     let second = SignetSocket(path: path, agent: SSHAgent(keys: { [key] }))
     defer { first.stop(); second.stop() }
@@ -88,7 +89,8 @@ import Testing
     let dir = try shortTemporaryFolder()
     defer { try? FileManager.default.removeItem(atPath: dir) }
     let legacy = SignetPaths.keetaAgentSocket(home: dir)
-    let old = SignetSocket(path: legacy, agent: SSHAgent(keys: { [MemoryKey()] }))
+    let oldKey = MemoryKey()
+    let old = SignetSocket(path: legacy, agent: SSHAgent(keys: { [oldKey] }))
     defer { old.stop() }
     try old.start()
     let oldLine = try listed(legacy)
