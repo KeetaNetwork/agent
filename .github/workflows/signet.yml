@@ -12,6 +12,7 @@ jobs:
   # Everything but the Secure Enclave, against the real OpenSSH and git tools.
   linux:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     container: swift:6.1-noble
     steps:
       - uses: actions/checkout@v4
@@ -19,15 +20,19 @@ jobs:
       - run: swift test --parallel
 
   # The same tests on a Mac, and the Secure Enclave key compiled.
+  # Without --parallel, which only spreads XCTest cases over processes (SignetKit's tests are
+  # Swift Testing, parallel anyway) and prints nothing until the end.
   macos:
     runs-on: macos-15
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - run: swift test --parallel
+      - run: swift test
 
   # The Signet app builds on SignetKit (unsigned: signing needs the team's certificate).
   app:
     runs-on: macos-15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - run: xcodebuild -project Agent.xcodeproj -scheme Agent -configuration Release -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
