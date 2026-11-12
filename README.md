@@ -48,7 +48,7 @@ Signet eliminates the hassle of managing external devices, each with its own lif
 
 #### 1. Direct Download
 
-Download the latest release from the [Releases Page](https://github.com/KeetaPay/agent/releases)
+Download the latest release from the [Releases Page](https://github.com/KeetaNetwork/signet/releases). Each release is signed with Keeta, Inc's Developer ID and notarized by Apple ([RELEASING.md](RELEASING.md)).
 
 #### 2. Setup
 

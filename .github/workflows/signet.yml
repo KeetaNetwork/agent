@@ -57,4 +57,24 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: xcodebuild -project Agent.xcodeproj -scheme Agent -configuration Release -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
+      - run: xcodebuild -project Agent.xcodeproj -scheme Agent -configuration Release -destination 'platform=macOS' -derivedDataPath "$RUNNER_TEMP/build" CODE_SIGNING_ALLOWED=NO build
+      # The release workflow's signing, ad hoc since CI has no certificate: notarization refuses an
+      # app unless every Mach-O file in it is signed with the hardened runtime, and Signet finds its
+      # Secure Enclave key only through the keychain group in its entitlements.
+      - name: Sign the app the way a release does
+        run: |
+          app="$RUNNER_TEMP/build/Build/Products/Release/Agent.app"
+          scripts/sign-app.sh "$app" -
+          codesign --verify --deep --strict --verbose=2 "$app"
+          unsigned=0
+          while IFS= read -r -d '' f; do
+            file -b "$f" | grep -q Mach-O || continue
+            if ! codesign -dv "$f" 2>&1 | grep -q 'flags=.*runtime'; then
+              echo "::error::Not signed with the hardened runtime: ${f#$app/}"
+              unsigned=1
+            fi
+          done < <(find "$app" -type f -print0)
+          [ "$unsigned" = 0 ]
+          codesign -d --entitlements - --xml "$app" > "$RUNNER_TEMP/entitlements.plist"
+          /usr/libexec/PlistBuddy -c 'Print :keychain-access-groups:0' "$RUNNER_TEMP/entitlements.plist" | grep -qx '2BG69HN56W.com.keeta.agent'
+          /usr/libexec/PlistBuddy -c 'Print :com.apple.application-identifier' "$RUNNER_TEMP/entitlements.plist" | grep -qx '2BG69HN56W.com.keeta.agent'
