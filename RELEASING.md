@@ -20,8 +20,8 @@ In the repository's Settings, Environments, make an environment named `release`,
 | `MAC_DEVELOPER_ID_CERTIFICATE_PASSWORD` | Secret | The password the `.p12` was exported with. |
 | `SIGNET_PROVISIONING_PROFILE` | Secret | A **Developer ID** provisioning profile for the App ID `com.keeta.agent`, base64-encoded (`base64 -i Signet.provisionprofile`). It lets Signet use its keychain group, `2BG69HN56W.com.keeta.agent`, where the Secure Enclave key is. Make it at developer.apple.com, Certificates, IDs & Profiles, Profiles, +, Developer ID. |
 | `MAC_NOTARY_KEY` | Secret | An App Store Connect API key's `.p8` file, whole, with the Developer role, which `notarytool` notarizes with. |
-| `MAC_NOTARY_KEY_ID` | Variable | That key's Key ID. |
-| `MAC_NOTARY_ISSUER_ID` | Variable | The Issuer ID shown above App Store Connect's keys. |
+| `MAC_NOTARY_KEY_ID` | Variable or secret | That key's Key ID. |
+| `MAC_NOTARY_ISSUER_ID` | Variable or secret | The Issuer ID shown above App Store Connect's keys. |
 
 ## What CI checks on every pull request
 
