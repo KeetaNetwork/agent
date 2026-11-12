@@ -41,6 +41,9 @@ final class KeetaAgent: ObservableObject {
     func setup() async throws {
         try createDirectories()
         
+        // Link the bundled GnuPG first: the key check below runs its gpg-connect-agent.
+        try await createSymlinks()
+        
         await MainActor.run { gpgKey = storage.gpgKey }
         await checkIfGPGKeyExists()
         
@@ -49,8 +52,6 @@ final class KeetaAgent: ObservableObject {
         await MainActor.run { githubUser = storage.githubUser }
         
         serveSocket()
-        
-        try await createSymlinks()
         
         await saveGPGIdentityIfNeeded()
         
